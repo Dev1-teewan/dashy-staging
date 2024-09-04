@@ -8,7 +8,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 npm install
 ```
 
-Create an .env.local file with the required configs, see the example file for reference, and contact dev1@teewan.xyz for the credentials 
+Create an `.env.local` file with the required configs, see the example file for reference, and contact `dev1@teewan.xyz` for the credentials 
 
 ## Getting Started
 
