@@ -12,7 +12,7 @@ const MenuList = () => {
     {
       key: "2",
       icon: <UserOutlined size={18} />,
-      label: "Testing 2",
+      label: "Testing 3",
     },
     {
       key: "3",
