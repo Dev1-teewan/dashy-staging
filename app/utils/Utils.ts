@@ -1,31 +1,37 @@
+import { PublicKey } from "@solana/web3.js";
 import { sampleData } from "../pages/SampleData";
 import { sampleData2 } from "../pages/SampleData2";
 
-export const fetchAssets = async () => {
+export const fetchAssets = async (address: string) => {
   try {
-    // const response = await fetch(
-    //   `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       jsonrpc: "2.0",
-    //       id: "asset-id",
-    //       method: "searchAssets",
-    //       params: {
-    //         ownerAddress: "4CEWqVTmpDxML9s5nEin8c9cDv6rDEiYMp2trcmDuEpZ",
-    //         tokenType: "fungible",
-    //         displayOptions: {
-    //           showNativeBalance: true,
-    //           showGrandTotal: true,
-    //         },
-    //       },
-    //     }),
-    //   }
-    // ).then((response) => response.json());
-    const response = sampleData;
+    let response;
+    if (address !== "") {
+      let publicKey = new PublicKey(address);
+      response = await fetch(
+        `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "asset-id",
+            method: "searchAssets",
+            params: {
+              ownerAddress: address, // 4CEWqVTmpDxML9s5nEin8c9cDv6rDEiYMp2trcmDuEpZ, FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX
+              tokenType: "fungible",
+              displayOptions: {
+                showNativeBalance: true,
+                showGrandTotal: true,
+              },
+            },
+          }),
+        }
+      ).then((response) => response.json());
+    } else {
+      response = sampleData;
+    }
     let mappedResponse = mapResponseAssets(response);
     return {
       status: "success",
@@ -33,6 +39,7 @@ export const fetchAssets = async () => {
       totalValue: mappedResponse.totalValue,
     };
   } catch (error) {
+    console.log("Error fetching assets", error);
     return { status: "error", data: error };
   }
 };

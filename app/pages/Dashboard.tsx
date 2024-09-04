@@ -1,16 +1,35 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { fetchAssets } from "../utils/Utils";
 import { Col, Collapse, Row, Table } from "antd";
 import { columns } from "../components/TableColumns";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-const Dashboard = async () => {
-  const response = await fetchAssets();
-  let dataSource = [];
-  let totalValue = 0;
+const Dashboard = () => {
+  const router = useRouter();
+  const [dataSource, setDataSource] = useState([]);
+  const [totalValue, setTotalValue] = useState(0);
 
-  if (response.status === "success") {
-    dataSource = response.dataSource;
-    totalValue = response.totalValue;
-  }
+  const searchParams = useSearchParams();
+  const publicKey = searchParams.get("watching") ?? "";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetchAssets(publicKey);
+  
+      if (response.status === "success") {
+        setDataSource(response.dataSource);
+        setTotalValue(response.totalValue);
+      } else {
+        console.log("Error fetching assets", response);
+        router.push("/");
+      }
+    };
+  
+    fetchData();
+  }, [publicKey, router]);
 
   return (
     <div className="max-w-[75vw] w-full">

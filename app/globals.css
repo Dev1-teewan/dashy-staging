@@ -31,3 +31,17 @@ body {
     text-wrap: balance;
   }
 }
+
+.custom-button {
+  background-color: #003628;
+  color: #06d6a0;
+  border: none;
+  font-weight: bold;
+  text-align: center;
+  width: 8rem;
+}
+
+.custom-button:hover {
+  background-color: #06d6a0 !important;
+  color: #000000 !important;
+}

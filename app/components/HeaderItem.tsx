@@ -1,6 +1,7 @@
 import { Button } from "antd";
 // import dynamic from "next/dynamic";
 import { SettingFilled } from "@ant-design/icons";
+import { ConnectDropdown } from "./ConnectDropdown";
 
 // // To avoid Hydration Mismatch Error
 // const WalletMultiButtonDynamic = dynamic(
@@ -20,9 +21,7 @@ const HeaderItem = () => {
           icon={<SettingFilled />}
         ></Button>
 
-        <Button className="bg-[#003628] text-[#06d6a0] hover:!text-[#000000] hover:!bg-[#06d6a0] border-none font-bold text-center w-32">
-          <span>Connect</span>
-        </Button>
+        <ConnectDropdown />
 
         {/* <WalletMultiButtonDynamic /> */}
       </div>
