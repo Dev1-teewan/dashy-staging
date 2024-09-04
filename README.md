@@ -1,9 +1,16 @@
-# dashy
+# Dashy
 A place to write some bombass code
 
 Test
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+## Installation
+```
+npm install
+```
+
+Create an .env.local file with the required configs, see the example file for reference, and contact dev1@teewan.xyz for the credentials 
 
 ## Getting Started
 
