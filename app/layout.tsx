@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import AntLayout from "./components/AntLayout";
 import ThemeProvider from "./components/ThemeProvider";
 import AppWalletProvider from "./components/AppWalletProvider";
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppWalletProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <AntLayout>{children}</AntLayout>
+          </ThemeProvider>
         </AppWalletProvider>
       </body>
     </html>
