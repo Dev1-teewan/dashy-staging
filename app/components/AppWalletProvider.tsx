@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { clusterApiUrl } from "@solana/web3.js";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import {
   ConnectionProvider,
   WalletProvider,
@@ -24,6 +25,7 @@ export default function AppWalletProvider({
     () => [
       // manually add any legacy wallet adapters here
       // new UnsafeBurnerWalletAdapter(),
+      new SolflareWalletAdapter(),
     ],
     []
   );

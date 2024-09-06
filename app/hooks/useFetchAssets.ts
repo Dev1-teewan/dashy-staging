@@ -4,11 +4,15 @@ import { message } from "antd";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchAssets, fetchTransactions } from "../utils/HeliusRPC";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 export const useFetchAssets = (type: string) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const publicKey = searchParams.get("watching") ?? "";
+
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
+  const address = publicKey?.toBase58() || searchParams.get("watching") || "";
 
   const [dataSource, setDataSource] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
@@ -18,7 +22,7 @@ export const useFetchAssets = (type: string) => {
   useEffect(() => {
     const fetchData = async () => {
       if (type === "balance") {
-        const response = await fetchAssets(publicKey);
+        const response = await fetchAssets(address);
         if (response.status === "success") {
           setDataSource(response.dataSource);
           setTotalValue(response.totalValue);
@@ -27,7 +31,7 @@ export const useFetchAssets = (type: string) => {
           router.push("/");
         }
       } else if (type === "transactions") {
-        const response = await fetchTransactions(publicKey);
+        const response = await fetchTransactions(address);
 
         if (response.status === "success") {
           console.log(response.transactions);
@@ -40,7 +44,7 @@ export const useFetchAssets = (type: string) => {
     };
 
     fetchData();
-  }, [publicKey, router, messageApi, type]);
+  }, [address, router, messageApi, type]);
 
   // Return data conditionally based on type
   return type === "balance"

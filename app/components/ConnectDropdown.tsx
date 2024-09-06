@@ -34,7 +34,7 @@ export function ConnectDropdown({}) {
             <Input name="address" placeholder="Sol Address" />
             <Divider style={{ margin: 0 }} />
             <div className="mt-2 w-full">
-              <Button className="custom-button !w-full" htmlType="submit">
+              <Button className="custom-button" htmlType="submit">
                 Watch New Wallet
               </Button>
             </div>

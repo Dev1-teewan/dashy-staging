@@ -32,16 +32,20 @@ body {
   }
 }
 
-.custom-button {
+.custom-button,
+button.wallet-adapter-button-trigger {
   background-color: #003628;
   color: #06d6a0;
   border: none;
   font-weight: bold;
   text-align: center;
   width: 8rem;
+  width: 100%;
+  height: 32px;
 }
 
-.custom-button:hover {
+.custom-button:hover,
+button.wallet-adapter-button-trigger:hover {
   background-color: #06d6a0 !important;
   color: #000000 !important;
 }
