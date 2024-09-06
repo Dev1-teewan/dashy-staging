@@ -1,12 +1,99 @@
-import { PublicKey } from "@solana/web3.js";
-import { sampleData } from "../pages/SampleData";
-import { sampleData2 } from "../pages/SampleData2";
+import { sampleData } from "./SampleBalance";
+import { sampleData2 } from "./SampleBalance2";
+import { SampleTxn } from "./SampleTxn";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+
+export const fetchTransactions = async (address: string) => {
+  try {
+    let response;
+    if (address !== "") {
+      new PublicKey(address);
+
+      response = await fetch(
+        `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then((response) => response.json());
+    } else {
+      response = SampleTxn;
+    }
+    let mappedResponse = mapResponseTxn(response, address);
+    return {
+      status: "success",
+      transactions: mappedResponse,
+    };
+  } catch (error) {
+    console.log("Error fetching assets", error);
+    return { status: "error", data: error };
+  }
+};
+
+const mapResponseTxn = (data: any, address: string) => {
+  // Filter to only include transfer transactions
+  let filteredData = data.filter((txn: any) => txn.type === "TRANSFER");
+  console.log(filteredData);
+
+  // Map the filtered data to the required DataType
+  let mappedData = filteredData.map((txn: any, index: number) => {
+    // Determine if the transaction is a native transfer or a token transfer
+    const isNativeTransfer =
+      txn.nativeTransfers && txn.nativeTransfers.length > 0;
+    const isTokenTransfer = txn.tokenTransfers && txn.tokenTransfers.length > 0;
+
+    // Initialize from and to addresses
+    let fromAddress = "";
+    let toAddress = "";
+    let amount = 0;
+
+    // Handle native transfers
+    if (isNativeTransfer) {
+      const nativeTransfer = txn.nativeTransfers[0]; // Assuming there's only one transfer
+      fromAddress = nativeTransfer.fromUserAccount;
+      toAddress = nativeTransfer.toUserAccount;
+      amount = nativeTransfer.amount / LAMPORTS_PER_SOL;
+    }
+
+    // Issue when send multiple account
+
+    // Handle token transfers
+    if (isTokenTransfer) {
+      const tokenTransfer = txn.tokenTransfers[0]; // Assuming there's only one transfer
+      fromAddress = tokenTransfer.fromUserAccount;
+      toAddress = tokenTransfer.toUserAccount;
+      amount = tokenTransfer.tokenAmount;
+    }
+
+    return {
+      key: index.toString(),
+      timestamp: txn.timestamp,
+      txnID: txn.signature,
+      platform: "Solana",
+      fee: txn.feePayer === address ? txn.fee / LAMPORTS_PER_SOL : 0,
+      fromAddress,
+      toAddress,
+      outgoing: amount,
+      ingoing: 0,
+      type: fromAddress === address ? "Send" : "Receive",
+      transferType: isNativeTransfer
+        ? "Native"
+        : isTokenTransfer
+        ? "Token"
+        : "Unknown",
+    };
+  });
+
+  return mappedData;
+};
 
 export const fetchAssets = async (address: string) => {
   try {
     let response;
     if (address !== "") {
-      let publicKey = new PublicKey(address);
+      new PublicKey(address);
       response = await fetch(
         `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
         {

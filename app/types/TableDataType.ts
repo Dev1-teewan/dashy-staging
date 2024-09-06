@@ -1,4 +1,4 @@
-export interface DataType {
+export interface balanceDataType {
   key: string;
   asset: {
     icon: string;
@@ -12,4 +12,17 @@ export interface DataType {
     color: string;
   };
   value: string;
+}
+
+export interface transactionDataType {
+  key: string;
+  timestamp: string;
+  txnID: string;
+  platform: string;
+  fee: number;
+  fromAddress: string;
+  toAddress: string;
+  ingoing: number;
+  outgoing: number;
+  transferType: "Native" | "Token" | "Unknown";
 }
