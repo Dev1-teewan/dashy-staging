@@ -49,3 +49,19 @@ button.wallet-adapter-button-trigger:hover {
   background-color: #06d6a0 !important;
   color: #000000 !important;
 }
+
+.ant-select-selector {
+  background-color: #141414 !important;
+  border: 1px solid #202020 !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: #1f1f1f !important;
+}
+
+.ant-select-selection-item {
+  color: #d46b08 !important;
+  background: #fff7e6 !important;
+  border-color: #ffd591 !important;
+  margin: 2px 4px !important;
+}

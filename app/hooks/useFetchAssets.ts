@@ -10,13 +10,19 @@ export const useFetchAssets = (type: string) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { connection } = useConnection();
+  // const { connection } = useConnection();
   const { publicKey } = useWallet();
   const address = publicKey?.toBase58() || searchParams.get("watching") || "";
 
+  // Balance
   const [dataSource, setDataSource] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
+
+  // Transactions
   const [transactions, setTransactions] = useState([]);
+  const [topAddresses, setTopAddresses] = useState<
+    { key: string; address: string }[]
+  >([]);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
@@ -32,10 +38,10 @@ export const useFetchAssets = (type: string) => {
         }
       } else if (type === "transactions") {
         const response = await fetchTransactions(address);
-
         if (response.status === "success") {
-          console.log(response.transactions);
+          console.log(response.topAddresses);
           setTransactions(response.transactions);
+          setTopAddresses(response.topAddresses || []);
         } else {
           messageApi.error("Invalid wallet address or no transactions found");
           router.push("/");
@@ -49,5 +55,5 @@ export const useFetchAssets = (type: string) => {
   // Return data conditionally based on type
   return type === "balance"
     ? { dataSource, totalValue, contextHolder }
-    : { transactions, contextHolder };
+    : { transactions, topAddresses, contextHolder };
 };

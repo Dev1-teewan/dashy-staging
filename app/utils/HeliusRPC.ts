@@ -5,11 +5,11 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 export const fetchTransactions = async (address: string) => {
   try {
-    let response;
+    let mappedResponse, topAddresses;
     if (address !== "") {
       new PublicKey(address);
 
-      response = await fetch(
+      const response = await fetch(
         `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
         {
           method: "GET",
@@ -18,13 +18,23 @@ export const fetchTransactions = async (address: string) => {
           },
         }
       ).then((response) => response.json());
+      mappedResponse = mapResponseTxn(response, address);
+      topAddresses = mapResponseTopAddresses(mappedResponse, address);
     } else {
-      response = SampleTxn;
+      const response = SampleTxn;
+      mappedResponse = mapResponseTxn(
+        response,
+        "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
+      );
+      topAddresses = mapResponseTopAddresses(
+        mappedResponse,
+        "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
+      );
     }
-    let mappedResponse = mapResponseTxn(response, address);
     return {
       status: "success",
       transactions: mappedResponse,
+      topAddresses,
     };
   } catch (error) {
     console.log("Error fetching assets", error);
@@ -32,7 +42,7 @@ export const fetchTransactions = async (address: string) => {
   }
 };
 
-const mapResponseTxn = (data: any, address: string) => {
+const mapResponseTxn = (data: any, targetAddress: string) => {
   // Filter to only include transfer transactions
   let filteredData = data.filter((txn: any) => txn.type === "TRANSFER");
   console.log(filteredData);
@@ -51,20 +61,32 @@ const mapResponseTxn = (data: any, address: string) => {
 
     // Handle native transfers
     if (isNativeTransfer) {
-      const nativeTransfer = txn.nativeTransfers[0]; // Assuming there's only one transfer
-      fromAddress = nativeTransfer.fromUserAccount;
-      toAddress = nativeTransfer.toUserAccount;
-      amount = nativeTransfer.amount / LAMPORTS_PER_SOL;
-    }
+      const nativeTransfer = txn.nativeTransfers.find(
+        (transfer: any) =>
+          transfer.fromUserAccount === targetAddress ||
+          transfer.toUserAccount === targetAddress
+      );
 
-    // Issue when send multiple account
+      if (nativeTransfer) {
+        fromAddress = nativeTransfer.fromUserAccount;
+        toAddress = nativeTransfer.toUserAccount;
+        amount = nativeTransfer.amount / LAMPORTS_PER_SOL;
+      }
+    }
 
     // Handle token transfers
     if (isTokenTransfer) {
-      const tokenTransfer = txn.tokenTransfers[0]; // Assuming there's only one transfer
-      fromAddress = tokenTransfer.fromUserAccount;
-      toAddress = tokenTransfer.toUserAccount;
-      amount = tokenTransfer.tokenAmount;
+      const tokenTransfer = txn.tokenTransfers.find(
+        (transfer: any) =>
+          transfer.fromUserAccount === targetAddress ||
+          transfer.toUserAccount === targetAddress
+      );
+
+      if (tokenTransfer) {
+        fromAddress = tokenTransfer.fromUserAccount;
+        toAddress = tokenTransfer.toUserAccount;
+        amount = tokenTransfer.tokenAmount;
+      }
     }
 
     return {
@@ -72,12 +94,12 @@ const mapResponseTxn = (data: any, address: string) => {
       timestamp: txn.timestamp,
       txnID: txn.signature,
       platform: "Solana",
-      fee: txn.feePayer === address ? txn.fee / LAMPORTS_PER_SOL : 0,
+      fee: txn.feePayer === targetAddress ? txn.fee / LAMPORTS_PER_SOL : 0,
       fromAddress,
       toAddress,
       outgoing: amount,
       ingoing: 0,
-      type: fromAddress === address ? "Send" : "Receive",
+      type: fromAddress === targetAddress ? "Send" : "Receive",
       transferType: isNativeTransfer
         ? "Native"
         : isTokenTransfer
@@ -87,6 +109,37 @@ const mapResponseTxn = (data: any, address: string) => {
   });
 
   return mappedData;
+};
+
+const mapResponseTopAddresses = (data: any[], targetAddress: string) => {
+  const addressCount: { [address: string]: number } = {};
+
+  // Iterate over all transactions
+  data.forEach((transaction) => {
+    const { fromAddress, toAddress } = transaction;
+
+    // Add `fromAddress` if it's not the target address
+    if (fromAddress && fromAddress !== targetAddress) {
+      addressCount[fromAddress] = (addressCount[fromAddress] || 0) + 1;
+    }
+
+    // Add `toAddress` if it's not the target address
+    if (toAddress && toAddress !== targetAddress) {
+      addressCount[toAddress] = (addressCount[toAddress] || 0) + 1;
+    }
+  });
+
+  // Sort addresses by their engagement count in descending order
+  const sortedAddresses = Object.entries(addressCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10) // Get the top 10 most engaged addresses
+    .map(([address], index) => ({
+      key: `${index}`, // Set key for each entry
+      address, // Set the address field
+      count: addressCount[address], // Set the count field
+    }));
+
+  return sortedAddresses;
 };
 
 export const fetchAssets = async (address: string) => {

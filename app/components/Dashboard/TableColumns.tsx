@@ -3,10 +3,12 @@
 import { Tag } from "antd";
 import Link from "next/link";
 import Image from "next/image";
+import CustomSelect from "./CustomSelect";
 import type { ColumnsType } from "antd/es/table";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import {
   balanceDataType,
+  topAddressDataType,
   transactionDataType,
 } from "../../types/TableDataType";
 
@@ -87,12 +89,36 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
       <div className="truncate block w-full">{fromAddress}</div>
     ),
   },
-  // {
-  //   title: "Action",
-  //   key: "action",
-  //   width: "120px",
-  //   render: () => <a>Action</a>,
-  // },
+];
+
+export const topAddressColumns: ColumnsType<topAddressDataType> = [
+  {
+    title: "Address",
+    key: "address",
+    dataIndex: "address",
+    render: (address) => (
+      <Link
+        href={`https://solscan.io/address/${address}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="truncate block w-full text-[#06d6a0]"
+      >
+        {address}
+      </Link>
+    ),
+  },
+  {
+    title: "Interaction",
+    width: "205px",
+    key: "count",
+    dataIndex: "count",
+  },
+  {
+    title: "Grouping",
+    width: "310fpx",
+    key: "grouping",
+    render: (_, record) => <CustomSelect address={record.address} />,
+  },
 ];
 
 export const balanceColumns: ColumnsType<balanceDataType> = [

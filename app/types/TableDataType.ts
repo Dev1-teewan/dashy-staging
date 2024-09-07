@@ -26,3 +26,8 @@ export interface transactionDataType {
   outgoing: number;
   transferType: "Native" | "Token" | "Unknown";
 }
+
+export interface topAddressDataType {
+  key: string;
+  address: string;
+}
