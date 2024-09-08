@@ -3,9 +3,14 @@
 import { Tag } from "antd";
 import Link from "next/link";
 import Image from "next/image";
+import copy from "copy-to-clipboard";
 import CustomSelect from "./CustomSelect";
 import type { ColumnsType } from "antd/es/table";
-import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  CopyOutlined,
+} from "@ant-design/icons";
 import {
   balanceDataType,
   topAddressDataType,
@@ -97,21 +102,31 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
     key: "address",
     dataIndex: "address",
     render: (address) => (
-      <Link
-        href={`https://solscan.io/address/${address}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="truncate block w-full text-[#06d6a0]"
-      >
-        {address}
-      </Link>
+      <div className="inline-flex gap-4">
+        <Link
+          href={`https://solscan.io/address/${address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="truncate block w-full text-[#06d6a0]"
+        >
+          {address}
+        </Link>
+        <CopyOutlined onClick={() => copy(address)} />
+        {/* Add a tooltip*/}
+      </div>
     ),
   },
+  // {
+  //   title: "Interaction",
+  //   width: "205px",
+  //   key: "count",
+  //   dataIndex: "count",
+  // },
   {
-    title: "Interaction",
+    title: "Balance (USDC)",
     width: "205px",
-    key: "count",
-    dataIndex: "count",
+    key: "balance",
+    dataIndex: "balance",
   },
   {
     title: "Grouping",

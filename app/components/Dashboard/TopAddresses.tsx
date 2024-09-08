@@ -6,10 +6,17 @@ import { topAddressColumns } from "./TableColumns";
 import { BarChartOutlined } from "@ant-design/icons";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 import { topAddressDataType } from "@/app/types/TableDataType";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import { useEffect } from "react";
 
 const columns: ColumnType<topAddressDataType>[] = topAddressColumns;
 
 const TopAddress = () => {
+  const { publicKey } = useWallet();
+  const { connection } = useConnection();
+  const address = publicKey?.toBase58() || "";
+
   const { topAddresses } = useFetchAssets("transactions");
 
   return (
@@ -26,7 +33,7 @@ const TopAddress = () => {
               label: (
                 <div className="text-xl font-bold pl-2">
                   <BarChartOutlined className="pr-3 text-[#06d6a0]" />
-                  Top 10 Engaged Addresses
+                  Top 10 Engaged Addresses with {address}
                 </div>
               ),
               children: (

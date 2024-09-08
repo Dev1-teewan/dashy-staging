@@ -19,14 +19,14 @@ export const fetchTransactions = async (address: string) => {
         }
       ).then((response) => response.json());
       mappedResponse = mapResponseTxn(response, address);
-      topAddresses = mapResponseTopAddresses(mappedResponse, address);
+      topAddresses = await mapResponseTopAddresses(mappedResponse, address);
     } else {
       const response = SampleTxn;
       mappedResponse = mapResponseTxn(
         response,
         "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
       );
-      topAddresses = mapResponseTopAddresses(
+      topAddresses = await mapResponseTopAddresses(
         mappedResponse,
         "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
       );
@@ -110,8 +110,7 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
 
   return mappedData;
 };
-
-const mapResponseTopAddresses = (data: any[], targetAddress: string) => {
+const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   const addressCount: { [address: string]: number } = {};
 
   // Iterate over all transactions
@@ -129,17 +128,75 @@ const mapResponseTopAddresses = (data: any[], targetAddress: string) => {
     }
   });
 
-  // Sort addresses by their engagement count in descending order
+  // Get the top 10 most engaged addresses
   const sortedAddresses = Object.entries(addressCount)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10) // Get the top 10 most engaged addresses
-    .map(([address], index) => ({
-      key: `${index}`, // Set key for each entry
-      address, // Set the address field
-      count: addressCount[address], // Set the count field
-    }));
+    .slice(0, 10); // Get the top 10 most engaged addresses
 
-  return sortedAddresses;
+  // Separate top 3 addresses for balance fetching
+  const top3Addresses = sortedAddresses.slice(0, 6);
+  const remainingAddresses = sortedAddresses.slice(6);
+
+  // Fetch balances for top 3 addresses
+  const top3Balances = await Promise.all(
+    top3Addresses.map(async ([address], index) => {
+      const balance = await getBalanceOnUSDC(address); // Await the balance
+      return {
+        key: `${index}`, // Set key for each entry
+        address, // Set the address field
+        count: addressCount[address], // Set the count field
+        balance, // Set the resolved balance
+      };
+    })
+  );
+
+  // Set balance to 0 for remaining addresses
+  const remainingBalances = remainingAddresses.map(([address], index) => ({
+    key: `${index + 3}`, // Offset the key to avoid duplication
+    address, // Set the address field
+    count: addressCount[address], // Set the count field
+    balance: -1, // Set balance to 0
+  }));
+
+  // Combine the results
+  return [...top3Balances, ...remainingBalances];
+};
+
+const getBalanceOnUSDC = async (targetAddress: string) => {
+  const response = await fetch(
+    `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
+    {
+      method: "POST", // Changed to POST
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "getTokenAccountsByOwner", // Correct method for fetching token accounts
+        params: [
+          targetAddress, // Use the target address passed to the function
+          {
+            mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC mint address
+          },
+          {
+            encoding: "jsonParsed",
+          },
+        ],
+      }),
+    }
+  ).then((response) => response.json());
+
+  console.log(response);
+  // Process the response as needed, for example:
+  const tokenAccounts = response.result.value;
+  const usdcBalance = tokenAccounts.reduce(
+    (acc: number, account: any) =>
+      acc + parseFloat(account.account.data.parsed.info.tokenAmount.uiAmount),
+    0
+  );
+  console.log(usdcBalance);
+  return usdcBalance;
 };
 
 export const fetchAssets = async (address: string) => {

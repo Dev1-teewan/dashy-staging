@@ -7,6 +7,8 @@ const Dashboard = () => {
       <div className="text-left mt-3 mb-7 text-2xl font-bold">Dashboard</div>
       <div className="flex flex-col gap-5">
         <TopAddresses />
+        {/* <TopAddresses /> */}
+
         <Balance />
       </div>
     </div>
