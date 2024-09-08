@@ -133,11 +133,11 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10); // Get the top 10 most engaged addresses
 
-  // Separate top 3 addresses for balance fetching
+  // Separate top 6 addresses for balance fetching
   const top3Addresses = sortedAddresses.slice(0, 6);
   const remainingAddresses = sortedAddresses.slice(6);
 
-  // Fetch balances for top 3 addresses
+  // Fetch balances for top 6 addresses
   const top3Balances = await Promise.all(
     top3Addresses.map(async ([address], index) => {
       const balance = await getBalanceOnUSDC(address); // Await the balance
@@ -152,7 +152,7 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
 
   // Set balance to 0 for remaining addresses
   const remainingBalances = remainingAddresses.map(([address], index) => ({
-    key: `${index + 3}`, // Offset the key to avoid duplication
+    key: `${index + 6}`, // Offset the key to avoid duplication
     address, // Set the address field
     count: addressCount[address], // Set the count field
     balance: -1, // Set balance to 0

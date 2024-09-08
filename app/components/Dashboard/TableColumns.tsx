@@ -3,8 +3,8 @@
 import { Tag } from "antd";
 import Link from "next/link";
 import Image from "next/image";
-import copy from "copy-to-clipboard";
 import CustomSelect from "./CustomSelect";
+import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
 import {
   ArrowLeftOutlined,
@@ -111,8 +111,8 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
         >
           {address}
         </Link>
-        <CopyOutlined onClick={() => copy(address)} />
-        {/* Add a tooltip*/}
+
+        <CopyToClipboard address={address} />
       </div>
     ),
   },
