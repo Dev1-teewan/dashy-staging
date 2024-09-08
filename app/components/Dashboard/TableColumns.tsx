@@ -6,11 +6,7 @@ import Image from "next/image";
 import CustomSelect from "./CustomSelect";
 import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
-import {
-  ArrowLeftOutlined,
-  ArrowRightOutlined,
-  CopyOutlined,
-} from "@ant-design/icons";
+import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import {
   balanceDataType,
   topAddressDataType,
