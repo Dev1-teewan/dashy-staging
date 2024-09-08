@@ -21,9 +21,10 @@ const CustomSelect = ({ address }: { address: string }) => {
   const handleChange = (value: string[]) => {
     if (value.length === 0) {
       const oldStorage = getLocalStorage();
-      delete oldStorage.address;
+      delete oldStorage[address];
+      setLocalStorage(oldStorage);
     } else {
-      const oldStorage = getLocalStorage()[address];
+      const oldStorage = getLocalStorage();
       setLocalStorage({
         ...oldStorage,
         [address]: value.join(","),
