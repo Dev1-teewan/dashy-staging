@@ -1,14 +1,16 @@
+"use client";
+
 import { Button } from "antd";
-// import dynamic from "next/dynamic";
+import dynamic from "next/dynamic";
 import { SettingFilled } from "@ant-design/icons";
 import { ConnectDropdown } from "./ConnectDropdown";
 
-// // To avoid Hydration Mismatch Error
-// const WalletMultiButtonDynamic = dynamic(
-//   async () =>
-//     (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
-//   { ssr: false }
-// );
+// To avoid Hydration Mismatch Error
+const WalletMultiButtonDynamic = dynamic(
+  async () =>
+    (await import("@solana/wallet-adapter-react-ui")).WalletMultiButton,
+  { ssr: false }
+);
 
 const HeaderItem = () => {
   return (
@@ -21,9 +23,9 @@ const HeaderItem = () => {
           icon={<SettingFilled />}
         ></Button>
 
-        <ConnectDropdown />
+        {/* <ConnectDropdown /> */}
 
-        {/* <WalletMultiButtonDynamic /> */}
+        <WalletMultiButtonDynamic className="custom-button"/>
       </div>
     </div>
   );
