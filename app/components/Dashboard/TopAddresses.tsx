@@ -7,8 +7,6 @@ import { BarChartOutlined } from "@ant-design/icons";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 import { topAddressDataType } from "@/app/types/TableDataType";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
-import { useEffect } from "react";
 
 const columns: ColumnType<topAddressDataType>[] = topAddressColumns;
 

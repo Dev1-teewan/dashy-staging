@@ -1,4 +1,5 @@
 import Balance from "../components/Dashboard/Balance";
+// import LedgerComponent from "../components/Dashboard/Test";
 import TopAddresses from "../components/Dashboard/TopAddresses";
 
 const Dashboard = () => {
@@ -7,7 +8,7 @@ const Dashboard = () => {
       <div className="text-left mt-3 mb-7 text-2xl font-bold">Dashboard</div>
       <div className="flex flex-col gap-5">
         <TopAddresses />
-        {/* <TopAddresses /> */}
+        {/* <LedgerComponent /> */}
 
         <Balance />
       </div>
