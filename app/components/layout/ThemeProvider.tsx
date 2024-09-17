@@ -13,6 +13,8 @@ export default function ThemeProvider({
           colorText: "#FFFFFF",
           colorBgBase: "#000000",
           colorLinkHover: "#06d6a0",
+          colorBorder: "#06d6a0",
+          colorTextDescription: "#f1f1f1",
         },
         components: {
           Button: {

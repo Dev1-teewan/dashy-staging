@@ -3,19 +3,64 @@
 import { Tag } from "antd";
 import Link from "next/link";
 import Image from "next/image";
-import copy from "copy-to-clipboard";
 import CustomSelect from "./CustomSelect";
+import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
+import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import {
-  ArrowLeftOutlined,
-  ArrowRightOutlined,
-  CopyOutlined,
-} from "@ant-design/icons";
-import {
+  accountGroupDataType,
   balanceDataType,
   topAddressDataType,
   transactionDataType,
 } from "../../types/TableDataType";
+
+// Extend the column type to add an optional `editable` field
+// Create a type by extending each column type with an `editable` property
+export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
+  editable?: boolean;
+};
+
+export const accountGroupColumns: EditableColumnType[] = [
+  {
+    title: "Alias",
+    key: "alias",
+    dataIndex: "alias",
+    editable: true,
+  },
+  {
+    title: "Address",
+    key: "address",
+    dataIndex: "address",
+  },
+  {
+    title: "From",
+    key: "from",
+    dataIndex: "from",
+    editable: true,
+  },
+  {
+    title: "To",
+    key: "to",
+    dataIndex: "to",
+    editable: true,
+  },
+  {
+    title: "Purpose",
+    key: "purpose",
+    dataIndex: "purpose",
+    editable: true,
+  },
+  {
+    title: "Balance",
+    key: "balance",
+    dataIndex: "balance",
+  },
+  {
+    title: "Token",
+    key: "token",
+    dataIndex: "token",
+  },
+];
 
 export const transactionColumns: ColumnsType<transactionDataType> = [
   {
@@ -111,8 +156,8 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
         >
           {address}
         </Link>
-        <CopyOutlined onClick={() => copy(address)} />
-        {/* Add a tooltip*/}
+
+        <CopyToClipboard address={address} />
       </div>
     ),
   },
@@ -130,7 +175,7 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
   },
   {
     title: "Grouping",
-    width: "310fpx",
+    width: "310px",
     key: "grouping",
     render: (_, record) => <CustomSelect address={record.address} />,
   },

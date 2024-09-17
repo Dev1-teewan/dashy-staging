@@ -10,6 +10,7 @@ import {
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 // import { UnsafeBurnerWalletAdapter } from "@solana/wallet-adapter-wallets";
+// import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 
 // Default styles that can be overridden by your app
 require("@solana/wallet-adapter-react-ui/styles.css");
@@ -26,6 +27,7 @@ export default function AppWalletProvider({
       // manually add any legacy wallet adapters here
       // new UnsafeBurnerWalletAdapter(),
       new SolflareWalletAdapter(),
+      // new LedgerWalletAdapter(),
     ],
     []
   );
