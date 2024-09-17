@@ -1,9 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import AntLayout from "./components/AntLayout";
-import ThemeProvider from "./components/ThemeProvider";
-import AppWalletProvider from "./components/AppWalletProvider";
+import AntLayout from "./components/layout/AntLayout";
+import ThemeProvider from "./components/layout/ThemeProvider";
+import AppWalletProvider from "./components/layout/AppWalletProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 

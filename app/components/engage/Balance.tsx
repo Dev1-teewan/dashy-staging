@@ -1,8 +1,8 @@
 "use client";
 
-import { balanceColumns } from "./TableColumns";
 import { Col, Collapse, Row, Table } from "antd";
 import { CreditCardFilled } from "@ant-design/icons";
+import { balanceColumns } from "../features/TableColumns";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 
 const Balance = () => {

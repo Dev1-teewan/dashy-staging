@@ -1,8 +1,12 @@
 "use client";
 
 import { Menu } from "antd";
-import { UserOutlined } from "@ant-design/icons";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  DotChartOutlined,
+  HistoryOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
 
 const MenuList = () => {
   const router = useRouter();
@@ -11,13 +15,19 @@ const MenuList = () => {
   const items = [
     {
       key: "/",
-      icon: <UserOutlined size={18} />,
+      icon: <HomeOutlined size={18} />,
       label: "Dashboard",
       onClick: () => router.push("/"),
     },
     {
+      key: "/engage",
+      icon: <DotChartOutlined size={18} />,
+      label: "Engaged",
+      onClick: () => router.push("/engage"),
+    },
+    {
       key: "/history",
-      icon: <UserOutlined size={18} />,
+      icon: <HistoryOutlined size={18} />,
       label: "Transactions History",
       onClick: () => router.push("/history"),
     },
