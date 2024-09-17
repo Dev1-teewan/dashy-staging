@@ -2,8 +2,8 @@
 
 import { FundFilled } from "@ant-design/icons";
 import { Col, Collapse, Row, Table } from "antd";
-import { transactionColumns } from "../features/TableColumns";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
+import { transactionColumns } from "../features/TableColumns";
 
 const Transactions = () => {
   const { transactions = [] } = useFetchAssets("transactions");

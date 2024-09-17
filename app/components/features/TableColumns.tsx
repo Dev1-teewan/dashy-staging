@@ -8,10 +8,59 @@ import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import {
+  accountGroupDataType,
   balanceDataType,
   topAddressDataType,
   transactionDataType,
 } from "../../types/TableDataType";
+
+// Extend the column type to add an optional `editable` field
+// Create a type by extending each column type with an `editable` property
+export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
+  editable?: boolean;
+};
+
+export const accountGroupColumns: EditableColumnType[] = [
+  {
+    title: "Alias",
+    key: "alias",
+    dataIndex: "alias",
+    editable: true,
+  },
+  {
+    title: "Address",
+    key: "address",
+    dataIndex: "address",
+  },
+  {
+    title: "From",
+    key: "from",
+    dataIndex: "from",
+    editable: true,
+  },
+  {
+    title: "To",
+    key: "to",
+    dataIndex: "to",
+    editable: true,
+  },
+  {
+    title: "Purpose",
+    key: "purpose",
+    dataIndex: "purpose",
+    editable: true,
+  },
+  {
+    title: "Balance",
+    key: "balance",
+    dataIndex: "balance",
+  },
+  {
+    title: "Token",
+    key: "token",
+    dataIndex: "token",
+  },
+];
 
 export const transactionColumns: ColumnsType<transactionDataType> = [
   {
