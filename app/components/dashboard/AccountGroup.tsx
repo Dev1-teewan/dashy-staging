@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
+import { getBalanceOnUSDC } from "@/app/utils/HeliusRPC";
 import { accountGroupColumns } from "../features/TableColumns";
+import { useLocalStorage } from "@solana/wallet-adapter-react";
 import { EditableCell, EditableRow } from "../features/EditableCell";
 import {
   Button,
@@ -19,39 +21,57 @@ import {
 } from "antd";
 
 const AccountGroup = () => {
-  const [dataSource, setDataSource] = useState([
-    {
-      key: "1",
-      alias: "Personal salary",
-      address: "Cnc.....6qw",
-      from: "Kraken company",
-      to: "Raydium, DuY...8sH",
-      purpose: "Yield Farming",
-      balance: 0.12,
-      token: "SOL",
-    },
-  ]);
+  // Initialize dataSource with localStorage
+  const [localSource, setLocalSource] = useLocalStorage<any[]>("itemG1", []);
+  const [dataSource, setDataSource] = useState<any[]>([]);
 
-  const [count, setCount] = useState(2);
-  const [inputAddress, setInputAddress] = useState("");
+  const [count, setCount] = useState<number>(0); // Initialize count state
+  const [inputAddress, setInputAddress] = useState<string>("");
   const [messageApi, contextHolder] = message.useMessage();
 
+  // Sync count with dataSource length on client-side mount
+  useEffect(() => {
+    try {
+      if (localSource.length > 0) {
+        setCount(Math.max(...localSource.map((item: any) => item.key)) + 1);
+      } else {
+        setCount(1);
+      }
+      if (Array.isArray(localSource)) {
+        setDataSource(localSource);
+      } else {
+        setDataSource([]);
+      }
+    } catch {
+      setDataSource([]);
+    }
+  }, [localSource]);
+
+  // Update localStorage when tags change
+  useEffect(() => {
+    // Only set localStorage when tags is updated
+    if (dataSource.length > 0) {
+      setLocalSource(dataSource);
+    }
+  }, [dataSource, setLocalSource]);
+
+  // Handle save operation
   const handleSave = (row: any) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setDataSource(newData);
+    if (index > -1) {
+      newData.splice(index, 1, { ...newData[index], ...row });
+      setDataSource(newData);
+    }
   };
 
+  // Handle delete operation
   const handleDelete = (key: React.Key) => {
     const newData = dataSource.filter((item) => item.key !== key);
     setDataSource(newData);
   };
 
+  // Editable cell and row components
   const components = {
     body: {
       row: EditableRow,
@@ -59,6 +79,7 @@ const AccountGroup = () => {
     },
   };
 
+  // Define columns with editable configuration
   const columns = [
     ...accountGroupColumns.map((col: any) => {
       if (!col.editable) {
@@ -84,28 +105,36 @@ const AccountGroup = () => {
             title="Sure to delete?"
             onConfirm={() => handleDelete(record.key)}
           >
-            <a>Delete</a>
+            <a className="text-[#06d6a0]">Delete</a>
           </Popconfirm>
         ) : null,
     },
   ];
 
-  const handleAdd = () => {
+  // Handle add new row
+  const handleAdd = async () => {
     try {
       const publicKey = new PublicKey(inputAddress);
-      const newData: any = {
+      messageApi.open({
+        type: "loading",
+        content: "Fetching balance..",
+        duration: 0,
+      });
+      const balance = await getBalanceOnUSDC(inputAddress);
+      messageApi.destroy();
+      const newData = {
         key: count,
         alias: "-",
-        address: inputAddress || "-", // Use inputAddress state for the address field
+        address: inputAddress || "-",
         from: "-",
         to: "-",
         purpose: "-",
-        balance: 0,
-        token: "SOL",
+        balance: balance || 0,
+        token: "USDC",
       };
       setDataSource([...dataSource, newData]);
       setCount(count + 1);
-      setInputAddress(""); // Clear the input field after adding the row
+      setInputAddress("");
     } catch (error) {
       messageApi.error("Invalid wallet address");
       console.error("Invalid wallet address", error);
@@ -162,7 +191,7 @@ const AccountGroup = () => {
                       style={{ flex: 1 }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          handleAdd(); // Trigger handleAdd when Enter is pressed
+                          handleAdd();
                         }
                       }}
                     />

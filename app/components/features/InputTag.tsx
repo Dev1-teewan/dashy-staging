@@ -3,6 +3,7 @@
 import type { InputRef } from "antd";
 import { Flex, Input, Tag, theme, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
+import { useLocalStorage } from "@solana/wallet-adapter-react";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 const tagInputStyle: React.CSSProperties = {
@@ -13,13 +14,38 @@ const tagInputStyle: React.CSSProperties = {
 
 const InputTag: React.FC = () => {
   const { token } = theme.useToken();
-  const [tags, setTags] = useState<string[]>(["Client receipts"]);
-  const [inputVisible, setInputVisible] = useState(false);
+
+  const [tags, setTags] = useState<string[]>([]);
+  const [groupTag, setGroupTag] = useLocalStorage("tagG1", "[]");
+
   const [inputValue, setInputValue] = useState("");
+  const [inputVisible, setInputVisible] = useState(false);
   const [editInputIndex, setEditInputIndex] = useState(-1);
   const [editInputValue, setEditInputValue] = useState("");
   const inputRef = useRef<InputRef>(null);
   const editInputRef = useRef<InputRef>(null);
+
+  // Update tags from localStorage
+  useEffect(() => {
+    try {
+      const parsedTags = JSON.parse(groupTag);
+      if (Array.isArray(parsedTags)) {
+        setTags(parsedTags);
+      } else {
+        setTags([]);
+      }
+    } catch {
+      setTags([]);
+    }
+  }, [groupTag]);
+
+  // Update localStorage when tags change
+  useEffect(() => {
+    // Only set localStorage when tags is updated
+    if (tags.length > 0) {
+      setGroupTag(JSON.stringify(tags));
+    }
+  }, [tags, setGroupTag]);
 
   // Focus input when visible
   useEffect(() => {
@@ -30,16 +56,15 @@ const InputTag: React.FC = () => {
 
   // Focus edit input when editing
   useEffect(() => {
-    if (editInputValue) {
+    if (editInputIndex !== null) {
       editInputRef.current?.focus();
     }
-  }, [editInputValue]);
+  }, [editInputIndex]);
 
   // Handle tag removal
   const handleClose = (removedTag: string) => {
     const newTags = tags.filter((tag) => tag !== removedTag);
-    console.log(newTags);
-    setTags(newTags);
+    setTags(newTags); // Update state, which will trigger localStorage update
   };
 
   // Show input field
@@ -55,7 +80,8 @@ const InputTag: React.FC = () => {
   // Confirm new tag input
   const handleInputConfirm = () => {
     if (inputValue && !tags.includes(inputValue)) {
-      setTags([...tags, inputValue]);
+      const newTags = [...tags, inputValue];
+      setTags(newTags); // Update state, which will trigger localStorage update
     }
     setInputVisible(false);
     setInputValue("");
@@ -68,11 +94,13 @@ const InputTag: React.FC = () => {
 
   // Confirm edited tag
   const handleEditInputConfirm = () => {
-    const newTags = [...tags];
-    newTags[editInputIndex] = editInputValue;
-    setTags(newTags);
-    setEditInputIndex(-1);
-    setEditInputValue("");
+    if (editInputIndex !== null) {
+      const newTags = [...tags];
+      newTags[editInputIndex] = editInputValue;
+      setTags(newTags); // Update state, which will trigger localStorage update
+      setEditInputIndex(-1);
+      setEditInputValue("");
+    }
   };
 
   const tagPlusStyle: React.CSSProperties = {
@@ -88,7 +116,7 @@ const InputTag: React.FC = () => {
 
   return (
     <Flex gap="4px 0" wrap className="!h-full">
-      {tags.map<React.ReactNode>((tag, index) => {
+      {tags.map((tag, index) => {
         if (editInputIndex === index) {
           return (
             <Input

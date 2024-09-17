@@ -162,7 +162,7 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   return [...top3Balances, ...remainingBalances];
 };
 
-const getBalanceOnUSDC = async (targetAddress: string) => {
+export const getBalanceOnUSDC = async (targetAddress: string) => {
   const response = await fetch(
     `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
     {
