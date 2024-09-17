@@ -2,9 +2,21 @@
 
 import { useState } from "react";
 import InputTag from "../features/InputTag";
-import { Col, Collapse, Empty, Row, Table } from "antd";
+import { PublicKey } from "@solana/web3.js";
 import { accountGroupColumns } from "../features/TableColumns";
 import { EditableCell, EditableRow } from "../features/EditableCell";
+import {
+  Button,
+  Col,
+  Collapse,
+  Empty,
+  Input,
+  message,
+  Popconfirm,
+  Row,
+  Space,
+  Table,
+} from "antd";
 
 const AccountGroup = () => {
   const [dataSource, setDataSource] = useState([
@@ -16,9 +28,13 @@ const AccountGroup = () => {
       to: "Raydium, DuY...8sH",
       purpose: "Yield Farming",
       balance: 0.12,
-      token: "USDC",
+      token: "SOL",
     },
   ]);
+
+  const [count, setCount] = useState(2);
+  const [inputAddress, setInputAddress] = useState("");
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleSave = (row: any) => {
     const newData = [...dataSource];
@@ -31,6 +47,11 @@ const AccountGroup = () => {
     setDataSource(newData);
   };
 
+  const handleDelete = (key: React.Key) => {
+    const newData = dataSource.filter((item) => item.key !== key);
+    setDataSource(newData);
+  };
+
   const components = {
     body: {
       row: EditableRow,
@@ -38,25 +59,63 @@ const AccountGroup = () => {
     },
   };
 
-  const columns = accountGroupColumns.map((col: any) => {
-    if (!col.editable) {
-      return col;
+  const columns = [
+    ...accountGroupColumns.map((col: any) => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: (record: any) => ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title as string | undefined,
+          handleSave,
+        }),
+      };
+    }),
+    {
+      title: "Operation",
+      dataIndex: "operation",
+      render: (_: any, record: any) =>
+        dataSource.length >= 1 ? (
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <a>Delete</a>
+          </Popconfirm>
+        ) : null,
+    },
+  ];
+
+  const handleAdd = () => {
+    try {
+      const publicKey = new PublicKey(inputAddress);
+      const newData: any = {
+        key: count,
+        alias: "-",
+        address: inputAddress || "-", // Use inputAddress state for the address field
+        from: "-",
+        to: "-",
+        purpose: "-",
+        balance: 0,
+        token: "SOL",
+      };
+      setDataSource([...dataSource, newData]);
+      setCount(count + 1);
+      setInputAddress(""); // Clear the input field after adding the row
+    } catch (error) {
+      messageApi.error("Invalid wallet address");
+      console.error("Invalid wallet address", error);
     }
-    return {
-      ...col,
-      onCell: (record: any) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title as string | undefined,
-        handleSave,
-      }),
-    };
-  });
+  };
 
   return (
     <Row>
       <Col span={24} className="!min-h-0">
+        {contextHolder}
         <Collapse
           ghost
           defaultActiveKey={["1"]}
@@ -92,6 +151,28 @@ const AccountGroup = () => {
                     locale={{ emptyText: <Empty /> }}
                     pagination={false}
                   />
+                  <Space
+                    className="mt-2"
+                    style={{ display: "flex", alignItems: "stretch" }}
+                  >
+                    <Input
+                      value={inputAddress}
+                      onChange={(e) => setInputAddress(e.target.value)}
+                      placeholder="Enter address"
+                      style={{ flex: 1 }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleAdd(); // Trigger handleAdd when Enter is pressed
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={handleAdd}
+                      className="custom-button w-36 mb-2"
+                    >
+                      Add a row
+                    </Button>
+                  </Space>
                 </div>
               ),
             },
