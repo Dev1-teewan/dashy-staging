@@ -2,7 +2,7 @@
 
 import { FundFilled } from "@ant-design/icons";
 import { Col, Collapse, Row, Table } from "antd";
-import { transactionColumns } from "./TableColumns";
+import { transactionColumns } from "../features/TableColumns";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 
 const Transactions = () => {

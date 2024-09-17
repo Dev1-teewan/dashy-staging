@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Layout } from "antd";
+import MenuList from "./MenuList";
+import HeaderItem from "../HeaderItem";
 import Sider from "antd/lib/layout/Sider";
-import MenuList from "../components/MenuList";
-import HeaderItem from "../components/HeaderItem";
 import { Header, Content } from "antd/lib/layout/layout";
 
 const AntLayout = ({ children }: { children: React.ReactNode }) => {

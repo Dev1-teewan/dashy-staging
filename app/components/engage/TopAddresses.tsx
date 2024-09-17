@@ -2,7 +2,7 @@
 
 import type { ColumnType } from "antd/lib/table";
 import { Col, Collapse, Row, Table } from "antd";
-import { topAddressColumns } from "./TableColumns";
+import { topAddressColumns } from "../features/TableColumns";
 import { BarChartOutlined } from "@ant-design/icons";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 import { topAddressDataType } from "@/app/types/TableDataType";

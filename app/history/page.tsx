@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Transactions from "../components/Dashboard/Transactions";
+import Transactions from "../components/engage/Transactions";
 
 const page = () => {
   return (
