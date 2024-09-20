@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
-import { getBalanceOnUSDC } from "@/app/utils/HeliusRPC";
-import { accountGroupColumns } from "../features/TableColumns";
+import { fetchAssets } from "@/app/utils/HeliusRPC";
 import { useLocalStorage } from "@solana/wallet-adapter-react";
 import { EditableCell, EditableRow } from "../features/EditableCell";
+import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
   Button,
   Col,
@@ -21,41 +21,30 @@ import {
 } from "antd";
 
 const AccountGroup = () => {
-  // Initialize dataSource with localStorage
   const [localSource, setLocalSource] = useLocalStorage<any[]>("itemG1", []);
   const [dataSource, setDataSource] = useState<any[]>([]);
-
-  const [count, setCount] = useState<number>(0); // Initialize count state
+  const [count, setCount] = useState<number>(0);
   const [inputAddress, setInputAddress] = useState<string>("");
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Sync count with dataSource length on client-side mount
+  const [expandedRows, setExpandedRows] = useState<string[]>([]); // State to track expanded rows
+  const [addressToken, setAccountToken] = useState<Record<string, []>>({}); // Store balances per address
+
   useEffect(() => {
-    try {
-      if (localSource.length > 0) {
-        setCount(Math.max(...localSource.map((item: any) => item.key)) + 1);
-      } else {
-        setCount(1);
-      }
-      if (Array.isArray(localSource)) {
-        setDataSource(localSource);
-      } else {
-        setDataSource([]);
-      }
-    } catch {
-      setDataSource([]);
+    if (localSource.length > 0) {
+      setCount(Math.max(...localSource.map((item: any) => item.key)) + 1);
+    } else {
+      setCount(1);
     }
+    setDataSource(localSource);
   }, [localSource]);
 
-  // Update localStorage when tags change
   useEffect(() => {
-    // Only set localStorage when tags is updated
     if (dataSource.length > 0) {
       setLocalSource(dataSource);
     }
   }, [dataSource, setLocalSource]);
 
-  // Handle save operation
   const handleSave = (row: any) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
@@ -65,13 +54,11 @@ const AccountGroup = () => {
     }
   };
 
-  // Handle delete operation
   const handleDelete = (key: React.Key) => {
     const newData = dataSource.filter((item) => item.key !== key);
     setDataSource(newData);
   };
 
-  // Editable cell and row components
   const components = {
     body: {
       row: EditableRow,
@@ -79,7 +66,6 @@ const AccountGroup = () => {
     },
   };
 
-  // Define columns with editable configuration
   const columns = [
     ...accountGroupColumns.map((col: any) => {
       if (!col.editable) {
@@ -98,6 +84,7 @@ const AccountGroup = () => {
     }),
     {
       title: "Operation",
+      width: "60px",
       dataIndex: "operation",
       render: (_: any, record: any) =>
         dataSource.length >= 1 ? (
@@ -111,7 +98,6 @@ const AccountGroup = () => {
     },
   ];
 
-  // Handle add new row
   const handleAdd = async () => {
     try {
       const publicKey = new PublicKey(inputAddress);
@@ -120,24 +106,60 @@ const AccountGroup = () => {
         content: "Fetching balance..",
         duration: 0,
       });
-      const balance = await getBalanceOnUSDC(inputAddress);
+
+      const response = await fetchAssets(inputAddress);
       messageApi.destroy();
-      const newData = {
-        key: count,
-        alias: "-",
-        address: inputAddress || "-",
-        from: "-",
-        to: "-",
-        purpose: "-",
-        balance: balance || 0,
-        token: "USDC",
-      };
-      setDataSource([...dataSource, newData]);
-      setCount(count + 1);
-      setInputAddress("");
+
+      messageApi.destroy();
+      if (response.status === "success") {
+        setAccountToken((prev) => ({
+          ...prev,
+          [inputAddress]: response.dataSource,
+        }));
+        // TODO: update balance when expanding row
+        const newData = {
+          key: count,
+          alias: "-",
+          address: inputAddress || "-",
+          from: "-",
+          to: "-",
+          purpose: "-",
+          balance: response.totalValue || 0,
+        };
+        setDataSource([...dataSource, newData]);
+        setExpandedRows((prev) => [...prev, inputAddress]);
+        setCount(count + 1);
+        setInputAddress("");
+      }
     } catch (error) {
       messageApi.error("Invalid wallet address");
       console.error("Invalid wallet address", error);
+    }
+  };
+
+  // Handle row expand event
+  const handleExpand = async (expanded: boolean, record: any) => {
+    if (!expandedRows.includes(record.address) && expanded) {
+      try {
+        messageApi.open({
+          type: "loading",
+          content: "Fetching balance..",
+          duration: 0,
+        });
+        const response = await fetchAssets(record.address);
+        messageApi.destroy();
+
+        if (response.status === "success") {
+          setAccountToken((prev) => ({
+            ...prev,
+            [record.address]: response.dataSource,
+          }));
+          setExpandedRows((prev) => [...prev, record.address]);
+        }
+      } catch (error) {
+        messageApi.error("Failed to fetch balance");
+        console.error("Error fetching balance", error);
+      }
     }
   };
 
@@ -171,14 +193,23 @@ const AccountGroup = () => {
                     </Col>
                   </Row>
                   <Table
-                    components={components}
-                    rowClassName={() => "editable-row"}
-                    bordered
-                    dataSource={dataSource}
-                    columns={columns}
                     className="mt-2"
-                    locale={{ emptyText: <Empty /> }}
+                    bordered={false}
+                    columns={columns}
                     pagination={false}
+                    dataSource={dataSource}
+                    components={components}
+                    locale={{ emptyText: <Empty /> }}
+                    expandable={{
+                      expandedRowRender: (record) => (
+                        <Table
+                          dataSource={addressToken[record.address] || []}
+                          columns={balanceColumns}
+                          pagination={dataSource.length > 10 ? {} : false}
+                        />
+                      ),
+                      onExpand: handleExpand, // Trigger balance fetch on expand
+                    }}
                   />
                   <Space
                     className="mt-2"
@@ -186,9 +217,8 @@ const AccountGroup = () => {
                   >
                     <Input
                       value={inputAddress}
-                      onChange={(e) => setInputAddress(e.target.value)}
                       placeholder="Enter address"
-                      style={{ flex: 1 }}
+                      onChange={(e) => setInputAddress(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           handleAdd();
