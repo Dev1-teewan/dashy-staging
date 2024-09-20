@@ -68,7 +68,7 @@ export const accountGroupColumns: EditableColumnType[] = [
     title: "Balance",
     key: "balance",
     dataIndex: "balance",
-    render: (balance) => <span>$ {balance}</span>,
+    render: (balance) => <span>${balance}</span>,
   },
 ];
 

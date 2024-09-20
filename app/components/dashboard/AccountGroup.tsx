@@ -1,10 +1,7 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
 import { fetchAssets } from "@/app/utils/HeliusRPC";
-import { useLocalStorage } from "@solana/wallet-adapter-react";
 import { EditableCell, EditableRow } from "../features/EditableCell";
 import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
@@ -20,10 +17,27 @@ import {
   Table,
 } from "antd";
 
-const AccountGroup = () => {
-  const [localSource, setLocalSource] = useLocalStorage<any[]>("itemG1", []);
-  const [dataSource, setDataSource] = useState<any[]>([]);
-  const [count, setCount] = useState<number>(0);
+interface GroupData {
+  groupName: string;
+  accounts: any[];
+  tags: string[];
+}
+
+interface AccountGroupProps {
+  groupData: GroupData;
+  groupIndex: number;
+  updateGroup: (index: number, data: GroupData) => void;
+}
+
+const AccountGroup = ({
+  groupData,
+  groupIndex,
+  updateGroup,
+}: AccountGroupProps) => {
+  const [dataSource, setDataSource] = useState<any[]>(groupData.accounts || []);
+  const [tags, setTags] = useState<string[]>(groupData.tags || []);
+  const [count, setCount] = useState<number>(dataSource.length + 1);
+
   const [inputAddress, setInputAddress] = useState<string>("");
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -31,19 +45,24 @@ const AccountGroup = () => {
   const [addressToken, setAccountToken] = useState<Record<string, []>>({}); // Store balances per address
 
   useEffect(() => {
-    if (localSource.length > 0) {
-      setCount(Math.max(...localSource.map((item: any) => item.key)) + 1);
-    } else {
-      setCount(1);
-    }
-    setDataSource(localSource);
-  }, [localSource]);
+    setTags(groupData.tags);
+  }, [groupData.tags]);
+
+  const handleTagsChange = (newTags: string[]) => {
+    setTags((prevTags) => {
+      console.log("prevTags", prevTags);
+      if (JSON.stringify(prevTags) !== JSON.stringify(newTags)) {
+        return newTags;
+      }
+      return prevTags;
+    });
+  };
 
   useEffect(() => {
-    if (dataSource.length > 0) {
-      setLocalSource(dataSource);
+    if (dataSource !== groupData.accounts || tags !== groupData.tags) {
+      updateGroup(groupIndex, { ...groupData, accounts: dataSource, tags });
     }
-  }, [dataSource, setLocalSource]);
+  }, [dataSource, groupData, groupIndex, updateGroup, tags]);
 
   const handleSave = (row: any) => {
     const newData = [...dataSource];
@@ -68,16 +87,14 @@ const AccountGroup = () => {
 
   const columns = [
     ...accountGroupColumns.map((col: any) => {
-      if (!col.editable) {
-        return col;
-      }
+      if (!col.editable) return col;
       return {
         ...col,
         onCell: (record: any) => ({
           record,
           editable: col.editable,
           dataIndex: col.dataIndex,
-          title: col.title as string | undefined,
+          title: col.title,
           handleSave,
         }),
       };
@@ -171,11 +188,15 @@ const AccountGroup = () => {
           ghost
           defaultActiveKey={["1"]}
           className="bg-[#141414] text-base"
-          expandIconPosition="end"
+          // expandIconPosition="end"
           items={[
             {
               key: "1",
-              label: <div className="text-xl font-bold pl-2">Group 1</div>,
+              label: (
+                <div className="text-xl font-bold pl-2">
+                  {groupData.groupName}
+                </div>
+              ),
               children: (
                 <div className="pl-2">
                   <Row>
@@ -189,11 +210,14 @@ const AccountGroup = () => {
                       Group Name:
                     </Col>
                     <Col span={20}>
-                      <InputTag />
+                      <InputTag
+                        initialTags={tags}
+                        onTagsChange={handleTagsChange}
+                      />
                     </Col>
                   </Row>
                   <Table
-                    className="mt-2"
+                    className="mt-4"
                     bordered={false}
                     columns={columns}
                     pagination={false}
@@ -208,7 +232,7 @@ const AccountGroup = () => {
                           pagination={dataSource.length > 10 ? {} : false}
                         />
                       ),
-                      onExpand: handleExpand, // Trigger balance fetch on expand
+                      onExpand: handleExpand,
                     }}
                   />
                   <Space
@@ -219,17 +243,13 @@ const AccountGroup = () => {
                       value={inputAddress}
                       placeholder="Enter address"
                       onChange={(e) => setInputAddress(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleAdd();
-                        }
-                      }}
+                      onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                     />
                     <Button
                       onClick={handleAdd}
                       className="custom-button w-36 mb-2"
                     >
-                      Add a row
+                      Add Watch Address
                     </Button>
                   </Space>
                 </div>
