@@ -15,10 +15,14 @@ export default function ThemeProvider({
           colorLinkHover: "#06d6a0",
           colorBorder: "#06d6a0",
           colorTextDescription: "#f1f1f1",
+          colorTextHeading: "#f1f1f1",
+          colorTextPlaceholder: "#4b5563",
         },
         components: {
           Button: {
             colorPrimary: "#06d6a0",
+            defaultColor: "#fcfcfd",
+            defaultBorderColor: "#fcfcfd",
             algorithm: true,
           },
           Menu: {
@@ -30,6 +34,10 @@ export default function ThemeProvider({
           },
           Table: {
             cellFontSize: 16,
+            expandIconBg: "#003628",
+            headerBg: "#1D1D1D",
+            rowHoverBg: "#262626",
+            rowExpandedBg: "#141414",
           },
         },
       }}

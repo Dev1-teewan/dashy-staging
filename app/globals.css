@@ -65,3 +65,7 @@ button.wallet-adapter-button-trigger:hover {
   border-color: #ffd591 !important;
   margin: 2px 4px !important;
 }
+
+.ant-input {
+  border-color: #003628;
+}
