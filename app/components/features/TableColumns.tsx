@@ -1,8 +1,8 @@
 "use client";
 
-import { Tag } from "antd";
 import Link from "next/link";
 import Image from "next/image";
+import { Tag, Tooltip } from "antd";
 import CustomSelect from "./CustomSelect";
 import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
@@ -23,29 +23,43 @@ export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
 export const accountGroupColumns: EditableColumnType[] = [
   {
     title: "Alias",
+    width: "235px",
     key: "alias",
     dataIndex: "alias",
     editable: true,
   },
   {
     title: "Address",
+    width: "180px",
     key: "address",
     dataIndex: "address",
+    render: (address) => {
+      const shortAddress = `${address.slice(0, 4)}...${address.slice(-4)}`;
+      return (
+        <Tooltip className="inline-flex gap-4" title={address}>
+          <span>{shortAddress}</span>
+          <CopyToClipboard address={address} />
+        </Tooltip>
+      );
+    },
   },
   {
     title: "From",
+    width: "235px",
     key: "from",
     dataIndex: "from",
     editable: true,
   },
   {
     title: "To",
+    width: "235px",
     key: "to",
     dataIndex: "to",
     editable: true,
   },
   {
     title: "Purpose",
+    width: "235px",
     key: "purpose",
     dataIndex: "purpose",
     editable: true,
@@ -54,11 +68,7 @@ export const accountGroupColumns: EditableColumnType[] = [
     title: "Balance",
     key: "balance",
     dataIndex: "balance",
-  },
-  {
-    title: "Token",
-    key: "token",
-    dataIndex: "token",
+    render: (balance) => <span>${balance}</span>,
   },
 ];
 

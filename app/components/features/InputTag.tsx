@@ -12,12 +12,14 @@ const tagInputStyle: React.CSSProperties = {
   marginInlineEnd: 8,
 };
 
-const InputTag: React.FC = () => {
+interface InputTagProps {
+  initialTags: string[];
+  onTagsChange: (tags: string[]) => void;
+}
+
+const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
   const { token } = theme.useToken();
-
   const [tags, setTags] = useState<string[]>([]);
-  const [groupTag, setGroupTag] = useLocalStorage("tagG1", "[]");
-
   const [inputValue, setInputValue] = useState("");
   const [inputVisible, setInputVisible] = useState(false);
   const [editInputIndex, setEditInputIndex] = useState(-1);
@@ -25,27 +27,13 @@ const InputTag: React.FC = () => {
   const inputRef = useRef<InputRef>(null);
   const editInputRef = useRef<InputRef>(null);
 
-  // Update tags from localStorage
   useEffect(() => {
-    try {
-      const parsedTags = JSON.parse(groupTag);
-      if (Array.isArray(parsedTags)) {
-        setTags(parsedTags);
-      } else {
-        setTags([]);
-      }
-    } catch {
-      setTags([]);
-    }
-  }, [groupTag]);
+    setTags(initialTags);
+  }, [initialTags]);
 
-  // Update localStorage when tags change
   useEffect(() => {
-    // Only set localStorage when tags is updated
-    if (tags.length > 0) {
-      setGroupTag(JSON.stringify(tags));
-    }
-  }, [tags, setGroupTag]);
+    onTagsChange(tags);
+  }, [tags, onTagsChange]);
 
   // Focus input when visible
   useEffect(() => {

@@ -45,7 +45,7 @@ export const fetchTransactions = async (address: string) => {
 const mapResponseTxn = (data: any, targetAddress: string) => {
   // Filter to only include transfer transactions
   let filteredData = data.filter((txn: any) => txn.type === "TRANSFER");
-  console.log(filteredData);
+  // console.log(filteredData);
 
   // Map the filtered data to the required DataType
   let mappedData = filteredData.map((txn: any, index: number) => {
@@ -134,8 +134,11 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
     .slice(0, 10); // Get the top 10 most engaged addresses
 
   // Separate top 6 addresses for balance fetching
-  const top3Addresses = sortedAddresses.slice(0, 6);
-  const remainingAddresses = sortedAddresses.slice(6);
+  {
+    /* Limit the RPC Calling rate */
+  }
+  const top3Addresses = sortedAddresses.slice(0, 1);
+  const remainingAddresses = sortedAddresses.slice(1);
 
   // Fetch balances for top 6 addresses
   const top3Balances = await Promise.all(
@@ -152,7 +155,7 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
 
   // Set balance to 0 for remaining addresses
   const remainingBalances = remainingAddresses.map(([address], index) => ({
-    key: `${index + 6}`, // Offset the key to avoid duplication
+    key: `${index + 1}`, // Offset the key to avoid duplication
     address, // Set the address field
     count: addressCount[address], // Set the count field
     balance: -1, // Set balance to 0
@@ -187,7 +190,7 @@ export const getBalanceOnUSDC = async (targetAddress: string) => {
     }
   ).then((response) => response.json());
 
-  console.log(response);
+  // console.log(response);
   // Process the response as needed, for example:
   const tokenAccounts = response.result.value;
   const usdcBalance = tokenAccounts.reduce(
@@ -195,7 +198,7 @@ export const getBalanceOnUSDC = async (targetAddress: string) => {
       acc + parseFloat(account.account.data.parsed.info.tokenAmount.uiAmount),
     0
   );
-  console.log(usdcBalance);
+  // console.log(usdcBalance);
   return usdcBalance;
 };
 
@@ -221,6 +224,7 @@ export const fetchAssets = async (address: string) => {
               displayOptions: {
                 showNativeBalance: true,
                 showGrandTotal: true,
+                showZeroBalance: false,
               },
             },
           }),
@@ -244,7 +248,7 @@ export const fetchAssets = async (address: string) => {
 const mapResponseAssets = (data: any) => {
   // Map the data to the required DataType
   let mappedData = data.result.items
-    .filter((item: any) => item.token_info?.price_info?.total_price > 0.9)
+    .filter((item: any) => item.token_info?.price_info?.total_price > 0.1)
     .map((item: any, index: number) => ({
       key: index.toString(),
       asset: {
@@ -266,8 +270,10 @@ const mapResponseAssets = (data: any) => {
       value: `$${(item.token_info?.price_info?.total_price || 0).toFixed(2)}`,
     }));
 
-  // Include nativeBalance as a separate entry
-  const nativeBalanceData = data.result.nativeBalance.lamports
+  console.log("Check native", data.result);
+
+  // Check if nativeBalance exists and if it has lamports
+  const nativeBalanceData = data.result.nativeBalance?.lamports
     ? {
         key: "native",
         asset: {
@@ -283,12 +289,12 @@ const mapResponseAssets = (data: any) => {
           change: "N/A", // Assuming you don't have the change data from the API
           color: "rgb(9, 155, 103)", // Assuming green as a placeholder
         },
-        value: `$${data.result.nativeBalance.total_price.toFixed(2)}`,
+        value: `$${(data.result.nativeBalance.total_price || 0).toFixed(2)}`,
       }
-    : {};
+    : null; // Return null if nativeBalance doesn't exist or doesn't have lamports
 
   // Combine the data
-  if (nativeBalanceData.value) {
+  if (nativeBalanceData) {
     mappedData = [...mappedData, nativeBalanceData];
   }
 
