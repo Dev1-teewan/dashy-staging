@@ -50,7 +50,6 @@ const AccountGroup = ({
 
   const handleTagsChange = (newTags: string[]) => {
     setTags((prevTags) => {
-      console.log("prevTags", prevTags);
       if (JSON.stringify(prevTags) !== JSON.stringify(newTags)) {
         return newTags;
       }

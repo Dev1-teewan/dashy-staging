@@ -8,7 +8,13 @@ import AccountGroup from "../components/dashboard/AccountGroup";
 const Dashboard = () => {
   const [groups, setGroups] = useState<any[]>([]);
   const [groupCount, setGroupCount] = useState<number>(1);
-  const [localSource, setLocalSource] = useLocalStorage<any[]>("dashy", []);
+  const [localSource, setLocalSource] = useLocalStorage<any[]>("dashy3", [
+    {
+      groupName: "Group 1",
+      tags: [],
+      accounts: [],
+    },
+  ]);
 
   useEffect(() => {
     if (localSource.length > 0) {
