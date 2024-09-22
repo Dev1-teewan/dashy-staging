@@ -39,6 +39,10 @@ export default function ThemeProvider({
             rowHoverBg: "#262626",
             rowExpandedBg: "#141414",
           },
+          Select: {
+            optionSelectedColor: "#06d6a0",
+            optionSelectedFontWeight: 400,
+          },
         },
       }}
     >

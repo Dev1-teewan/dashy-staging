@@ -187,7 +187,11 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
     title: "Grouping",
     width: "310px",
     key: "grouping",
-    render: (_, record) => <CustomSelect address={record.address} />,
+    render: (_, record) => (
+      <div className="TopEngaged">
+        <CustomSelect address={record.address} />
+      </div>
+    ),
   },
 ];
 
