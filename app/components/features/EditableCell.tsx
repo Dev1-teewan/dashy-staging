@@ -88,4 +88,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-export { EditableCell, EditableRow };
+const editableComponents = {
+  body: {
+    row: EditableRow,
+    cell: EditableCell,
+  },
+};
+
+export { editableComponents };
