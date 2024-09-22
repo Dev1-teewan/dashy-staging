@@ -69,3 +69,12 @@ button.wallet-adapter-button-trigger:hover {
 .ant-input {
   border-color: #003628;
 }
+
+.ant-collapse-expand-icon {
+  display: block !important;
+}
+
+.ant-upload {
+  width: 100% !important;
+  display: grid !important;
+}

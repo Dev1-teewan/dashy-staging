@@ -28,7 +28,7 @@ const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
   const editInputRef = useRef<InputRef>(null);
 
   useEffect(() => {
-    setTags(initialTags);
+    setTags([...initialTags]);
   }, [initialTags]);
 
   useEffect(() => {
@@ -51,8 +51,7 @@ const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
 
   // Handle tag removal
   const handleClose = (removedTag: string) => {
-    const newTags = tags.filter((tag) => tag !== removedTag);
-    setTags(newTags); // Update state, which will trigger localStorage update
+    setTags((prevTags) => prevTags.filter((tag) => tag !== removedTag)); // Use functional update
   };
 
   // Show input field
@@ -68,8 +67,7 @@ const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
   // Confirm new tag input
   const handleInputConfirm = () => {
     if (inputValue && !tags.includes(inputValue)) {
-      const newTags = [...tags, inputValue];
-      setTags(newTags); // Update state, which will trigger localStorage update
+      setTags((prevTags) => [...prevTags, inputValue]); // Use functional update
     }
     setInputVisible(false);
     setInputValue("");
