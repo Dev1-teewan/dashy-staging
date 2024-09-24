@@ -1,10 +1,8 @@
 "use client";
 
-import QRReader from "../features/QRReader";
 import { CloseOutlined } from "@ant-design/icons";
-import { encryptData } from "../../utils/encryption";
 import React, { ChangeEvent, useState } from "react";
-import { Button, Divider, message, Modal, QRCode, Upload } from "antd";
+import { Button, Divider, message, Modal, Upload } from "antd";
 
 interface LoadStorageManagerProps {
   localSource: any;
@@ -17,34 +15,6 @@ const LoadStorageManager = ({
 }: LoadStorageManagerProps) => {
   const [open, setOpen] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  //   console.log("localSource", encryptData(JSON.stringify(localSource)));
-
-  //   function doDownload(url: string, fileName: string) {
-  //     const a = document.createElement("a");
-  //     a.download = fileName;
-  //     a.href = url;
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     document.body.removeChild(a);
-  //   }
-
-  //   const downloadQRCode = () => {
-  //     const canvas = document
-  //       .getElementById("myqrcode")
-  //       ?.querySelector<HTMLCanvasElement>("canvas");
-  //     if (canvas) {
-  //       const url = canvas.toDataURL();
-  //       doDownload(url, "DashySetup.png");
-  //     }
-  //   };
-
-  //   const handleScanSuccess = (result: string) => {
-  //     console.log(result);
-  //     messageApi.open({
-  //       type: "success",
-  //       content: "QR Code Scanned Successfully",
-  //     });
-  //   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     importLocalStorage(event);
@@ -100,34 +70,6 @@ const LoadStorageManager = ({
     messageApi.success("Dashy setup exported successfully!");
   };
 
-  //   const [imageFile, setImageFile] = useState(null);
-  //   const [decodedText, setDecodedText] = useState("");
-
-  //   const qrCodeReader = new BrowserQRCodeReader();
-
-  //   const handleFileChange1 = (event: ChangeEvent<HTMLInputElement>) => {
-  //     const file = event.target.files?.[0];
-  //     if (file) {
-  //       setImageFile(file);
-  //       const reader = new FileReader();
-  //       reader.onload = () => {
-  //         const imageElement = new Image();
-  //         imageElement.src = reader.result as string;
-  //         imageElement.onload = () => {
-  //           qrCodeReader
-  //             .decodeFromImage(imageElement)
-  //             .then((result) => {
-  //               setDecodedText(result.getText());
-  //             })
-  //             .catch((error) => {
-  //               console.error("Error decoding QR code:", error);
-  //             });
-  //         };
-  //       };
-  //       reader.readAsDataURL(file);
-  //     }
-  //   };
-
   return (
     <div>
       {contextHolder}
@@ -138,24 +80,15 @@ const LoadStorageManager = ({
       <Modal
         open={open}
         footer={null}
-        title="Export Local Storage"
+        title="Export Setup"
         onCancel={() => setOpen(false)}
         closeIcon={<CloseOutlined style={{ color: "#f1f1f1" }} />}
       >
-        {/* <div
-          id="myqrcode"
-          className="flex flex-col items-center justify-center"
-        >
-          <QRCode value={encryptData(JSON.stringify(localSource))} />
-          <Button className="w-full" onClick={downloadQRCode}>
-            Download
-          </Button>
-        </div> */}
         <div className="text-sm text-gray-500 pb-2">
           Note: Exporting local storage will download a JSON file containing
         </div>
         <Button onClick={exportLocalStorage} className="w-full">
-          Export Setup
+          Export Local Storage
         </Button>
         <Divider style={{ borderColor: "#003628" }} />
 
@@ -179,18 +112,6 @@ const LoadStorageManager = ({
         >
           <Button>Import Local Storage</Button>
         </Upload>
-        {/* <QRReader onScanSuccess={handleScanSuccess} /> */}
-        {/* <input type="file" accept="image/*" onChange={handleFileChange1} />
-        <Upload
-          accept="image/*"
-          beforeUpload={(file) => {
-            // handleImageUpload(file);
-            return false; // Prevent automatic upload
-          }}
-          showUploadList={false}
-        >
-          <Button>Upload QR Code Image</Button>
-        </Upload> */}
       </Modal>
     </div>
   );

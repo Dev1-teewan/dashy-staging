@@ -1,20 +1,64 @@
+import { Button } from "antd";
+import { CSS } from "@dnd-kit/utilities";
 import { Form, Input, InputRef } from "antd";
 import { FormInstance } from "antd/lib/form";
-import React, { useContext, useState, useRef, useEffect } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { HolderOutlined } from "@ant-design/icons";
+import React, { useContext, useState, useRef, useEffect, useMemo } from "react";
 
+// Editable Context
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
-const EditableRow: React.FC<{ index: number }> = ({ index, ...props }) => {
+// Row Context for Drag Handle
+interface RowContextProps {
+  setActivatorNodeRef?: (element: HTMLElement | null) => void;
+  listeners?: any;
+}
+
+const RowContext = React.createContext<RowContextProps>({});
+
+// Editable + Draggable Row
+const EditableDraggableRow: React.FC<{
+  index: number;
+  "data-row-key": string;
+  style?: React.CSSProperties;
+}> = ({ index, "data-row-key": rowKey, ...props }) => {
   const [form] = Form.useForm();
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: rowKey });
+
+  const style: React.CSSProperties = {
+    ...props.style,
+    transform: CSS.Translate.toString(transform),
+    transition,
+    ...(isDragging ? { position: "relative", zIndex: 9999 } : {}),
+  };
+
+  const contextValue = useMemo<RowContextProps>(
+    () => ({ setActivatorNodeRef, listeners }),
+    [setActivatorNodeRef, listeners]
+  );
+
   return (
     <Form form={form} component={false}>
       <EditableContext.Provider value={form}>
-        <tr {...props} />
+        <RowContext.Provider value={contextValue}>
+          <tr {...props} ref={setNodeRef} style={style} {...attributes} />
+        </RowContext.Provider>
       </EditableContext.Provider>
     </Form>
   );
 };
 
+// Editable Cell
 interface EditableCellProps {
   title: React.ReactNode;
   editable: boolean;
@@ -88,11 +132,27 @@ const EditableCell: React.FC<EditableCellProps> = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-const editableComponents = {
+// Drag Handle
+const DragHandle: React.FC = () => {
+  const { setActivatorNodeRef, listeners } = useContext(RowContext);
+  return (
+    <Button
+      type="text"
+      size="small"
+      icon={<HolderOutlined style={{ color: "#f1f1f1" }} />}
+      style={{ cursor: "move" }}
+      ref={setActivatorNodeRef}
+      {...listeners}
+    />
+  );
+};
+
+// Combine editable + draggable components
+const combinedComponents = {
   body: {
-    row: EditableRow,
+    row: EditableDraggableRow,
     cell: EditableCell,
   },
 };
 
-export { editableComponents };
+export { combinedComponents, DragHandle };
