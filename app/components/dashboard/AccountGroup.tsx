@@ -17,6 +17,9 @@ import {
   Space,
   Table,
 } from "antd";
+import { AnchorProvider, Wallet, web3 } from "@project-serum/anchor";
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+const { SystemProgram, Transaction, LAMPORTS_PER_SOL } = web3;
 
 interface GroupData {
   groupName: string;
@@ -38,6 +41,9 @@ const AccountGroup = ({
   updateGroup,
   deleteGroup,
 }: AccountGroupProps) => {
+  const { connection } = useConnection();
+  const wallet = useAnchorWallet() as Wallet;
+
   // Droppable ref for the empty group
   const { setNodeRef } = useDroppable({ id: groupIndex });
 
@@ -119,6 +125,50 @@ const AccountGroup = ({
     setLocalDataSource(newData);
   };
 
+  const sendSol = async (address: string) => {
+    if (!wallet) {
+      messageApi.error("Wallet not connected");
+      return;
+    }
+
+    // Ensure the receiving account will be rent exempt
+    const minimumBalance = await connection.getMinimumBalanceForRentExemption(
+      0
+    );
+    if (0.01 * LAMPORTS_PER_SOL < minimumBalance) {
+      throw new Error(`Account may not be rent exempt: ${address}`);
+    }
+
+    // Create an instruction to transfer native SOL from one wallet to another
+    const transferSolInstruction = SystemProgram.transfer({
+      fromPubkey: wallet.publicKey, // Sender's public key from wallet
+      toPubkey: new PublicKey(address), // Receiver's public key
+      lamports: 0.01 * LAMPORTS_PER_SOL, // Amount to send (0.01 SOL in lamports)
+    });
+
+    // Create a transaction and add the transfer instruction
+    const tx = new Transaction().add(transferSolInstruction);
+
+    // Set the transaction's fee payer and recent blockhash
+    tx.feePayer = wallet.publicKey;
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+    // Create an Anchor provider to sign and send the transaction
+    const provider = new AnchorProvider(connection, wallet, {
+      commitment: "finalized",
+    });
+
+    try {
+      // Sign and send the transaction
+      const signature = await provider.sendAndConfirm(tx);
+      messageApi.success("Transaction successful");
+      console.log("Transaction successful with signature:", signature);
+    } catch (error) {
+      messageApi.error("Transaction failed");
+      console.error("Transaction failed:", error);
+    }
+  };
+
   const columns = [
     ...accountGroupColumns.map((col: any) => {
       if (!col.editable) return col;
@@ -138,12 +188,21 @@ const AccountGroup = ({
       width: "60px",
       dataIndex: "operation",
       render: (_: any, record: any) => (
-        <Popconfirm
-          title="Sure to delete?"
-          onConfirm={() => handleDelete(record.key)}
-        >
-          <a className="text-[#06d6a0]">Delete</a>
-        </Popconfirm>
+        <div className="flex flex-col gap-2">
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <Button className="text-[#06d6a0]">Delete</Button>
+          </Popconfirm>
+
+          <Button
+            onClick={() => sendSol(record.address)}
+            className="text-[#06d6a0]"
+          >
+            Send
+          </Button>
+        </div>
       ),
     },
   ];
