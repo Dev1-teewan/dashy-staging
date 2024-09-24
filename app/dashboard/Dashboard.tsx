@@ -35,15 +35,36 @@ const Dashboard = () => {
   useEffect(() => {
     if (Object.keys(localSource).length > 0) {
       console.log(localSource, "localSource");
-      const lastGroupIndex = Math.max(
-        ...Object.values(localSource).map((group: any) => group.index)
-      );
-      setGroupCount(lastGroupIndex + 1);
-      const total = Object.values(localSource).reduce(
+
+      const updatedLocalSource = { ...localSource }; // Create a shallow copy of localSource to avoid direct mutation
+
+      Object.keys(updatedLocalSource).forEach((groupKey) => {
+        const group = updatedLocalSource[groupKey];
+
+        // Calculate the total balance for the current group
+        const totalBalance = group.accounts.reduce(
+          (sum: number, account: any) => {
+            return sum + (parseFloat(account.balance) || 0); // Ensure balance is a valid number
+          },
+          0
+        );
+
+        // Update the group's total balance
+        updatedLocalSource[groupKey].totalBalance = totalBalance;
+      });
+
+      // Also update the dashboard balance, summing all group balances
+      const totalDashboardBalance = Object.values(updatedLocalSource).reduce(
         (sum: number, group: any) => sum + group.totalBalance,
         0
       );
-      setDashboardBalance(total);
+      setDashboardBalance(totalDashboardBalance);
+
+      // Get the highest group index
+      const lastGroupIndex = Math.max(
+        ...Object.values(updatedLocalSource).map((group: any) => group.index)
+      );
+      setGroupCount(lastGroupIndex + 1);
     }
   }, [localSource]);
 
