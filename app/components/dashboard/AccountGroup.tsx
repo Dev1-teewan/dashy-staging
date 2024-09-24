@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
+import { useDroppable } from "@dnd-kit/core";
 import { fetchAssets } from "@/app/utils/HeliusRPC";
-import { editableComponents } from "../features/EditableCell";
+import { combinedComponents } from "../features/table/CustomizeRow";
 import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
   Button,
@@ -26,9 +27,9 @@ interface GroupData {
 
 interface AccountGroupProps {
   groupData: GroupData;
-  groupIndex: number;
-  updateGroup: (index: number, data: GroupData) => void;
-  deleteGroup: (index: number) => void;
+  groupIndex: string;
+  updateGroup: (index: string, data: any) => void;
+  deleteGroup: (index: string) => void;
 }
 
 const AccountGroup = ({
@@ -37,14 +38,19 @@ const AccountGroup = ({
   updateGroup,
   deleteGroup,
 }: AccountGroupProps) => {
+  // Droppable ref for the empty group
+  const { setNodeRef } = useDroppable({ id: groupIndex });
+
   // Toast msg & new address input state
   const [messageApi, contextHolder] = message.useMessage();
   const [inputAddress, setInputAddress] = useState<string>("");
 
   // State for group's data and tag / total balance
-  const [dataSource, setDataSource] = useState<any[]>(groupData.accounts || []);
-  const [tags, setTags] = useState<string[]>(groupData.tags || []);
-  const [count, setCount] = useState<number>(dataSource.length + 1);
+  const [localDataSource, setLocalDataSource] = useState<any[]>(
+    groupData.accounts || []
+  );
+  const [localTags, setLocalTags] = useState<string[]>(groupData.tags || []);
+  const [count, setCount] = useState<number>(localDataSource.length + 1);
   const [totalBalance, setTotalBalance] = useState(0);
 
   // Save state for expended rows and its token list
@@ -53,68 +59,64 @@ const AccountGroup = ({
     {}
   );
 
-  // Notify parent components when there are changes (Deep comparison required)
+  // Effect to update local state when params changes
   useEffect(() => {
-    const total = dataSource.reduce(
+    setLocalDataSource(groupData.accounts || []);
+    setLocalTags(groupData.tags || []);
+  }, [groupData.accounts, groupData.tags]);
+
+  // Effect to update parent when localDataSource or localTags change
+  useEffect(() => {
+    const total = localDataSource.reduce(
       (sum, account) => sum + parseFloat(account.balance),
       0
     );
 
-    // Check if tags or data source changed to avoid unnecessary updates
     if (
-      JSON.stringify(dataSource) !== JSON.stringify(groupData.accounts) ||
-      JSON.stringify(tags) !== JSON.stringify(groupData.tags) ||
-      total !== groupData.totalBalance
+      total !== totalBalance ||
+      !arraysEqual(localDataSource, groupData.accounts) ||
+      !arraysEqual(localTags, groupData.tags)
     ) {
+      // Notify the parent with updated data
       updateGroup(groupIndex, {
         ...groupData,
-        accounts: dataSource,
-        tags,
-        totalBalance: total, // Update total balance here
+        accounts: localDataSource,
+        tags: localTags,
+        totalBalance: total,
       });
       setTotalBalance(total); // Update local state for total balance
     }
-  }, [dataSource, tags, groupData, groupIndex, updateGroup]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localDataSource, localTags, totalBalance]);
 
-  // Calculate total balance
-  useEffect(() => {
-    const calculateTotalBalance = () => {
-      const total = dataSource.reduce((sum, account) => {
-        return sum + parseFloat(account.balance);
-      }, 0);
-      setTotalBalance(total);
-    };
-
-    calculateTotalBalance();
-  }, [dataSource]);
-
-  // Functions on Tags
-  useEffect(() => {
-    setTags([...groupData.tags]); // Spread operator to create a new array
-  }, [groupData.tags]);
+  // Utility function to compare arrays
+  const arraysEqual = (arr1: any[], arr2: any[]): boolean => {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every((value, index) => value === arr2[index]);
+  };
 
   const handleTagsChange = (newTags: string[]) => {
     if (
-      newTags.length !== tags.length ||
-      !newTags.every((tag, index) => tag === tags[index])
+      newTags.length !== localTags.length ||
+      !newTags.every((tag, index) => tag === localTags[index])
     ) {
-      setTags(newTags);
+      setLocalTags(newTags);
     }
   };
 
   // Functions on Table editable cells (Save & Delete row)
   const handleSave = (row: any) => {
-    const newData = [...dataSource];
+    const newData = [...localDataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     if (index > -1) {
       newData.splice(index, 1, { ...newData[index], ...row });
-      setDataSource(newData);
+      setLocalDataSource(newData);
     }
   };
 
-  const handleDelete = (key: React.Key) => {
-    const newData = dataSource.filter((item) => item.key !== key);
-    setDataSource(newData);
+  const handleDelete = (key: string) => {
+    const newData = localDataSource.filter((item) => item.key !== key);
+    setLocalDataSource(newData);
   };
 
   const columns = [
@@ -135,15 +137,14 @@ const AccountGroup = ({
       title: "Operation",
       width: "60px",
       dataIndex: "operation",
-      render: (record: any) =>
-        dataSource.length >= 1 ? (
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDelete(record.key)}
-          >
-            <a className="text-[#06d6a0]">Delete</a>
-          </Popconfirm>
-        ) : null,
+      render: (_: any, record: any) => (
+        <Popconfirm
+          title="Sure to delete?"
+          onConfirm={() => handleDelete(record.key)}
+        >
+          <a className="text-[#06d6a0]">Delete</a>
+        </Popconfirm>
+      ),
     },
   ];
 
@@ -161,7 +162,7 @@ const AccountGroup = ({
 
       if (response.status === "success") {
         const newData = {
-          key: count,
+          key: `${Date.now()}`,
           alias: "-",
           address: inputAddress || "-",
           from: "-",
@@ -169,8 +170,13 @@ const AccountGroup = ({
           purpose: "-",
           balance: response.totalValue || 0,
         };
-        const updatedDataSource = [...dataSource, newData];
-        setDataSource(updatedDataSource);
+        const updatedDataSource = [...localDataSource, newData];
+
+        setLocalDataSource(updatedDataSource);
+        setAccountTokenList((prev) => ({
+          ...prev,
+          [inputAddress]: response.dataSource,
+        }));
         setExpandedRows((prev) => [...prev, inputAddress]);
         setCount(count + 1);
         setInputAddress("");
@@ -202,12 +208,12 @@ const AccountGroup = ({
           }));
 
           // Update the row balance in the dataSource
-          const updatedDataSource = dataSource.map((item) =>
+          const updatedDataSource = localDataSource.map((item) =>
             item.address === record.address
               ? { ...item, balance: response.totalValue || 0 }
               : item
           );
-          setDataSource(updatedDataSource);
+          setLocalDataSource(updatedDataSource);
 
           // Expand the row
           setExpandedRows((prev) => [...prev, record.address]);
@@ -268,30 +274,38 @@ const AccountGroup = ({
                     </Col>
                     <Col span={20}>
                       <InputTag
-                        initialTags={tags}
+                        initialTags={localTags}
                         onTagsChange={handleTagsChange}
                       />
                     </Col>
                   </Row>
+
                   <Table
+                    rowKey="key"
                     className="mt-4"
                     bordered={false}
                     columns={columns}
                     pagination={false}
-                    dataSource={dataSource}
-                    components={editableComponents}
-                    locale={{ emptyText: <Empty /> }}
+                    dataSource={localDataSource}
+                    components={combinedComponents}
+                    locale={{
+                      emptyText: (
+                        <div ref={setNodeRef}>
+                          <Empty />
+                        </div>
+                      ),
+                    }}
                     expandable={{
                       expandedRowRender: (record) => (
                         <Table
                           columns={balanceColumns}
                           dataSource={addressTokenList[record.address] || []}
-                          pagination={dataSource.length > 10 ? {} : false}
                         />
                       ),
                       onExpand: handleExpand,
                     }}
                   />
+
                   <Space
                     className="mt-2"
                     style={{ display: "flex", alignItems: "stretch" }}

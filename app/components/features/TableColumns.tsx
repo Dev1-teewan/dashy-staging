@@ -6,6 +6,7 @@ import { Tag, Tooltip } from "antd";
 import CustomSelect from "./CustomSelect";
 import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
+import { DragHandle } from "./table/CustomizeRow";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import {
   accountGroupDataType,
@@ -21,6 +22,12 @@ export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
 };
 
 export const accountGroupColumns: EditableColumnType[] = [
+  {
+    key: "sort",
+    align: "center",
+    width: 20,
+    render: () => <DragHandle />,
+  },
   {
     title: "Alias",
     width: "235px",
