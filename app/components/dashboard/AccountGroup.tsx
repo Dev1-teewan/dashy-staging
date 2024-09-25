@@ -125,47 +125,53 @@ const AccountGroup = ({
     setLocalDataSource(newData);
   };
 
-  const sendSol = async (address: string) => {
+  const sendToken = async (address: string) => {
     if (!wallet) {
       messageApi.error("Wallet not connected");
       return;
     }
 
-    // Ensure the receiving account will be rent exempt
-    const minimumBalance = await connection.getMinimumBalanceForRentExemption(
-      0
-    );
-    if (0.01 * LAMPORTS_PER_SOL < minimumBalance) {
-      throw new Error(`Account may not be rent exempt: ${address}`);
-    }
-
-    // Create an instruction to transfer native SOL from one wallet to another
-    const transferSolInstruction = SystemProgram.transfer({
-      fromPubkey: wallet.publicKey, // Sender's public key from wallet
-      toPubkey: new PublicKey(address), // Receiver's public key
-      lamports: 0.01 * LAMPORTS_PER_SOL, // Amount to send (0.01 SOL in lamports)
-    });
-
-    // Create a transaction and add the transfer instruction
-    const tx = new Transaction().add(transferSolInstruction);
-
-    // Set the transaction's fee payer and recent blockhash
-    tx.feePayer = wallet.publicKey;
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-    // Create an Anchor provider to sign and send the transaction
-    const provider = new AnchorProvider(connection, wallet, {
-      commitment: "finalized",
-    });
-
     try {
+      // Ensure the receiving account will be rent exempt
+      const minimumBalance = await connection.getMinimumBalanceForRentExemption(
+        0
+      );
+      if (0.01 * LAMPORTS_PER_SOL < minimumBalance) {
+        throw new Error(`Account may not be rent exempt: ${address}`);
+      }
+
+      // Create an instruction to transfer native SOL from one wallet to another
+      const transferSolInstruction = SystemProgram.transfer({
+        fromPubkey: wallet.publicKey, // Sender's public key from wallet
+        toPubkey: new PublicKey(address), // Receiver's public key
+        lamports: 0.01 * LAMPORTS_PER_SOL, // Amount to send (0.01 SOL in lamports)
+      });
+
+      // Create a transaction and add the transfer instruction
+      const tx = new Transaction().add(transferSolInstruction);
+
+      // Fetch latest blockhash and add it to the transaction
+      const { blockhash } = await connection.getLatestBlockhash();
+      tx.feePayer = wallet.publicKey;
+      tx.recentBlockhash = blockhash; // Latest blockhash for the transaction
+
+      // Create an Anchor provider to sign and send the transaction
+      const provider = new AnchorProvider(connection, wallet, {
+        commitment: "finalized",
+      });
+
       // Sign and send the transaction
       const signature = await provider.sendAndConfirm(tx);
       messageApi.success("Transaction successful");
       console.log("Transaction successful with signature:", signature);
-    } catch (error) {
+    } catch (error: any) {
+      // Log full details of the error including logs
+      if (error instanceof web3.SendTransactionError && error.logs) {
+        console.error("Transaction failed with logs:", error.logs);
+      } else {
+        console.error("Transaction failed:", error);
+      }
       messageApi.error("Transaction failed");
-      console.error("Transaction failed:", error);
     }
   };
 
@@ -177,6 +183,7 @@ const AccountGroup = ({
         onCell: (record: any) => ({
           record,
           editable: col.editable,
+          type: col.type,
           dataIndex: col.dataIndex,
           title: col.title,
           handleSave,
@@ -197,10 +204,16 @@ const AccountGroup = ({
           </Popconfirm>
 
           <Button
-            onClick={() => sendSol(record.address)}
+            onClick={() => sendToken(record.address)}
             className="text-[#06d6a0]"
           >
             Send
+          </Button>
+          <Button
+            onClick={() => sendToken(record.address)}
+            className="text-[#06d6a0]"
+          >
+            Receive
           </Button>
         </div>
       ),
@@ -222,11 +235,11 @@ const AccountGroup = ({
       if (response.status === "success") {
         const newData = {
           key: `${Date.now()}`,
-          alias: "-",
-          address: inputAddress || "-",
-          from: "-",
-          to: "-",
-          purpose: "-",
+          alias: "",
+          address: inputAddress || "",
+          from: [],
+          to: [],
+          purpose: "",
           balance: response.totalValue || 0,
         };
         const updatedDataSource = [...localDataSource, newData];
@@ -338,32 +351,29 @@ const AccountGroup = ({
                       />
                     </Col>
                   </Row>
-
-                  <Table
-                    rowKey="key"
-                    className="mt-4"
-                    bordered={false}
-                    columns={columns}
-                    pagination={false}
-                    dataSource={localDataSource}
-                    components={combinedComponents}
-                    locale={{
-                      emptyText: (
-                        <div ref={setNodeRef}>
-                          <Empty />
-                        </div>
-                      ),
-                    }}
-                    expandable={{
-                      expandedRowRender: (record) => (
-                        <Table
-                          columns={balanceColumns}
-                          dataSource={addressTokenList[record.address] || []}
-                        />
-                      ),
-                      onExpand: handleExpand,
-                    }}
-                  />
+                  <div ref={setNodeRef}>
+                    <Table
+                      rowKey="key"
+                      className="mt-4"
+                      bordered={false}
+                      columns={columns}
+                      pagination={false}
+                      dataSource={localDataSource}
+                      components={combinedComponents}
+                      locale={{
+                        emptyText: <Empty />,
+                      }}
+                      expandable={{
+                        expandedRowRender: (record) => (
+                          <Table
+                            columns={balanceColumns}
+                            dataSource={addressTokenList[record.address] || []}
+                          />
+                        ),
+                        onExpand: handleExpand,
+                      }}
+                    />
+                  </div>
 
                   <Space
                     className="mt-2"

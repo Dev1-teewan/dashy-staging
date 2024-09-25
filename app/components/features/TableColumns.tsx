@@ -19,6 +19,7 @@ import {
 // Create a type by extending each column type with an `editable` property
 export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
   editable?: boolean;
+  type?: string;
 };
 
 export const accountGroupColumns: EditableColumnType[] = [
@@ -56,6 +57,7 @@ export const accountGroupColumns: EditableColumnType[] = [
     key: "from",
     dataIndex: "from",
     editable: true,
+    type: "select",
   },
   {
     title: "To",
@@ -63,6 +65,7 @@ export const accountGroupColumns: EditableColumnType[] = [
     key: "to",
     dataIndex: "to",
     editable: true,
+    type: "select",
   },
   {
     title: "Purpose",

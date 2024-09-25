@@ -1,9 +1,9 @@
-import { Button } from "antd";
 import { CSS } from "@dnd-kit/utilities";
-import { Form, Input, InputRef } from "antd";
+import { Button, Tag, Tooltip } from "antd";
 import { FormInstance } from "antd/lib/form";
 import { useSortable } from "@dnd-kit/sortable";
 import { HolderOutlined } from "@ant-design/icons";
+import { Form, Input, InputRef, Select } from "antd";
 import React, { useContext, useState, useRef, useEffect, useMemo } from "react";
 
 // Editable Context
@@ -62,6 +62,7 @@ const EditableDraggableRow: React.FC<{
 interface EditableCellProps {
   title: React.ReactNode;
   editable: boolean;
+  type: string;
   children: React.ReactNode;
   dataIndex: string;
   record: any;
@@ -72,21 +73,28 @@ interface EditableCellProps {
 const EditableCell: React.FC<EditableCellProps> = ({
   title,
   editable,
+  type = "input", // Default to input
   children,
   dataIndex,
   record,
   handleSave,
   ...restProps
 }) => {
-  const [editing, setEditing] = useState(false);
+  const selectRef = useRef<any>(null);
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext);
 
+  const [editing, setEditing] = useState(false);
+
   useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.focus();
+    if (editing) {
+      if (type === "input" && inputRef.current) {
+        inputRef.current.focus();
+      } else if (type === "select" && selectRef.current) {
+        selectRef.current.focus();
+      }
     }
-  }, [editing]);
+  }, [editing, type]);
 
   const toggleEdit = () => {
     setEditing(!editing);
@@ -109,27 +117,77 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
   let childNode = children;
 
+  // Check if the column is editable and what type it is
   if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{ margin: 0 }}
-        name={dataIndex}
-        rules={[{ required: true, message: `${title} is required.` }]}
-      >
-        <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{ paddingRight: 24 }}
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
-    );
+    if (editing) {
+      childNode =
+        type === "select" ? (
+          <Form.Item
+            style={{ margin: 0 }}
+            name={dataIndex}
+            // rules={[{ required: true, message: `${title} is required.` }]}
+          >
+            <Select
+              ref={selectRef}
+              mode="tags"
+              style={{ width: "200px" }}
+              onBlur={save}
+              tokenSeparators={[","]}
+            />
+          </Form.Item>
+        ) : (
+          <Form.Item
+            style={{ margin: 0 }}
+            name={dataIndex}
+            // rules={[{ required: true, message: `${title} is required.` }]}
+          >
+            <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+          </Form.Item>
+        );
+    } else {
+      // Display tags or the input value in a read-only format
+      const tags = record[dataIndex] || [];
+      childNode =
+        type === "select" ? (
+          <div
+            className="editable-cell-value-wrap"
+            style={{ paddingRight: 24, minHeight: "32px" }}
+            onClick={toggleEdit}
+          >
+            {tags.length === 0
+              ? "-"
+              : tags.map((tag: string) => {
+                  const isLongTag = tag.length > 20;
+                  return isLongTag ? (
+                    <Tooltip title={tag} key={tag}>
+                      <Tag>{`${tag.slice(0, 4)}...${tag.slice(-4)}`}</Tag>
+                    </Tooltip>
+                  ) : (
+                    <Tag key={tag}>{tag}</Tag>
+                  );
+                })}
+          </div>
+        ) : (
+          <div
+            className="editable-cell-value-wrap"
+            style={{ paddingRight: 24, minHeight: "32px" }}
+            onClick={toggleEdit}
+          >
+            {Array.isArray(children) && children[1] === "" ? "-" : children}
+          </div>
+        );
+    }
   }
 
   return <td {...restProps}>{childNode}</td>;
+};
+
+// Combine editable + draggable components
+const combinedComponents = {
+  body: {
+    row: EditableDraggableRow,
+    cell: EditableCell,
+  },
 };
 
 // Drag Handle
@@ -145,14 +203,6 @@ const DragHandle: React.FC = () => {
       {...listeners}
     />
   );
-};
-
-// Combine editable + draggable components
-const combinedComponents = {
-  body: {
-    row: EditableDraggableRow,
-    cell: EditableCell,
-  },
 };
 
 export { combinedComponents, DragHandle };

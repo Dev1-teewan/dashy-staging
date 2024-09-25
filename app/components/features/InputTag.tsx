@@ -3,7 +3,6 @@
 import type { InputRef } from "antd";
 import { Flex, Input, Tag, theme, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useLocalStorage } from "@solana/wallet-adapter-react";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 const tagInputStyle: React.CSSProperties = {
