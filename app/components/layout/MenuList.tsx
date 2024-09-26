@@ -8,7 +8,11 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 
-const MenuList = () => {
+interface MenuListProps {
+  sider: { collapsed: boolean };
+}
+
+const MenuList = ({ sider }: MenuListProps) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -16,19 +20,19 @@ const MenuList = () => {
     {
       key: "/",
       icon: <HomeOutlined size={18} />,
-      label: "Dashboard",
+      label: sider.collapsed ? null : "Dashboard",
       onClick: () => router.push("/"),
     },
     {
       key: "/engage",
       icon: <DotChartOutlined size={18} />,
-      label: "Engaged",
+      label: sider.collapsed ? null : "Engaged",
       onClick: () => router.push("/engage"),
     },
     {
       key: "/history",
       icon: <HistoryOutlined size={18} />,
-      label: "Transactions History",
+      label: sider.collapsed ? null : "Transactions History",
       onClick: () => router.push("/history"),
     },
   ];

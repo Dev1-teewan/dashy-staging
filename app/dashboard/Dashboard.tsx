@@ -255,7 +255,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-[75vw] w-full">
+    <div className="max-w-[85vw] w-full">
       <div className="flex justify-between items-center mt-3 mb-7 text-2xl font-bold">
         <div className="flex gap-3">
           Dashboard
