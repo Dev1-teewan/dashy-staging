@@ -270,10 +270,14 @@ const Dashboard = () => {
       </div>
 
       <DndContext onDragEnd={onDragEnd} onDragOver={onDragOver}>
-        <div className="flex flex-col gap-5">
-          {Object.keys(groups).map((groupKey) => {
+        <div className="grid grid-cols-2 gap-10">
+          {Object.keys(groups).map((groupKey, index) => {
             const group = groups[groupKey];
             if (!group) return null; // Safeguard against undefined groups
+
+            const isLastOddGroup =
+              index === Object.keys(groups).length - 1 &&
+              Object.keys(groups).length % 2 !== 0;
 
             return (
               <SortableContext
@@ -284,16 +288,19 @@ const Dashboard = () => {
                   .map((account: any) => account?.key)}
                 strategy={verticalListSortingStrategy}
               >
-                <AccountGroup
-                  groupData={group}
-                  groupIndex={groupKey}
-                  updateGroup={updateGroup}
-                  deleteGroup={() => deleteGroup(groupKey)}
-                />
+                <div className={isLastOddGroup ? "col-span-2" : ""}>
+                  <AccountGroup
+                    groupData={group}
+                    groupIndex={groupKey}
+                    updateGroup={updateGroup}
+                    deleteGroup={() => deleteGroup(groupKey)}
+                  />
+                </div>
               </SortableContext>
             );
           })}
         </div>
+
         <Button className="mt-2" block onClick={handleAddNewGroup}>
           Add New Group
         </Button>

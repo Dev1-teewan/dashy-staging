@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
 import { useDroppable } from "@dnd-kit/core";
+import { arraysEqual } from "@/app/utils/Utils";
 import { fetchAssets } from "@/app/utils/HeliusRPC";
+import EditableField from "../features/EditableField";
+import useStyle from "../features/table/ScrollableRow";
 import { combinedComponents } from "../features/table/CustomizeRow";
 import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
@@ -12,7 +15,6 @@ import {
   Empty,
   Input,
   message,
-  Popconfirm,
   Row,
   Space,
   Table,
@@ -43,6 +45,7 @@ const AccountGroup = ({
 }: AccountGroupProps) => {
   const { connection } = useConnection();
   const wallet = useAnchorWallet() as Wallet;
+  const { styles } = useStyle(); // Table scrollable style
 
   // Droppable ref for the empty group
   const { setNodeRef } = useDroppable({ id: groupIndex });
@@ -94,12 +97,6 @@ const AccountGroup = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localDataSource, localTags, totalBalance]);
-
-  // Utility function to compare arrays
-  const arraysEqual = (arr1: any[], arr2: any[]): boolean => {
-    if (arr1.length !== arr2.length) return false;
-    return arr1.every((value, index) => value === arr2[index]);
-  };
 
   const handleTagsChange = (newTags: string[]) => {
     if (
@@ -190,34 +187,34 @@ const AccountGroup = ({
         }),
       };
     }),
-    {
-      title: "Operation",
-      width: "60px",
-      dataIndex: "operation",
-      render: (_: any, record: any) => (
-        <div className="flex flex-col gap-2">
-          <Popconfirm
-            title="Sure to delete?"
-            onConfirm={() => handleDelete(record.key)}
-          >
-            <Button className="text-[#06d6a0]">Delete</Button>
-          </Popconfirm>
+    // {
+    //   title: "Operation",
+    //   width: "60px",
+    //   dataIndex: "operation",
+    //   render: (_: any, record: any) => (
+    //     <div className="flex flex-col gap-2">
+    //       <Popconfirm
+    //         title="Sure to delete?"
+    //         onConfirm={() => handleDelete(record.key)}
+    //       >
+    //         <Button className="text-[#06d6a0]">Delete</Button>
+    //       </Popconfirm>
 
-          <Button
-            onClick={() => sendToken(record.address)}
-            className="text-[#06d6a0]"
-          >
-            Send
-          </Button>
-          <Button
-            onClick={() => sendToken(record.address)}
-            className="text-[#06d6a0]"
-          >
-            Receive
-          </Button>
-        </div>
-      ),
-    },
+    //       <Button
+    //         onClick={() => sendToken(record.address)}
+    //         className="text-[#06d6a0]"
+    //       >
+    //         Send
+    //       </Button>
+    //       <Button
+    //         onClick={() => sendToken(record.address)}
+    //         className="text-[#06d6a0]"
+    //       >
+    //         Receive
+    //       </Button>
+    //     </div>
+    //   ),
+    // },
   ];
 
   // Handle add new address to the group
@@ -297,20 +294,35 @@ const AccountGroup = ({
     }
   };
 
+  const handleGroupNameChange = (newName: string) => {
+    updateGroup(groupIndex, { ...groupData, groupName: newName });
+  };
+
   return (
     <Row>
       <Col span={24} className="!min-h-0">
         {contextHolder}
         <Collapse
           ghost
+          collapsible="disabled"
           defaultActiveKey={["1"]}
           className="bg-[#141414] text-base"
           items={[
             {
               key: "1",
+              showArrow: false,
               label: (
-                <div className="flex justify-between items-center mx-2">
-                  <div className="text-lg font-bold">{groupData.groupName}</div>
+                <div
+                  onClick={() => console.log("SR")}
+                  className="flex justify-between items-center mx-2"
+                >
+                  <div className="text-white text-lg font-bold">
+                    <EditableField
+                      value={groupData.groupName}
+                      onSave={handleGroupNameChange} // Handler to update group name
+                      placeholder="Enter group name"
+                    />
+                  </div>
                   <a
                     className="text-red-500 hover:text-red-600 cursor-pointer"
                     onClick={(event) => {
@@ -351,29 +363,33 @@ const AccountGroup = ({
                       />
                     </Col>
                   </Row>
-                  <div ref={setNodeRef}>
-                    <Table
-                      rowKey="key"
-                      className="mt-4"
-                      bordered={false}
-                      columns={columns}
-                      pagination={false}
-                      dataSource={localDataSource}
-                      components={combinedComponents}
-                      locale={{
-                        emptyText: <Empty />,
-                      }}
-                      expandable={{
-                        expandedRowRender: (record) => (
-                          <Table
-                            columns={balanceColumns}
-                            dataSource={addressTokenList[record.address] || []}
-                          />
-                        ),
-                        onExpand: handleExpand,
-                      }}
-                    />
-                  </div>
+
+                  <Table
+                    rowKey="key"
+                    scroll={{ y: 63 * 4 }}
+                    bordered={false}
+                    columns={columns}
+                    pagination={false}
+                    dataSource={localDataSource}
+                    components={combinedComponents}
+                    className={`mt-4 ${styles.customTable}`}
+                    locale={{
+                      emptyText: (
+                        <div ref={setNodeRef}>
+                          <Empty className="min-h-52 flex flex-col justify-center items-center" />
+                        </div>
+                      ),
+                    }}
+                    expandable={{
+                      expandedRowRender: (record) => (
+                        <Table
+                          columns={balanceColumns}
+                          dataSource={addressTokenList[record.address] || []}
+                        />
+                      ),
+                      onExpand: handleExpand,
+                    }}
+                  />
 
                   <Space
                     className="mt-2"

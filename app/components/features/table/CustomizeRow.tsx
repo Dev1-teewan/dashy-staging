@@ -151,7 +151,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         type === "select" ? (
           <div
             className="editable-cell-value-wrap"
-            style={{ paddingRight: 24, minHeight: "32px" }}
+            style={{ paddingRight: 24 }}
             onClick={toggleEdit}
           >
             {tags.length === 0
@@ -170,7 +170,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         ) : (
           <div
             className="editable-cell-value-wrap"
-            style={{ paddingRight: 24, minHeight: "32px" }}
+            style={{ paddingRight: 24 }}
             onClick={toggleEdit}
           >
             {Array.isArray(children) && children[1] === "" ? "-" : children}

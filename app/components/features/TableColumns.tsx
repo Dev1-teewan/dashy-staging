@@ -26,7 +26,7 @@ export const accountGroupColumns: EditableColumnType[] = [
   {
     key: "sort",
     align: "center",
-    width: 20,
+    width: 50,
     render: () => <DragHandle />,
   },
   {
@@ -51,22 +51,22 @@ export const accountGroupColumns: EditableColumnType[] = [
       );
     },
   },
-  {
-    title: "From",
-    width: "235px",
-    key: "from",
-    dataIndex: "from",
-    editable: true,
-    type: "select",
-  },
-  {
-    title: "To",
-    width: "235px",
-    key: "to",
-    dataIndex: "to",
-    editable: true,
-    type: "select",
-  },
+  // {
+  //   title: "From",
+  //   width: "235px",
+  //   key: "from",
+  //   dataIndex: "from",
+  //   editable: true,
+  //   type: "select",
+  // },
+  // {
+  //   title: "To",
+  //   width: "235px",
+  //   key: "to",
+  //   dataIndex: "to",
+  //   editable: true,
+  //   type: "select",
+  // },
   {
     title: "Purpose",
     width: "235px",
