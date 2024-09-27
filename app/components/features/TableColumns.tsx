@@ -19,25 +19,26 @@ import {
 // Create a type by extending each column type with an `editable` property
 export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
   editable?: boolean;
+  type?: string;
 };
 
 export const accountGroupColumns: EditableColumnType[] = [
   {
     key: "sort",
     align: "center",
-    width: 20,
+    width: "50px",
     render: () => <DragHandle />,
   },
   {
     title: "Alias",
-    width: "235px",
+    width: "15%",
     key: "alias",
     dataIndex: "alias",
     editable: true,
   },
   {
     title: "Address",
-    width: "180px",
+    width: "15%",
     key: "address",
     dataIndex: "address",
     render: (address) => {
@@ -52,28 +53,30 @@ export const accountGroupColumns: EditableColumnType[] = [
   },
   {
     title: "From",
-    width: "235px",
+    width: "15%",
     key: "from",
     dataIndex: "from",
     editable: true,
+    type: "select",
   },
   {
     title: "To",
-    width: "235px",
+    width: "15%",
     key: "to",
     dataIndex: "to",
     editable: true,
+    type: "select",
   },
   {
     title: "Purpose",
-    width: "235px",
+    width: "15%",
     key: "purpose",
     dataIndex: "purpose",
     editable: true,
   },
   {
     title: "Balance",
-    width: "85px",
+    width: "10%",
     key: "balance",
     dataIndex: "balance",
     render: (balance) => <span>${balance}</span>,

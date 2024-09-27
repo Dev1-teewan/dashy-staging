@@ -25,7 +25,10 @@ const CopyToClipboard = ({ address }: { address: string }) => {
         pointAtCenter: true,
       }}
     >
-      <CopyOutlined onClick={() => handleClick()} />
+      <CopyOutlined
+        style={{ color: "#06d6a0" }}
+        onClick={() => handleClick()}
+      />
     </Tooltip>
   );
 };
