@@ -1,3 +1,4 @@
+import SendToken from "./SendToken";
 import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
@@ -19,12 +20,8 @@ import {
   Row,
   Space,
   Table,
-  Popconfirm
+  Popconfirm,
 } from "antd";
-
-import { AnchorProvider, Wallet, web3 } from "@project-serum/anchor";
-import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-const { SystemProgram, Transaction, LAMPORTS_PER_SOL } = web3;
 
 interface GroupData {
   groupName: string;
@@ -48,8 +45,6 @@ const AccountGroup = ({
   deleteGroup,
   displayFull,
 }: AccountGroupProps) => {
-  const { connection } = useConnection();
-  const wallet = useAnchorWallet() as Wallet;
   const { styles } = useStyle(); // Table scrollable style
 
   // Droppable ref for the empty group
@@ -131,56 +126,6 @@ const AccountGroup = ({
     setLocalDataSource(newData);
   };
 
-  const sendToken = async (address: string) => {
-    if (!wallet) {
-      messageApi.error("Wallet not connected");
-      return;
-    }
-
-    try {
-      // Ensure the receiving account will be rent exempt
-      const minimumBalance = await connection.getMinimumBalanceForRentExemption(
-        0
-      );
-      if (0.01 * LAMPORTS_PER_SOL < minimumBalance) {
-        throw new Error(`Account may not be rent exempt: ${address}`);
-      }
-
-      // Create an instruction to transfer native SOL from one wallet to another
-      const transferSolInstruction = SystemProgram.transfer({
-        fromPubkey: wallet.publicKey, // Sender's public key from wallet
-        toPubkey: new PublicKey(address), // Receiver's public key
-        lamports: 0.01 * LAMPORTS_PER_SOL, // Amount to send (0.01 SOL in lamports)
-      });
-
-      // Create a transaction and add the transfer instruction
-      const tx = new Transaction().add(transferSolInstruction);
-
-      // Fetch latest blockhash and add it to the transaction
-      const { blockhash } = await connection.getLatestBlockhash();
-      tx.feePayer = wallet.publicKey;
-      tx.recentBlockhash = blockhash; // Latest blockhash for the transaction
-
-      // Create an Anchor provider to sign and send the transaction
-      const provider = new AnchorProvider(connection, wallet, {
-        commitment: "finalized",
-      });
-
-      // Sign and send the transaction
-      const signature = await provider.sendAndConfirm(tx);
-      messageApi.success("Transaction successful");
-      console.log("Transaction successful with signature:", signature);
-    } catch (error: any) {
-      // Log full details of the error including logs
-      if (error instanceof web3.SendTransactionError && error.logs) {
-        console.error("Transaction failed with logs:", error.logs);
-      } else {
-        console.error("Transaction failed:", error);
-      }
-      messageApi.error("Transaction failed");
-    }
-  };
-
   const columns = [
     ...accountGroupColumns
       .filter((col: any) => {
@@ -219,25 +164,26 @@ const AccountGroup = ({
           dataIndex: "operation",
           render: (_: any, record: any) => (
             <div className="flex flex-col gap-2">
+              <SendToken
+                rowAccount={record.address}
+                fromAddress={
+                  localDataSource.find(
+                    (item) => item.address === record.address
+                  )["from"]
+                }
+                toAddress={
+                  localDataSource.find(
+                    (item) => item.address === record.address
+                  )["to"]
+                }
+              />
+
               <Popconfirm
                 title="Sure to delete?"
                 onConfirm={() => handleDelete(record.key)}
               >
                 <Button className="text-[#06d6a0]">Delete</Button>
               </Popconfirm>
-
-              <Button
-                onClick={() => sendToken(record.address)}
-                className="text-[#06d6a0]"
-              >
-                Send
-              </Button>
-              <Button
-                onClick={() => sendToken(record.address)}
-                className="text-[#06d6a0]"
-              >
-                Receive
-              </Button>
             </div>
           ),
         }
