@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [groups, setGroups] = useState<any>({});
   const [groupCount, setGroupCount] = useState<number>(1);
   const [dashboardBalance, setDashboardBalance] = useState<number>(0);
-  const [expendAllGroup, setExpendAllGroup] = useState<boolean>(false);
+  const [expendAllGroup, setExpendAllGroup] = useState<boolean>(true);
   const [localSource, setLocalSource] = useLocalStorage<any>("dashy", {
     group1: {
       index: 1,
