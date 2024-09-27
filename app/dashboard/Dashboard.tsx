@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [groups, setGroups] = useState<any>({});
   const [groupCount, setGroupCount] = useState<number>(1);
   const [dashboardBalance, setDashboardBalance] = useState<number>(0);
+  const [expendAllGroup, setExpendAllGroup] = useState<boolean>(false);
   const [localSource, setLocalSource] = useLocalStorage<any>("dashy", {
     group1: {
       index: 1,
@@ -255,7 +256,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="max-w-[75vw] w-full">
+    <div className="max-w-[85vw] w-full">
       <div className="flex justify-between items-center mt-3 mb-7 text-2xl font-bold">
         <div className="flex gap-3">
           Dashboard
@@ -263,6 +264,16 @@ const Dashboard = () => {
             localSource={localSource}
             onDataImport={handleDataImport}
           />
+          <div>
+            <Button
+              className="custom-button"
+              onClick={() => {
+                setExpendAllGroup((prev) => !prev);
+              }}
+            >
+              Expend/Collapse All
+            </Button>
+          </div>
         </div>
         <div className="text-lg font-bold">
           Total Dashboard Balance: ${dashboardBalance.toFixed(2)}
@@ -270,11 +281,10 @@ const Dashboard = () => {
       </div>
 
       <DndContext onDragEnd={onDragEnd} onDragOver={onDragOver}>
-        <div className="flex flex-col gap-5">
-          {Object.keys(groups).map((groupKey) => {
+        <div className="grid grid-cols-2 gap-10">
+          {Object.keys(groups).map((groupKey, index) => {
             const group = groups[groupKey];
             if (!group) return null; // Safeguard against undefined groups
-
             return (
               <SortableContext
                 key={groupKey}
@@ -286,14 +296,16 @@ const Dashboard = () => {
               >
                 <AccountGroup
                   groupData={group}
-                  groupIndex={groupKey}
+                  groupIndex={groupKey} // Keep groupKey as a unique identifier
                   updateGroup={updateGroup}
                   deleteGroup={() => deleteGroup(groupKey)}
+                  displayFull={expendAllGroup}
                 />
               </SortableContext>
             );
           })}
         </div>
+
         <Button className="mt-2" block onClick={handleAddNewGroup}>
           Add New Group
         </Button>

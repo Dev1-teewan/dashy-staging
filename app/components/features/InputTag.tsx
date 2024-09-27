@@ -1,9 +1,9 @@
 "use client";
 
 import type { InputRef } from "antd";
+import { arraysEqual } from "@/app/utils/Utils";
 import { Flex, Input, Tag, theme, Tooltip } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import { useLocalStorage } from "@solana/wallet-adapter-react";
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
 
 const tagInputStyle: React.CSSProperties = {
@@ -19,72 +19,60 @@ interface InputTagProps {
 
 const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
   const { token } = theme.useToken();
-  const [tags, setTags] = useState<string[]>([]);
+  const [localTags, setLocalTags] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [inputVisible, setInputVisible] = useState(false);
-  const [editInputIndex, setEditInputIndex] = useState(-1);
+  const [editInputIndex, setEditInputIndex] = useState<number | null>(null);
   const [editInputValue, setEditInputValue] = useState("");
   const inputRef = useRef<InputRef>(null);
   const editInputRef = useRef<InputRef>(null);
 
+  // Sync localTags with initialTags on prop change
   useEffect(() => {
-    setTags([...initialTags]);
+    setLocalTags(initialTags);
   }, [initialTags]);
 
+  // Notify parent of tags changes
   useEffect(() => {
-    onTagsChange(tags);
-  }, [tags, onTagsChange]);
+    if (!arraysEqual(localTags, initialTags)) onTagsChange(localTags); // Trigger parent update with current tags
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [localTags]);
 
-  // Focus input when visible
-  useEffect(() => {
-    if (inputVisible) {
-      inputRef.current?.focus();
-    }
-  }, [inputVisible]);
-
-  // Focus edit input when editing
-  useEffect(() => {
-    if (editInputIndex !== null) {
-      editInputRef.current?.focus();
-    }
-  }, [editInputIndex]);
-
-  // Handle tag removal
   const handleClose = (removedTag: string) => {
-    setTags((prevTags) => prevTags.filter((tag) => tag !== removedTag)); // Use functional update
+    const updatedTags = localTags.filter((tag) => tag !== removedTag);
+    setLocalTags(updatedTags);
   };
 
-  // Show input field
   const showInput = () => {
     setInputVisible(true);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
-  // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
-  // Confirm new tag input
   const handleInputConfirm = () => {
-    if (inputValue && !tags.includes(inputValue)) {
-      setTags((prevTags) => [...prevTags, inputValue]); // Use functional update
+    if (inputValue && !localTags.includes(inputValue)) {
+      const updatedTags = [...localTags, inputValue];
+      setLocalTags(updatedTags);
+      setInputVisible(false);
+      setInputValue("");
     }
-    setInputVisible(false);
-    setInputValue("");
   };
 
-  // Handle editing input changes
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditInputValue(e.target.value);
   };
 
-  // Confirm edited tag
   const handleEditInputConfirm = () => {
     if (editInputIndex !== null) {
-      const newTags = [...tags];
-      newTags[editInputIndex] = editInputValue;
-      setTags(newTags); // Update state, which will trigger localStorage update
-      setEditInputIndex(-1);
+      const updatedTags = [...localTags];
+      updatedTags[editInputIndex] = editInputValue;
+      setLocalTags(updatedTags);
+      setEditInputIndex(null);
       setEditInputValue("");
     }
   };
@@ -102,7 +90,7 @@ const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
 
   return (
     <Flex gap="4px 0" wrap className="!h-full">
-      {tags.map((tag, index) => {
+      {localTags.map((tag, index) => {
         if (editInputIndex === index) {
           return (
             <Input

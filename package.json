@@ -24,6 +24,7 @@
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "^1.95.3",
     "antd": "^5.20.3",
+    "antd-style": "^3.6.3",
     "bs58": "^4.0.1",
     "next": "14.2.7",
     "react": "^18",

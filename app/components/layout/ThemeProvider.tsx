@@ -42,6 +42,7 @@ export default function ThemeProvider({
           Select: {
             optionSelectedColor: "#06d6a0",
             optionSelectedFontWeight: 400,
+            multipleItemBorderColor: "#06d6a0",
           },
         },
       }}

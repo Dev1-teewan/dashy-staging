@@ -78,3 +78,11 @@ button.wallet-adapter-button-trigger:hover {
   width: 100% !important;
   display: grid !important;
 }
+
+.ant-select-selection-item-remove {
+  color: #f1f1f1 !important;
+}
+
+.dashboard-collapse > div > div {
+  padding: 0 16px !important;
+}
