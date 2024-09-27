@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [groups, setGroups] = useState<any>({});
   const [groupCount, setGroupCount] = useState<number>(1);
   const [dashboardBalance, setDashboardBalance] = useState<number>(0);
+  const [expendAllGroup, setExpendAllGroup] = useState<boolean>(false);
   const [localSource, setLocalSource] = useLocalStorage<any>("dashy", {
     group1: {
       index: 1,
@@ -263,6 +264,16 @@ const Dashboard = () => {
             localSource={localSource}
             onDataImport={handleDataImport}
           />
+          <div>
+            <Button
+              className="custom-button"
+              onClick={() => {
+                setExpendAllGroup((prev) => !prev);
+              }}
+            >
+              Expend/Collapse All
+            </Button>
+          </div>
         </div>
         <div className="text-lg font-bold">
           Total Dashboard Balance: ${dashboardBalance.toFixed(2)}
@@ -274,11 +285,6 @@ const Dashboard = () => {
           {Object.keys(groups).map((groupKey, index) => {
             const group = groups[groupKey];
             if (!group) return null; // Safeguard against undefined groups
-
-            const isLastOddGroup =
-              index === Object.keys(groups).length - 1 &&
-              Object.keys(groups).length % 2 !== 0;
-
             return (
               <SortableContext
                 key={groupKey}
@@ -288,14 +294,13 @@ const Dashboard = () => {
                   .map((account: any) => account?.key)}
                 strategy={verticalListSortingStrategy}
               >
-                <div className={isLastOddGroup ? "col-span-2" : ""}>
-                  <AccountGroup
-                    groupData={group}
-                    groupIndex={groupKey}
-                    updateGroup={updateGroup}
-                    deleteGroup={() => deleteGroup(groupKey)}
-                  />
-                </div>
+                <AccountGroup
+                  groupData={group}
+                  groupIndex={groupKey} // Keep groupKey as a unique identifier
+                  updateGroup={updateGroup}
+                  deleteGroup={() => deleteGroup(groupKey)}
+                  displayFull={expendAllGroup}
+                />
               </SortableContext>
             );
           })}

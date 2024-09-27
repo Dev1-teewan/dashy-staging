@@ -42,7 +42,13 @@ const EditableField = ({ value, onSave, placeholder }: EditableFieldProps) => {
       placeholder={placeholder}
     />
   ) : (
-    <div onClick={() => setIsEditing(true)} className="cursor-pointer min-w-32">
+    <div
+      onClick={(event) => {
+        event.stopPropagation();
+        setIsEditing(true);
+      }}
+      className="cursor-pointer min-w-32"
+    >
       <strong>{value || placeholder}</strong>
     </div>
   );

@@ -146,7 +146,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         );
     } else {
       // Display tags or the input value in a read-only format
-      const tags = record[dataIndex] || [];
+      const tags = Array.isArray(record[dataIndex]) ? record[dataIndex] : [];
       childNode =
         type === "select" ? (
           <div
