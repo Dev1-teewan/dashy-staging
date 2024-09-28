@@ -231,8 +231,8 @@ const AccountGroup = ({
 
   // Fetch token balance when expanding row
   const handleExpand = async (expanded: boolean, record: any) => {
-    // Fetch balance only when first expanded
-    if (!expandedRows.includes(record.address) && expanded) {
+    // Fetch balance only when first expanded (disable -> !expandedRows.includes(record.address))
+    if (expanded) {
       try {
         messageApi.open({
           type: "loading",
