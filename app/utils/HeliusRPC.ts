@@ -248,7 +248,7 @@ export const fetchAssets = async (address: string) => {
 const mapResponseAssets = (data: any) => {
   // Map the data to the required DataType
   let mappedData = data.result.items
-    .filter((item: any) => item.token_info?.price_info?.total_price > 0.1)
+    .filter((item: any) => item.token_info?.price_info?.total_price > 0.01)
     .map((item: any, index: number) => ({
       key: index.toString(),
       asset: {
@@ -308,4 +308,43 @@ const mapResponseAssets = (data: any) => {
     .toFixed(2);
 
   return { mappedData, totalValue };
+};
+
+export const getLatestBlockhash = async () => {
+  try {
+    const response = await fetch(
+      `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: 1,
+          jsonrpc: "2.0",
+          method: "getLatestBlockhash",
+          params: [
+            {
+              commitment: "processed",
+            },
+          ],
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data && data.result) {
+      return {
+        status: "success",
+        blockhash: data.result.value.blockhash,
+        lastValidBlockHeight: data.result.value.lastValidBlockHeight,
+      };
+    } else {
+      throw new Error("No blockhash found in the response");
+    }
+  } catch (error) {
+    console.error("Error fetching latest blockhash:", error);
+    return { status: "error", data: error };
+  }
 };

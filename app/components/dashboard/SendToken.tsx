@@ -1,5 +1,20 @@
+import Image from "next/image";
 import React, { useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
+import { getLatestBlockhash } from "@/app/utils/HeliusRPC";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  sendAndConfirmRawTransaction,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 import {
   Button,
   Input,
@@ -10,23 +25,6 @@ import {
   Form,
   message,
 } from "antd";
-
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  Connection,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  sendAndConfirmRawTransaction,
-  sendAndConfirmTransaction,
-  SystemProgram,
-  Transaction,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import {
-  createAssociatedTokenAccountInstruction,
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-} from "@solana/spl-token";
 
 interface SendTokenProps {
   rowAccount: string;
@@ -40,12 +38,13 @@ const SendToken: React.FC<SendTokenProps> = ({
   toAddress,
 }) => {
   const { connection } = useConnection();
-  const { publicKey, signTransaction, sendTransaction } = useWallet();
+  const { publicKey, signTransaction } = useWallet();
 
   const [sendForm] = Form.useForm();
   const [receiveForm] = Form.useForm();
   const [value, setValue] = useState("yes");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const sendSol = async (toAddress: string, amount: number) => {
     if (!publicKey) {
@@ -54,6 +53,7 @@ const SendToken: React.FC<SendTokenProps> = ({
     }
 
     try {
+      message.loading("Creating transaction..", 0);
       // Create a new transaction
       const transaction = new Transaction();
 
@@ -66,8 +66,7 @@ const SendToken: React.FC<SendTokenProps> = ({
         })
       );
 
-      let blockhash = (await connection.getLatestBlockhash("finalized"))
-        .blockhash;
+      let blockhash = (await getLatestBlockhash()).blockhash;
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
@@ -77,14 +76,19 @@ const SendToken: React.FC<SendTokenProps> = ({
         return;
       }
       const signedTransaction = await signTransaction(transaction);
-      const signature = await sendAndConfirmTransaction(
+      const signature = await sendAndConfirmRawTransaction(
         connection,
-        signedTransaction,
-        []
+        signedTransaction.serialize(),
+        {
+          skipPreflight: true,
+        }
       );
+
+      message.destroy();
       console.log("Transaction successful with signature:", signature);
       message.success(`Transaction successful with signature: ${signature}`);
     } catch (error) {
+      message.destroy();
       message.error("Transaction failed");
       console.error("Transaction failed:", error);
     }
@@ -97,6 +101,7 @@ const SendToken: React.FC<SendTokenProps> = ({
     }
 
     try {
+      message.loading("Creating transaction..", 0);
       const tokenMintAddress = new PublicKey(
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
@@ -140,8 +145,7 @@ const SendToken: React.FC<SendTokenProps> = ({
 
       transaction.add(transferTokenInstruction);
 
-      let blockhash = (await connection.getLatestBlockhash("finalized"))
-        .blockhash;
+      let blockhash = (await getLatestBlockhash()).blockhash;
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
@@ -151,14 +155,19 @@ const SendToken: React.FC<SendTokenProps> = ({
         return;
       }
       const signedTransaction = await signTransaction(transaction);
-      const signature = await sendAndConfirmTransaction(
+      const signature = await sendAndConfirmRawTransaction(
         connection,
-        signedTransaction,
-        []
+        signedTransaction.serialize(),
+        {
+          skipPreflight: true,
+        }
       );
+
+      message.destroy();
       console.log("Transaction successful with signature:", signature);
       message.success(`Transaction successful with signature: ${signature}`);
     } catch (error) {
+      message.destroy();
       message.error("Transaction failed");
       console.error("Transaction failed:", error);
     }
@@ -177,23 +186,27 @@ const SendToken: React.FC<SendTokenProps> = ({
         }
 
         await sendForm.validateFields();
-
-        message.success("Transaction details are valid!");
-
+        setConfirmLoading(true);
+        if (sendForm.getFieldValue("token") === "sol") {
+          await sendSol(
+            sendForm.getFieldValue("recipient"),
+            sendForm.getFieldValue("amount")
+          );
+        } else if (sendForm.getFieldValue("token") === "usdc") {
+          await sendToken(
+            sendForm.getFieldValue("recipient"),
+            sendForm.getFieldValue("amount")
+          );
+        }
+        setConfirmLoading(false);
         setIsModalOpen(false);
       } else if (value === "no") {
-        if (fromAddress.length === 0) {
-          message.error("Please add a sender address first. (From Address)");
-          return;
+        if (publicKey && !fromAddress.includes(publicKey.toString())) {
+          message.warning("You are not in the sender address list.");
         }
 
-        // if (!fromAddress.includes(wallet?.publicKey?.toString())) {
-        //   message.error("You are not in the sender address list.");
-        //   return;
-        // }
-
         await receiveForm.validateFields();
-
+        setConfirmLoading(true);
         if (receiveForm.getFieldValue("token") === "sol") {
           await sendSol(
             receiveForm.getFieldValue("recipient"),
@@ -205,8 +218,8 @@ const SendToken: React.FC<SendTokenProps> = ({
             receiveForm.getFieldValue("amount")
           );
         }
-        // message.success("Transaction details are valid!");
-        // setIsModalOpen(false);
+        setConfirmLoading(false);
+        setIsModalOpen(false);
       }
     } catch (error) {
       console.log(error);
@@ -215,6 +228,7 @@ const SendToken: React.FC<SendTokenProps> = ({
   };
 
   const handleCancel = () => {
+    message.destroy();
     setIsModalOpen(false);
   };
 
@@ -235,6 +249,7 @@ const SendToken: React.FC<SendTokenProps> = ({
         onOk={handleOk}
         open={isModalOpen}
         onCancel={handleCancel}
+        confirmLoading={confirmLoading}
         closeIcon={<CloseOutlined style={{ color: "#f1f1f1" }} />}
         title={
           <span className="text-xl">
@@ -286,8 +301,40 @@ const SendToken: React.FC<SendTokenProps> = ({
                     disabled={toAddress.length === 0}
                     style={{ flex: 1, marginRight: 20 }}
                     options={[
-                      { value: "sol", label: "SOL" },
-                      { value: "usdc", label: "USDC" },
+                      {
+                        value: "sol",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://cdn.jsdelivr.net/gh/trustwallet/assets@master/blockchains/solana/info/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            SOL
+                          </div>
+                        ),
+                      },
+                      {
+                        value: "usdc",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            USDC
+                          </div>
+                        ),
+                      },
                     ]}
                   />
                 </Form.Item>
@@ -357,8 +404,40 @@ const SendToken: React.FC<SendTokenProps> = ({
                     disabled={fromAddress.length === 0}
                     style={{ flex: 1, marginRight: 20 }}
                     options={[
-                      { value: "sol", label: "SOL" },
-                      { value: "usdc", label: "USDC" },
+                      {
+                        value: "sol",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://cdn.jsdelivr.net/gh/trustwallet/assets@master/blockchains/solana/info/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            SOL
+                          </div>
+                        ),
+                      },
+                      {
+                        value: "usdc",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            USDC
+                          </div>
+                        ),
+                      },
                     ]}
                   />
                 </Form.Item>
