@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
 import { getLatestBlockhash } from "@/app/utils/HeliusRPC";
@@ -87,6 +88,7 @@ const SendToken: React.FC<SendTokenProps> = ({
       console.log("Transaction successful with signature:", signature);
       message.success(`Transaction successful with signature: ${signature}`);
     } catch (error) {
+      message.destroy();
       message.error("Transaction failed");
       console.error("Transaction failed:", error);
     }
@@ -165,6 +167,7 @@ const SendToken: React.FC<SendTokenProps> = ({
       console.log("Transaction successful with signature:", signature);
       message.success(`Transaction successful with signature: ${signature}`);
     } catch (error) {
+      message.destroy();
       message.error("Transaction failed");
       console.error("Transaction failed:", error);
     }
@@ -183,15 +186,24 @@ const SendToken: React.FC<SendTokenProps> = ({
         }
 
         await sendForm.validateFields();
-
-        message.success("Transaction details are valid!");
-
+        setConfirmLoading(true);
+        if (sendForm.getFieldValue("token") === "sol") {
+          await sendSol(
+            sendForm.getFieldValue("recipient"),
+            sendForm.getFieldValue("amount")
+          );
+        } else if (sendForm.getFieldValue("token") === "usdc") {
+          await sendToken(
+            sendForm.getFieldValue("recipient"),
+            sendForm.getFieldValue("amount")
+          );
+        }
+        setConfirmLoading(false);
         setIsModalOpen(false);
       } else if (value === "no") {
-        // if (!fromAddress.includes(wallet?.publicKey?.toString())) {
-        //   message.error("You are not in the sender address list.");
-        //   return;
-        // }
+        if (publicKey && !fromAddress.includes(publicKey.toString())) {
+          message.warning("You are not in the sender address list.");
+        }
 
         await receiveForm.validateFields();
         setConfirmLoading(true);
@@ -216,6 +228,7 @@ const SendToken: React.FC<SendTokenProps> = ({
   };
 
   const handleCancel = () => {
+    message.destroy();
     setIsModalOpen(false);
   };
 
@@ -288,8 +301,40 @@ const SendToken: React.FC<SendTokenProps> = ({
                     disabled={toAddress.length === 0}
                     style={{ flex: 1, marginRight: 20 }}
                     options={[
-                      { value: "sol", label: "SOL" },
-                      { value: "usdc", label: "USDC" },
+                      {
+                        value: "sol",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://cdn.jsdelivr.net/gh/trustwallet/assets@master/blockchains/solana/info/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            SOL
+                          </div>
+                        ),
+                      },
+                      {
+                        value: "usdc",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            USDC
+                          </div>
+                        ),
+                      },
                     ]}
                   />
                 </Form.Item>
@@ -359,8 +404,40 @@ const SendToken: React.FC<SendTokenProps> = ({
                     disabled={fromAddress.length === 0}
                     style={{ flex: 1, marginRight: 20 }}
                     options={[
-                      { value: "sol", label: "SOL" },
-                      { value: "usdc", label: "USDC" },
+                      {
+                        value: "sol",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://cdn.jsdelivr.net/gh/trustwallet/assets@master/blockchains/solana/info/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            SOL
+                          </div>
+                        ),
+                      },
+                      {
+                        value: "usdc",
+                        label: (
+                          <div className="flex gap-3 text-md items-center">
+                            <Image
+                              src={
+                                "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png"
+                              }
+                              alt="Token icon"
+                              className="!w-[14px] !h-[14px] rounded-full"
+                              width={14}
+                              height={14}
+                            />
+                            USDC
+                          </div>
+                        ),
+                      },
                     ]}
                   />
                 </Form.Item>
