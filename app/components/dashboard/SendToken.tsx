@@ -1,5 +1,19 @@
 import React, { useState } from "react";
 import { CloseOutlined } from "@ant-design/icons";
+import { getLatestBlockhash } from "@/app/utils/HeliusRPC";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  sendAndConfirmRawTransaction,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 import {
   Button,
   Input,
@@ -10,23 +24,6 @@ import {
   Form,
   message,
 } from "antd";
-
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import {
-  Connection,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  sendAndConfirmRawTransaction,
-  sendAndConfirmTransaction,
-  SystemProgram,
-  Transaction,
-  VersionedTransaction,
-} from "@solana/web3.js";
-import {
-  createAssociatedTokenAccountInstruction,
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-} from "@solana/spl-token";
 
 interface SendTokenProps {
   rowAccount: string;
@@ -40,12 +37,13 @@ const SendToken: React.FC<SendTokenProps> = ({
   toAddress,
 }) => {
   const { connection } = useConnection();
-  const { publicKey, signTransaction, sendTransaction } = useWallet();
+  const { publicKey, signTransaction } = useWallet();
 
   const [sendForm] = Form.useForm();
   const [receiveForm] = Form.useForm();
   const [value, setValue] = useState("yes");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const sendSol = async (toAddress: string, amount: number) => {
     if (!publicKey) {
@@ -54,6 +52,7 @@ const SendToken: React.FC<SendTokenProps> = ({
     }
 
     try {
+      message.loading("Creating transaction..", 0);
       // Create a new transaction
       const transaction = new Transaction();
 
@@ -66,8 +65,7 @@ const SendToken: React.FC<SendTokenProps> = ({
         })
       );
 
-      let blockhash = (await connection.getLatestBlockhash("finalized"))
-        .blockhash;
+      let blockhash = (await getLatestBlockhash()).blockhash;
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
@@ -77,11 +75,15 @@ const SendToken: React.FC<SendTokenProps> = ({
         return;
       }
       const signedTransaction = await signTransaction(transaction);
-      const signature = await sendAndConfirmTransaction(
+      const signature = await sendAndConfirmRawTransaction(
         connection,
-        signedTransaction,
-        []
+        signedTransaction.serialize(),
+        {
+          skipPreflight: true,
+        }
       );
+
+      message.destroy();
       console.log("Transaction successful with signature:", signature);
       message.success(`Transaction successful with signature: ${signature}`);
     } catch (error) {
@@ -97,6 +99,7 @@ const SendToken: React.FC<SendTokenProps> = ({
     }
 
     try {
+      message.loading("Creating transaction..", 0);
       const tokenMintAddress = new PublicKey(
         "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
       );
@@ -140,8 +143,7 @@ const SendToken: React.FC<SendTokenProps> = ({
 
       transaction.add(transferTokenInstruction);
 
-      let blockhash = (await connection.getLatestBlockhash("finalized"))
-        .blockhash;
+      let blockhash = (await getLatestBlockhash()).blockhash;
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = publicKey;
 
@@ -151,11 +153,15 @@ const SendToken: React.FC<SendTokenProps> = ({
         return;
       }
       const signedTransaction = await signTransaction(transaction);
-      const signature = await sendAndConfirmTransaction(
+      const signature = await sendAndConfirmRawTransaction(
         connection,
-        signedTransaction,
-        []
+        signedTransaction.serialize(),
+        {
+          skipPreflight: true,
+        }
       );
+
+      message.destroy();
       console.log("Transaction successful with signature:", signature);
       message.success(`Transaction successful with signature: ${signature}`);
     } catch (error) {
@@ -182,18 +188,13 @@ const SendToken: React.FC<SendTokenProps> = ({
 
         setIsModalOpen(false);
       } else if (value === "no") {
-        if (fromAddress.length === 0) {
-          message.error("Please add a sender address first. (From Address)");
-          return;
-        }
-
         // if (!fromAddress.includes(wallet?.publicKey?.toString())) {
         //   message.error("You are not in the sender address list.");
         //   return;
         // }
 
         await receiveForm.validateFields();
-
+        setConfirmLoading(true);
         if (receiveForm.getFieldValue("token") === "sol") {
           await sendSol(
             receiveForm.getFieldValue("recipient"),
@@ -205,8 +206,8 @@ const SendToken: React.FC<SendTokenProps> = ({
             receiveForm.getFieldValue("amount")
           );
         }
-        // message.success("Transaction details are valid!");
-        // setIsModalOpen(false);
+        setConfirmLoading(false);
+        setIsModalOpen(false);
       }
     } catch (error) {
       console.log(error);
@@ -235,6 +236,7 @@ const SendToken: React.FC<SendTokenProps> = ({
         onOk={handleOk}
         open={isModalOpen}
         onCancel={handleCancel}
+        confirmLoading={confirmLoading}
         closeIcon={<CloseOutlined style={{ color: "#f1f1f1" }} />}
         title={
           <span className="text-xl">
