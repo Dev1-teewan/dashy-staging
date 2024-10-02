@@ -64,7 +64,7 @@ const AccountGroup = ({
   const [totalBalance, setTotalBalance] = useState(0);
 
   // Save state for expended rows and its token list
-  const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  // const [expandedRows, setExpandedRows] = useState<string[]>([]);
   const [addressTokenList, setAccountTokenList] = useState<Record<string, []>>(
     {}
   );
@@ -219,7 +219,7 @@ const AccountGroup = ({
           ...prev,
           [inputAddress]: response.dataSource,
         }));
-        setExpandedRows((prev) => [...prev, inputAddress]);
+        // setExpandedRows((prev) => [...prev, inputAddress]);
         setCount(count + 1);
         setInputAddress("");
       }
@@ -258,7 +258,7 @@ const AccountGroup = ({
           setLocalDataSource(updatedDataSource);
 
           // Expand the row
-          setExpandedRows((prev) => [...prev, record.address]);
+          // setExpandedRows((prev) => [...prev, record.address]);
         }
       } catch (error) {
         messageApi.error("Failed to fetch balance");
@@ -366,7 +366,7 @@ const AccountGroup = ({
                         locale={{
                           emptyText: (
                             <div ref={setNodeRef}>
-                              <Empty className="min-h-52 flex flex-col justify-center items-center" />
+                              <Empty className="min-h-[219px] flex flex-col justify-center items-center" />
                             </div>
                           ),
                         }}

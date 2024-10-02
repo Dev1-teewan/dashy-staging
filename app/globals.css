@@ -86,3 +86,14 @@ button.wallet-adapter-button-trigger:hover {
 .dashboard-collapse > div > div {
   padding: 0 16px !important;
 }
+
+.ant-table-body {
+  min-height: 219px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-table-body tr {
+  flex-grow: 1;
+}
