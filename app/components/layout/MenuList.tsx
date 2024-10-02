@@ -3,9 +3,9 @@
 import { Menu } from "antd";
 import { useRouter, usePathname } from "next/navigation";
 import {
-  DotChartOutlined,
-  HistoryOutlined,
   HomeOutlined,
+  HistoryOutlined,
+  FundProjectionScreenOutlined,
 } from "@ant-design/icons";
 
 interface MenuListProps {
@@ -24,10 +24,10 @@ const MenuList = ({ sider }: MenuListProps) => {
       onClick: () => router.push("/"),
     },
     {
-      key: "/engage",
-      icon: <DotChartOutlined size={18} />,
-      label: sider.collapsed ? null : "Engaged",
-      onClick: () => router.push("/engage"),
+      key: "/token",
+      icon: <FundProjectionScreenOutlined size={18} />,
+      label: sider.collapsed ? null : "Token Balance",
+      onClick: () => router.push("/token"),
     },
     {
       key: "/history",

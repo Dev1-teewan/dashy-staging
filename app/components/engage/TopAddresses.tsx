@@ -31,7 +31,7 @@ const TopAddress = () => {
               label: (
                 <div className="text-xl font-bold pl-2">
                   <BarChartOutlined className="pr-3 text-[#06d6a0]" />
-                  Top 10 Engaged Addresses with {address}
+                  Top 10 Engaged Addresses {address && `with ${address}`}
                 </div>
               ),
               children: (

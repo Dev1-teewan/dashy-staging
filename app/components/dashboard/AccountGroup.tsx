@@ -312,26 +312,41 @@ const AccountGroup = ({
 
                     <div className="pl-2">
                       <Row className="mb-1">
-                        <Col span={4} className="font-semibold text-lg">
+                        <Col
+                          span={displayFull ? 3 : 5}
+                          className="font-semibold text-lg"
+                        >
                           Chain:
                         </Col>
-                        <Col span={20} className="flex items-center">
+                        <Col
+                          span={displayFull ? 21 : 19}
+                          className="flex items-center"
+                        >
                           Solana
                         </Col>
                       </Row>
                       <Row className="mb-1">
-                        <Col span={4} className="font-semibold text-lg">
+                        <Col
+                          span={displayFull ? 3 : 5}
+                          className="font-semibold text-lg"
+                        >
                           Total Balance:
                         </Col>
-                        <Col span={20} className="flex items-center">
+                        <Col
+                          span={displayFull ? 21 : 19}
+                          className="flex items-center"
+                        >
                           ${totalBalance.toFixed(2)}
                         </Col>
                       </Row>
                       <Row>
-                        <Col span={4} className="font-semibold text-lg">
-                          Group Tags:
+                        <Col
+                          span={displayFull ? 3 : 5}
+                          className="font-semibold text-lg"
+                        >
+                          Cluster Tags:
                         </Col>
-                        <Col span={20}>
+                        <Col span={displayFull ? 21 : 19}>
                           <InputTag
                             initialTags={localTags}
                             onTagsChange={handleTagsChange}

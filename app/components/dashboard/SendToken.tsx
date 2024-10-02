@@ -39,6 +39,7 @@ const SendToken: React.FC<SendTokenProps> = ({
 }) => {
   const { connection } = useConnection();
   const { publicKey, signTransaction } = useWallet();
+  const shortenAddress = `${rowAccount.slice(0, 4)}...${rowAccount.slice(-4)}`;
 
   const [sendForm] = Form.useForm();
   const [receiveForm] = Form.useForm();
@@ -251,16 +252,11 @@ const SendToken: React.FC<SendTokenProps> = ({
         onCancel={handleCancel}
         confirmLoading={confirmLoading}
         closeIcon={<CloseOutlined style={{ color: "#f1f1f1" }} />}
-        title={
-          <span className="text-xl">
-            Make a transaction ({rowAccount.slice(0, 4)}...
-            {rowAccount.slice(-4)})
-          </span>
-        }
+        title={<span className="text-xl">Make a transaction</span>}
       >
         <div className="text-[16px]">
           <div className="flex flex-row items-center gap-4 mb-2">
-            Are you owner of the account?
+            Are you logged in to the account ({shortenAddress})?
             <Radio.Group onChange={onChange} defaultValue="yes">
               <Radio value="yes">Yes</Radio>
               <Radio value="no">No</Radio>

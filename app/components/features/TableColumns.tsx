@@ -51,17 +51,17 @@ export const accountGroupColumns: EditableColumnType[] = [
       );
     },
   },
-  {
-    title: "From",
-    width: "15%",
-    key: "from",
-    dataIndex: "from",
-    editable: true,
-    type: "select",
-  },
+  // {
+  //   title: "From",
+  //   width: "15%",
+  //   key: "from",
+  //   dataIndex: "from",
+  //   editable: true,
+  //   type: "select",
+  // },
   {
     title: "To",
-    width: "15%",
+    width: "20%",
     key: "to",
     dataIndex: "to",
     editable: true,
@@ -69,7 +69,7 @@ export const accountGroupColumns: EditableColumnType[] = [
   },
   {
     title: "Purpose",
-    width: "15%",
+    width: "20%",
     key: "purpose",
     dataIndex: "purpose",
     editable: true,

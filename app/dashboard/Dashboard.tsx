@@ -17,11 +17,11 @@ const Dashboard = () => {
   const [groups, setGroups] = useState<any>({});
   const [groupCount, setGroupCount] = useState<number>(1);
   const [dashboardBalance, setDashboardBalance] = useState<number>(0);
-  const [expendAllGroup, setExpendAllGroup] = useState<boolean>(true);
+  const [expendAllGroup, setExpendAllGroup] = useState<boolean>(false);
   const [localSource, setLocalSource] = useLocalStorage<any>("dashy", {
     group1: {
       index: 1,
-      groupName: "Group 1",
+      groupName: "Cluster 1",
       tags: [],
       accounts: [],
       totalBalance: 0,
@@ -73,7 +73,7 @@ const Dashboard = () => {
     const newGroupKey = `group${groupCount}`;
     const newGroup = {
       index: groupCount,
-      groupName: `Group ${groupCount}`,
+      groupName: `Cluster ${groupCount}`,
       tags: [],
       accounts: [],
       totalBalance: 0,
@@ -307,7 +307,7 @@ const Dashboard = () => {
         </div>
 
         <Button className="mt-2" block onClick={handleAddNewGroup}>
-          Add New Group
+          Add New Cluster
         </Button>
       </DndContext>
     </div>
