@@ -88,7 +88,7 @@ button.wallet-adapter-button-trigger:hover {
 }
 
 .ant-table-body {
-  min-height: 219px;
+  min-height: 252px;
   position: relative;
   display: flex;
   flex-direction: column;

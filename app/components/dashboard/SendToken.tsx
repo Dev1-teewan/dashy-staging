@@ -43,7 +43,7 @@ const SendToken: React.FC<SendTokenProps> = ({
 
   const [sendForm] = Form.useForm();
   const [receiveForm] = Form.useForm();
-  const [value, setValue] = useState("yes");
+  const [isOwner, setIsOwner] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
@@ -180,7 +180,7 @@ const SendToken: React.FC<SendTokenProps> = ({
 
   const handleOk = async () => {
     try {
-      if (value === "yes") {
+      if (isOwner === true) {
         if (toAddress.length === 0) {
           message.error("Please add a recipient address first. (To Address)");
           return;
@@ -201,7 +201,7 @@ const SendToken: React.FC<SendTokenProps> = ({
         }
         setConfirmLoading(false);
         setIsModalOpen(false);
-      } else if (value === "no") {
+      } else if (isOwner === false) {
         if (publicKey && !fromAddress.includes(publicKey.toString())) {
           message.warning("You are not in the sender address list.");
         }
@@ -234,7 +234,7 @@ const SendToken: React.FC<SendTokenProps> = ({
   };
 
   const onChange = (e: RadioChangeEvent) => {
-    setValue(e.target.value);
+    setIsOwner(e.target.value);
   };
 
   const walletPublicKey = publicKey?.toString(); // Get wallet public key as a string
@@ -250,23 +250,33 @@ const SendToken: React.FC<SendTokenProps> = ({
         onOk={handleOk}
         open={isModalOpen}
         onCancel={handleCancel}
+        style={{ zIndex: 999 }}
         confirmLoading={confirmLoading}
         closeIcon={<CloseOutlined style={{ color: "#f1f1f1" }} />}
-        title={<span className="text-xl">Make a transaction</span>}
+        title={
+          <span className="text-xl">
+            Make a transaction from {shortenAddress}
+          </span>
+        }
       >
         <div className="text-[16px]">
-          <div className="flex flex-row items-center gap-4 mb-2">
+          {/* <div className="flex flex-row items-center gap-4 mb-2">
             Are you logged in to the account ({shortenAddress})?
-            <Radio.Group onChange={onChange} defaultValue="yes">
-              <Radio value="yes">Yes</Radio>
-              <Radio value="no">No</Radio>
+            <Radio.Group onChange={onChange} defaultValue={true}>
+              <Radio value={true}>Yes</Radio>
+              <Radio value={false}>No</Radio>
             </Radio.Group>
-          </div>
-          {value === "yes" ? (
+          </div> */}
+          {isOwner === true ? (
             <Form form={sendForm} layout="vertical">
               <div className="flex flex-col gap-2">
+                {walletPublicKey && rowAccount !== walletPublicKey && (
+                  <div className="text-sm text-red-800">
+                    Note: You are not login to the account.
+                  </div>
+                )}
                 {toAddress.length === 0 && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-red-800 mb-1">
                     Note: You need to add a recipient address first.
                   </div>
                 )}
