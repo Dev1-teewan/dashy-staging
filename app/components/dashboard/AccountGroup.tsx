@@ -289,7 +289,7 @@ const AccountGroup = ({
                   <>
                     <div
                       onClick={() => setExpended((prev) => !prev)}
-                      className="flex justify-between items-center m-2 cursor-pointer"
+                      className="flex justify-between items-center m-2 gap-2 cursor-pointer"
                     >
                       <div className="flex gap-2 text-white text-xl font-bold">
                         {expended ? <DownOutlined /> : <RightOutlined />}
@@ -373,6 +373,7 @@ const AccountGroup = ({
                         expandable={{
                           expandedRowRender: (record) => (
                             <Table
+                              className="expended-table"
                               columns={balanceColumns}
                               dataSource={
                                 addressTokenList[record.address] || []

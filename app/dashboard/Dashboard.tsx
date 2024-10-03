@@ -306,7 +306,7 @@ const Dashboard = () => {
           })}
         </div>
 
-        <Button className="mt-2" block onClick={handleAddNewGroup}>
+        <Button className="mt-4" block onClick={handleAddNewGroup}>
           Add New Cluster
         </Button>
       </DndContext>
