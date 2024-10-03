@@ -30,7 +30,21 @@ const Dashboard = () => {
 
   useEffect(() => {
     const storedGroups = localStorage.getItem("dashy");
-    setGroups(storedGroups ? JSON.parse(storedGroups) : {});
+    if (storedGroups) {
+      setGroups(storedGroups ? JSON.parse(storedGroups) : {});
+    } else {
+      const defaultGroup = {
+        group1: {
+          index: 1,
+          groupName: "Cluster 1",
+          tags: [],
+          accounts: [],
+          totalBalance: 0,
+        },
+      };
+      localStorage.setItem("dashy", JSON.stringify(defaultGroup));
+      setGroups(defaultGroup);
+    }
   }, []);
 
   useEffect(() => {
