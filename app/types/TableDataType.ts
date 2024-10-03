@@ -36,6 +36,7 @@ export interface transactionDataType {
   ingoing: number;
   outgoing: number;
   transferType: "Native" | "Token" | "Unknown";
+  tokenSymbol?: string;
 }
 
 export interface topAddressDataType {

@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Layout } from "antd";
 import { useState } from "react";
 import MenuList from "./MenuList";
 import HeaderItem from "../HeaderItem";
 import Sider from "antd/lib/layout/Sider";
+import dashy from "../../assets/dashy.png";
 import { Header, Content } from "antd/lib/layout/layout";
 
 const AntLayout = ({ children }: { children: React.ReactNode }) => {
@@ -26,9 +28,10 @@ const AntLayout = ({ children }: { children: React.ReactNode }) => {
         onMouseLeave={() => onCollapse(true)}
         className="!fixed !bg-[#020708] h-[100vh] !z-[12] !px-1 !py-[14px]"
       >
-        {/* Replace with img for Logo */}
-        <div className="mb-2 pl-6 flex flex-row gap-2 text-2xl font-semibold tracking-wider ">
-          <Link href="/">Dashy</Link>
+        <div className="pl-6">
+          <Link href="/">
+            <Image src={dashy} alt={"dashy"} height={21.5} width={55} />
+          </Link>
         </div>
         <MenuList sider={sider} />
       </Sider>

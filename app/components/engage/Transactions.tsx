@@ -27,10 +27,11 @@ const Transactions = () => {
               ),
               children: (
                 <Table
+                  className="w-full"
                   tableLayout="fixed"
                   dataSource={transactions}
                   columns={transactionColumns}
-                  className="w-full"
+                  scroll={{ x: "max-content" }}
                   pagination={transactions.length > 10 ? {} : false}
                 />
               ),
