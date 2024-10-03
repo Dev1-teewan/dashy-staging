@@ -64,7 +64,7 @@ const AccountGroup = ({
   const [totalBalance, setTotalBalance] = useState(0);
 
   // Save state for expended rows and its token list
-  const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  // const [expandedRows, setExpandedRows] = useState<string[]>([]);
   const [addressTokenList, setAccountTokenList] = useState<Record<string, []>>(
     {}
   );
@@ -219,7 +219,7 @@ const AccountGroup = ({
           ...prev,
           [inputAddress]: response.dataSource,
         }));
-        setExpandedRows((prev) => [...prev, inputAddress]);
+        // setExpandedRows((prev) => [...prev, inputAddress]);
         setCount(count + 1);
         setInputAddress("");
       }
@@ -258,7 +258,7 @@ const AccountGroup = ({
           setLocalDataSource(updatedDataSource);
 
           // Expand the row
-          setExpandedRows((prev) => [...prev, record.address]);
+          // setExpandedRows((prev) => [...prev, record.address]);
         }
       } catch (error) {
         messageApi.error("Failed to fetch balance");
@@ -289,7 +289,7 @@ const AccountGroup = ({
                   <>
                     <div
                       onClick={() => setExpended((prev) => !prev)}
-                      className="flex justify-between items-center m-2 cursor-pointer"
+                      className="flex justify-between items-center m-2 gap-2 cursor-pointer"
                     >
                       <div className="flex gap-2 text-white text-xl font-bold">
                         {expended ? <DownOutlined /> : <RightOutlined />}
@@ -312,26 +312,41 @@ const AccountGroup = ({
 
                     <div className="pl-2">
                       <Row className="mb-1">
-                        <Col span={4} className="font-semibold text-lg">
+                        <Col
+                          span={displayFull ? 3 : 5}
+                          className="font-semibold text-lg"
+                        >
                           Chain:
                         </Col>
-                        <Col span={20} className="flex items-center">
+                        <Col
+                          span={displayFull ? 21 : 19}
+                          className="flex items-center"
+                        >
                           Solana
                         </Col>
                       </Row>
                       <Row className="mb-1">
-                        <Col span={4} className="font-semibold text-lg">
+                        <Col
+                          span={displayFull ? 3 : 5}
+                          className="font-semibold text-lg"
+                        >
                           Total Balance:
                         </Col>
-                        <Col span={20} className="flex items-center">
+                        <Col
+                          span={displayFull ? 21 : 19}
+                          className="flex items-center"
+                        >
                           ${totalBalance.toFixed(2)}
                         </Col>
                       </Row>
                       <Row>
-                        <Col span={4} className="font-semibold text-lg">
-                          Group Tags:
+                        <Col
+                          span={displayFull ? 3 : 5}
+                          className="font-semibold text-lg"
+                        >
+                          Cluster Tags:
                         </Col>
-                        <Col span={20}>
+                        <Col span={displayFull ? 21 : 19}>
                           <InputTag
                             initialTags={localTags}
                             onTagsChange={handleTagsChange}
@@ -351,13 +366,14 @@ const AccountGroup = ({
                         locale={{
                           emptyText: (
                             <div ref={setNodeRef}>
-                              <Empty className="min-h-52 flex flex-col justify-center items-center" />
+                              <Empty className="min-h-[219px] flex flex-col justify-center items-center" />
                             </div>
                           ),
                         }}
                         expandable={{
                           expandedRowRender: (record) => (
                             <Table
+                              className="expended-table"
                               columns={balanceColumns}
                               dataSource={
                                 addressTokenList[record.address] || []

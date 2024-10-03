@@ -39,7 +39,8 @@ const EditableDraggableRow: React.FC<{
     ...props.style,
     transform: CSS.Translate.toString(transform),
     transition,
-    ...(isDragging ? { position: "relative", zIndex: 9999 } : {}),
+    ...(isDragging ? { position: "relative", zIndex: 9 } : {}),
+    ...(rowKey === undefined ? { cursor: "default" } : {}), // Disable for empty rows
   };
 
   const contextValue = useMemo<RowContextProps>(

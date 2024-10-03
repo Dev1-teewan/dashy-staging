@@ -1,5 +1,5 @@
-import { Input, message } from "antd";
 import React, { useState } from "react";
+import { Button, Input, message } from "antd";
 
 interface EditableFieldProps {
   value: string;
@@ -33,23 +33,27 @@ const EditableField = ({ value, onSave, placeholder }: EditableFieldProps) => {
 
   return isEditing ? (
     <Input
-      value={inputValue}
-      onChange={(e) => setInputValue(e.target.value)}
-      onBlur={handleBlur}
-      onFocus={(e) => e.target.select()} // Automatically select the text when focused
-      onKeyPress={handleKeyPress} // Save on Enter key press
       autoFocus
+      value={inputValue}
+      onBlur={handleBlur}
       placeholder={placeholder}
+      onKeyPress={handleKeyPress} // Save on Enter key press
+      onFocus={(e) => e.target.select()} // Automatically select the text when focused
+      onClick={(e) => e.stopPropagation()} // Prevent the input from closing on click
+      onChange={(e) => setInputValue(e.target.value)}
     />
   ) : (
-    <div
-      onClick={(event) => {
-        event.stopPropagation();
-        setIsEditing(true);
-      }}
-      className="cursor-pointer min-w-32"
-    >
+    <div className="flex flex-row items-center gap-3">
       <strong>{value || placeholder}</strong>
+      <Button
+        className="custom-button !w-auto"
+        onClick={(event) => {
+          event.stopPropagation();
+          setIsEditing(true);
+        }}
+      >
+        Edit name
+      </Button>
     </div>
   );
 };

@@ -86,3 +86,28 @@ button.wallet-adapter-button-trigger:hover {
 .dashboard-collapse > div > div {
   padding: 0 16px !important;
 }
+
+.ant-table-body {
+  min-height: 252px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.ant-table-body tr {
+  flex-grow: 1;
+}
+
+/* Nested table header */
+.expended-table .ant-table-thead > tr > th {
+  background-color: #2a2a2a !important; /* Moderately dark for the header */
+  color: #c0c0c0; /* Slightly lighter gray for text */
+  border-bottom: 1px solid #3a3a3a; /* Darker border for separation */
+}
+
+/* Nested table body */
+.expended-table .ant-table-tbody > tr > td {
+  background-color: #1e1e1e; /* Darker background for body rows */
+  color: #e0e0e0; /* Light text for strong readability */
+  border-bottom: 1px solid #2a2a2a; /* Subtle row separators */
+}

@@ -45,7 +45,6 @@ export const fetchTransactions = async (address: string) => {
 const mapResponseTxn = (data: any, targetAddress: string) => {
   // Filter to only include transfer transactions
   let filteredData = data.filter((txn: any) => txn.type === "TRANSFER");
-  // console.log(filteredData);
 
   // Map the filtered data to the required DataType
   let mappedData = filteredData.map((txn: any, index: number) => {
@@ -54,10 +53,14 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
       txn.nativeTransfers && txn.nativeTransfers.length > 0;
     const isTokenTransfer = txn.tokenTransfers && txn.tokenTransfers.length > 0;
 
-    // Initialize from and to addresses
+    // Initialize from and to addresses, amount, and token details
     let fromAddress = "";
     let toAddress = "";
     let amount = 0;
+    let ingoing = 0;
+    let outgoing = 0;
+    let transferType = "Unknown"; // Track the type of transfer (Native/Token)
+    let tokenSymbol = ""; // Track the token symbol
 
     // Handle native transfers
     if (isNativeTransfer) {
@@ -71,6 +74,14 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
         fromAddress = nativeTransfer.fromUserAccount;
         toAddress = nativeTransfer.toUserAccount;
         amount = nativeTransfer.amount / LAMPORTS_PER_SOL;
+        transferType = "Native";
+
+        // Determine if it's ingoing or outgoing
+        if (fromAddress === targetAddress) {
+          outgoing = amount;
+        } else if (toAddress === targetAddress) {
+          ingoing = amount;
+        }
       }
     }
 
@@ -85,7 +96,21 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
       if (tokenTransfer) {
         fromAddress = tokenTransfer.fromUserAccount;
         toAddress = tokenTransfer.toUserAccount;
-        amount = tokenTransfer.tokenAmount;
+        // tokenDecimals = tokenTransfer.decimals || 6; // Default to 6 decimals if not specified
+        // amount = tokenTransfer.tokenAmount / Math.pow(10, tokenDecimals); // Normalize token amount by decimals
+        transferType = "Token";
+
+        // Extract token symbol from the description using the regex
+        if (txn.description) {
+          tokenSymbol = txn.description.split(" ")[3]; // Extracted token symbol
+        }
+        
+        // Determine if it's ingoing or outgoing
+        if (fromAddress === targetAddress) {
+          outgoing = Number(txn.description.split(" ")[2]);
+        } else if (toAddress === targetAddress) {
+          ingoing = Number(txn.description.split(" ")[2]);
+        }
       }
     }
 
@@ -97,19 +122,17 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
       fee: txn.feePayer === targetAddress ? txn.fee / LAMPORTS_PER_SOL : 0,
       fromAddress,
       toAddress,
-      outgoing: amount,
-      ingoing: 0,
+      outgoing,
+      ingoing,
+      tokenSymbol: transferType === "Token" ? tokenSymbol : null, // Add token symbol if it's a token transfer
       type: fromAddress === targetAddress ? "Send" : "Receive",
-      transferType: isNativeTransfer
-        ? "Native"
-        : isTokenTransfer
-        ? "Token"
-        : "Unknown",
+      transferType,
     };
   });
 
   return mappedData;
 };
+
 const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   const addressCount: { [address: string]: number } = {};
 
