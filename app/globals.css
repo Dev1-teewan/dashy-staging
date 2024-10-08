@@ -44,6 +44,10 @@ button.wallet-adapter-button-trigger {
   height: 32px;
 }
 
+button.wallet-adapter-button-trigger {
+  height: 40px;
+}
+
 .custom-button:hover,
 button.wallet-adapter-button-trigger:hover {
   background-color: #06d6a0 !important;
@@ -125,6 +129,10 @@ button.wallet-adapter-button-trigger:hover {
   background-color: #1e1e1e; /* Darker background for body rows */
   color: #e0e0e0; /* Light text for strong readability */
   border-bottom: 1px solid #2a2a2a; /* Subtle row separators */
+}
+
+.sorted-table .ant-table-thead > tr > th {
+  background-color: #1D1D1D !important; /* Moderately dark for the header */
 }
 
 @layer utilities {

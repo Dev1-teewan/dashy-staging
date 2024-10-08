@@ -10,9 +10,9 @@ import useStyle from "../features/table/ScrollableRow";
 import {
   DeleteFilled,
   DownCircleOutlined,
-  DownCircleTwoTone,
+  DownOutlined,
   RightCircleOutlined,
-  RightCircleTwoTone,
+  RightOutlined,
 } from "@ant-design/icons";
 import { combinedComponents } from "../features/table/CustomizeRow";
 import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
@@ -295,6 +295,15 @@ const AccountGroup = ({
                   <>
                     <div className="flex justify-between items-center m-2 gap-2">
                       <div className="flex gap-4 text-white text-xl font-bold">
+                        {expanded ? (
+                          <DownOutlined
+                            onClick={() => setExpanded((prev) => !prev)}
+                          />
+                        ) : (
+                          <RightOutlined
+                            onClick={() => setExpanded((prev) => !prev)}
+                          />
+                        )}
                         <EditableField
                           value={groupData.groupName}
                           onSave={handleGroupNameChange} // Handler to update group name
@@ -302,7 +311,7 @@ const AccountGroup = ({
                         />
                       </div>
                       <div className="flex flex-row gap-4 items-center">
-                        {expanded ? (
+                        {/* {expanded ? (
                           <div onClick={() => setExpanded((prev) => !prev)}>
                             <Button className="custom-button">Collapse</Button>
                           </div>
@@ -310,7 +319,7 @@ const AccountGroup = ({
                           <div onClick={() => setExpanded((prev) => !prev)}>
                             <Button className="custom-button">Expand</Button>
                           </div>
-                        )}
+                        )} */}
                         <a
                           className="text-red-500 hover:text-red-600 cursor-pointer"
                           onClick={(event) => {
@@ -334,7 +343,7 @@ const AccountGroup = ({
                       </Row>
                       <Row className="mb-1">
                         <Col flex="170px" className="font-semibold text-lg">
-                          Total Balance:
+                          Cluster Balance:
                         </Col>
                         <Col flex="auto" className="flex items-center">
                           ${totalBalance.toFixed(2)}
@@ -400,7 +409,7 @@ const AccountGroup = ({
                       >
                         <Input
                           value={inputAddress}
-                          placeholder="Enter address"
+                          placeholder="Enter watch address"
                           onChange={(e) => setInputAddress(e.target.value)}
                           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                         />
@@ -408,7 +417,7 @@ const AccountGroup = ({
                           onClick={handleAdd}
                           className="custom-button w-36 mb-2"
                         >
-                          Add Watch Address
+                          +
                         </Button>
                       </Space>
                     </div>
