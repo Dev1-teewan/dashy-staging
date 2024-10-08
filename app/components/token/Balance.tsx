@@ -35,6 +35,7 @@ const Balance = () => {
               ),
               children: (
                 <Table
+                  className="sorted-table"
                   dataSource={dataSource}
                   columns={balanceColumns}
                   pagination={dataSource.length > 10 ? {} : false}
