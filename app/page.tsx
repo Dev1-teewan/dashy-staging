@@ -194,7 +194,7 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <p>
-                      &quot;SolTrak has revolutionized how I manage my Solana
+                      &quot;Dashy has revolutionized how I manage my Solana
                       assets. The insights are invaluable!&quot;
                     </p>
                   </CardContent>
@@ -206,7 +206,7 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <p>
-                      &quot;I love how easy it is to use SolTrak. It&apos;s both
+                      &quot;I love how easy it is to use Dashy. It&apos;s both
                       powerful and intuitive - perfect for beginners and pros
                       alike.&quot;
                     </p>
