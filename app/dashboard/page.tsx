@@ -271,11 +271,8 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-[85vw] w-full">
-      <div className="flex justify-between items-center mt-3 mb-1 text-4xl font-bold">
-        Dashboard
-        <div className="text-lg font-bold text-outline">
-          Total Dashboard Balance: ${dashboardBalance.toFixed(2)}
-        </div>
+      <div className="flex justify-between items-center mt-3 mb-3 text-3xl font-bold text-outline">
+        <div>Dashboard Balance: ${dashboardBalance.toFixed(2)}</div>
       </div>
       <div className="flex gap-3 mb-5">
         <LoadStorageManager

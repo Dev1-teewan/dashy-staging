@@ -25,17 +25,18 @@ export default function Home() {
     <Suspense fallback={"Loading..."}>
       <div className="flex flex-col min-h-screen">
         <main className="flex-1">
-          <section className="w-full py-6 flex justify-center">
+          <section className="w-full py-6 bg-[#161B19] flex justify-center">
             <div className="container px-4 md:px-6">
               <div className="flex items-center justify-between">
                 <Image src={dashy} alt={"dashy"} width={135} />
                 <div className="flex flex-row gap-4">
                   <Link href="/dashboard">
-                    <Button className="custom-button-dashboard !w-32">
+                    <Button className="custom-button-dashboard !bg-[#06d6a0] !text-[#000000] !w-32 hover:!bg-[#33e7b8] hover:!text-[#003628]">
                       Launch App
                     </Button>
                   </Link>
-                  <Button className="custom-button-dashboard !w-32">
+                  {/* TODO: ADD youtube link */}
+                  <Button className="custom-button-dashboard !bg-[#06d6a0] !text-[#000000] !w-32 hover:!bg-[#33e7b8] hover:!text-[#003628]">
                     Product Demo
                   </Button>
                 </div>
@@ -43,7 +44,7 @@ export default function Home() {
             </div>
           </section>
           {/* Hero Section */}
-          <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 flex justify-center">
+          <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-[#161B19] flex justify-center">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center space-y-8 text-center">
                 <div className="space-y-4">
@@ -130,7 +131,7 @@ export default function Home() {
           {/* How It Works Section */}
           <section
             id="faq"
-            className="w-full py-12 md:py-24 lg:py-32 flex justify-center"
+            className="w-full py-12 md:py-24 lg:py-32 bg-[#161B19] flex justify-center"
           >
             <div className="container px-4 md:px-6">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
@@ -217,7 +218,7 @@ export default function Home() {
           </section>
 
           {/* FAQ Section */}
-          <section className="w-full py-12 md:py-24 lg:py-32  flex justify-center">
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-[#161B19] flex justify-center">
             <div className="container px-4 md:px-6">
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12">
                 Frequently Asked Questions
@@ -297,7 +298,7 @@ export default function Home() {
         </main>
 
         {/* Footer */}
-        <footer className="w-full py-6 bg-gray-100 dark:bg-black  flex justify-center">
+        <footer className="w-full py-6 bg-[#161B19] flex justify-center">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
               <div className="flex gap-4 text-sm">

@@ -306,6 +306,7 @@ export const balanceColumns: ColumnsType<balanceDataType> = [
         parseFloat(b.amount.replace(/,/g, "")),
       multiple: 3,
     },
+    render: (amount) => <span>{`${parseFloat(amount).toFixed(4)}`}</span>,
   },
   {
     title: "Price (24h change)",
@@ -323,7 +324,9 @@ export const balanceColumns: ColumnsType<balanceDataType> = [
     },
     render: (price) => (
       <div>
-        <span>{price.value}</span>
+        <span>{`$${parseFloat(price.value.replace(/[$,]/g, "")).toFixed(
+          2
+        )}`}</span>
         <Tag color={price.color} style={{ marginLeft: 8 }}>
           {price.change}
         </Tag>
