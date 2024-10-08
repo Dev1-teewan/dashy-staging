@@ -39,7 +39,7 @@ export const useFetchAssets = (type: string) => {
       } else if (type === "transactions") {
         const response = await fetchTransactions(address);
         if (response.status === "success") {
-          console.log(response.topAddresses);
+          // console.log(response.transactions);
           setTransactions(response.transactions);
           setTopAddresses(response.topAddresses || []);
         } else {

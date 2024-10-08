@@ -6,6 +6,7 @@ import { Tag, Tooltip } from "antd";
 import CustomSelect from "./CustomSelect";
 import CopyToClipboard from "./CopyToClipboard";
 import type { ColumnsType } from "antd/es/table";
+import { DragHandle } from "./table/CustomizeRow";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import {
   accountGroupDataType,
@@ -18,19 +19,26 @@ import {
 // Create a type by extending each column type with an `editable` property
 export type EditableColumnType = ColumnsType<accountGroupDataType>[number] & {
   editable?: boolean;
+  type?: string;
 };
 
 export const accountGroupColumns: EditableColumnType[] = [
   {
+    key: "sort",
+    align: "center",
+    width: "50px",
+    render: () => <DragHandle />,
+  },
+  {
     title: "Alias",
-    width: "235px",
+    width: "15%",
     key: "alias",
     dataIndex: "alias",
     editable: true,
   },
   {
     title: "Address",
-    width: "180px",
+    width: "15%",
     key: "address",
     dataIndex: "address",
     render: (address) => {
@@ -43,29 +51,32 @@ export const accountGroupColumns: EditableColumnType[] = [
       );
     },
   },
-  {
-    title: "From",
-    width: "235px",
-    key: "from",
-    dataIndex: "from",
-    editable: true,
-  },
+  // {
+  //   title: "From",
+  //   width: "15%",
+  //   key: "from",
+  //   dataIndex: "from",
+  //   editable: true,
+  //   type: "select",
+  // },
   {
     title: "To",
-    width: "235px",
+    width: "20%",
     key: "to",
     dataIndex: "to",
     editable: true,
+    type: "select",
   },
   {
     title: "Purpose",
-    width: "235px",
+    width: "20%",
     key: "purpose",
     dataIndex: "purpose",
     editable: true,
   },
   {
     title: "Balance",
+    width: "10%",
     key: "balance",
     dataIndex: "balance",
     render: (balance) => <span>${balance}</span>,
@@ -75,14 +86,22 @@ export const accountGroupColumns: EditableColumnType[] = [
 export const transactionColumns: ColumnsType<transactionDataType> = [
   {
     title: "Date",
-    width: "120px",
+    width: "15%",
     key: "timestamp",
     dataIndex: "timestamp",
-    render: (timestamp) => new Date(timestamp * 1000).toLocaleDateString(),
+    render: (timestamp) =>
+      new Date(timestamp * 1000).toLocaleString("en-US", {
+        month: "short", // "Oct"
+        day: "2-digit", // "01"
+        year: "numeric", // "2024"
+        hour: "2-digit", // "21"
+        minute: "2-digit", // "02"
+        hour12: false, // 24-hour format
+      }),
   },
   {
     title: "TxID",
-    width: "100px",
+    width: "10%",
     key: "txnID",
     dataIndex: "txnID",
     render: (txnID) => (
@@ -92,19 +111,19 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
         rel="noopener noreferrer"
         className="truncate block w-full text-[#06d6a0]"
       >
-        {txnID}
+        {txnID.slice(0, 4)}...
       </Link>
     ),
   },
   {
     title: "Platform",
-    width: "120px",
+    width: "10%",
     key: "platform",
     dataIndex: "platform",
   },
   {
     title: "Type",
-    width: "160px",
+    width: "10%",
     key: "type",
     dataIndex: "type",
     render: (type) => (
@@ -120,10 +139,29 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
     dataIndex: "outgoing",
     render: (_, record) => (
       <div>
+        {/* Handle native outgoing transfers */}
         {record.transferType === "Native" && record.outgoing > 0 && (
-          <div>{record.outgoing.toFixed(7)} SOL</div>
+          <div>
+            <span className="text-[#06d6a0] mr-2">-</span>
+            {parseFloat(record.outgoing.toString())} SOL
+          </div>
         )}
-        {record.fee > 0 && <div>{record.fee.toFixed(7)} SOL</div>}
+
+        {/* Handle token outgoing transfers */}
+        {record.transferType === "Token" && record.outgoing > 0 && (
+          <div>
+            <span className="text-[#06d6a0] mr-2">-</span>
+            {parseFloat(record.outgoing.toString())} {record.tokenSymbol}{" "}
+          </div>
+        )}
+
+        {/* Display the fee if applicable */}
+        {record.fee > 0 && (
+          <div>
+            <span className="text-[#06d6a0] mr-2">-</span>
+            {parseFloat(record.fee.toString())} SOL
+          </div>
+        )}
       </div>
     ),
   },
@@ -131,23 +169,57 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
     title: "Ingoing",
     key: "ingoing",
     dataIndex: "ingoing",
-    render: (ingoing) => <div>{ingoing}</div>,
+    render: (_, record) => (
+      <div>
+        {/* Handle native ingoing transfers */}
+        {record.transferType === "Native" && record.ingoing > 0 && (
+          <div>
+            <span className="text-[#06d6a0] mr-2">+</span>
+            {parseFloat(record.ingoing.toString())} SOL
+          </div>
+        )}
+
+        {/* Handle token ingoing transfers */}
+        {record.transferType === "Token" && record.ingoing > 0 && (
+          <div>
+            <span className="text-[#06d6a0] mr-2">+</span>
+            {parseFloat(record.ingoing.toString())} {record.tokenSymbol}
+          </div>
+        )}
+      </div>
+    ),
   },
   {
     title: "From",
+    width: "10%",
     key: "fromAddress",
     dataIndex: "fromAddress",
-    render: (fromAddress) => (
-      <div className="truncate block w-full">{fromAddress}</div>
-    ),
+    render: (fromAddress) => {
+      const shortAddress = `${fromAddress.slice(0, 4)}...${fromAddress.slice(
+        -4
+      )}`;
+      return (
+        <Tooltip className="inline-flex gap-2" title={fromAddress}>
+          <span>{shortAddress}</span>
+          <CopyToClipboard address={fromAddress} />
+        </Tooltip>
+      );
+    },
   },
   {
     title: "To",
+    width: "10%",
     key: "toAddress",
     dataIndex: "toAddress",
-    render: (fromAddress) => (
-      <div className="truncate block w-full">{fromAddress}</div>
-    ),
+    render: (toAddress) => {
+      const shortAddress = `${toAddress.slice(0, 4)}...${toAddress.slice(-4)}`;
+      return (
+        <Tooltip className="inline-flex gap-2" title={toAddress}>
+          <span>{shortAddress}</span>
+          <CopyToClipboard address={toAddress} />
+        </Tooltip>
+      );
+    },
   },
 ];
 
@@ -187,7 +259,11 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
     title: "Grouping",
     width: "310px",
     key: "grouping",
-    render: (_, record) => <CustomSelect address={record.address} />,
+    render: (_, record) => (
+      <div className="TopEngaged">
+        <CustomSelect address={record.address} />
+      </div>
+    ),
   },
 ];
 

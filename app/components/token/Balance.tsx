@@ -23,7 +23,7 @@ const Balance = () => {
                 <div className="flex justify-between text-xl font-bold pl-2">
                   <div>
                     <CreditCardFilled className="pr-3 text-[#06d6a0]" />
-                    Balance
+                    Assets
                   </div>
                   <div>${totalValue}</div>
                 </div>

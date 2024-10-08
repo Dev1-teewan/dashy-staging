@@ -1,5 +1,5 @@
-import { Form, Input, InputRef } from "antd";
 import { FormInstance } from "antd/lib/form";
+import { Form, Input, InputRef } from "antd";
 import React, { useContext, useState, useRef, useEffect } from "react";
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -88,4 +88,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-export { EditableCell, EditableRow };
+const editableComponents = {
+  body: {
+    row: EditableRow,
+    cell: EditableCell,
+  },
+};
+
+export { editableComponents };
