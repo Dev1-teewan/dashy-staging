@@ -31,21 +31,21 @@ export const accountGroupColumns: EditableColumnType[] = [
   },
   {
     title: "Alias",
-    width: "15%",
+    width: "17%",
     key: "alias",
     dataIndex: "alias",
     editable: true,
   },
   {
     title: "Address",
-    width: "15%",
+    width: "17%",
     key: "address",
     dataIndex: "address",
     render: (address) => {
       const shortAddress = `${address.slice(0, 4)}...${address.slice(-4)}`;
       return (
-        <Tooltip className="inline-flex gap-4" title={address}>
-          <span>{shortAddress}</span>
+        <Tooltip className="inline-block" title={address}>
+          <span className="mr-4">{shortAddress}</span>
           <CopyToClipboard address={address} />
         </Tooltip>
       );
@@ -69,14 +69,14 @@ export const accountGroupColumns: EditableColumnType[] = [
   },
   {
     title: "Purpose",
-    width: "20%",
+    width: "22%",
     key: "purpose",
     dataIndex: "purpose",
     editable: true,
   },
   {
     title: "Balance",
-    width: "10%",
+    width: "",
     key: "balance",
     dataIndex: "balance",
     render: (balance) => <span>${balance}</span>,

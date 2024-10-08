@@ -147,9 +147,11 @@ const InputTag: React.FC<InputTagProps> = ({ initialTags, onTagsChange }) => {
           onPressEnter={handleInputConfirm}
         />
       ) : (
-        <Tag style={tagPlusStyle} icon={<PlusOutlined />} onClick={showInput}>
-          New Tag
-        </Tag>
+        <Tag
+          style={tagPlusStyle}
+          icon={<PlusOutlined />}
+          onClick={showInput}
+        ></Tag>
       )}
     </Flex>
   );

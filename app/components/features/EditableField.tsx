@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, Input, message } from "antd";
+import { EditFilled } from "@ant-design/icons";
 
 interface EditableFieldProps {
   value: string;
@@ -45,15 +46,14 @@ const EditableField = ({ value, onSave, placeholder }: EditableFieldProps) => {
   ) : (
     <div className="flex flex-row items-center gap-3">
       <strong>{value || placeholder}</strong>
-      <Button
-        className="custom-button !w-auto"
+
+      <EditFilled
+        className="text-[#06d6a0]"
         onClick={(event) => {
           event.stopPropagation();
           setIsEditing(true);
         }}
-      >
-        Edit name
-      </Button>
+      />
     </div>
   );
 };

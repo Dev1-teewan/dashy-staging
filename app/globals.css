@@ -50,6 +50,21 @@ button.wallet-adapter-button-trigger:hover {
   color: #000000 !important;
 }
 
+.custom-button-dashboard {
+  background-color: #003628;
+  color: #06d6a0;
+  border: none;
+  font-weight: bold;
+  text-align: center;
+  width: 8rem;
+  width: 100%;
+}
+
+.custom-button-dashboard:hover {
+  background-color: #06d6a0 !important;
+  color: #000000 !important;
+}
+
 .ant-select-selector {
   background-color: #141414 !important;
   border: 1px solid #202020 !important;
@@ -99,15 +114,26 @@ button.wallet-adapter-button-trigger:hover {
 }
 
 /* Nested table header */
-.expended-table .ant-table-thead > tr > th {
+.expanded-table .ant-table-thead > tr > th {
   background-color: #2a2a2a !important; /* Moderately dark for the header */
   color: #c0c0c0; /* Slightly lighter gray for text */
   border-bottom: 1px solid #3a3a3a; /* Darker border for separation */
 }
 
 /* Nested table body */
-.expended-table .ant-table-tbody > tr > td {
+.expanded-table .ant-table-tbody > tr > td {
   background-color: #1e1e1e; /* Darker background for body rows */
   color: #e0e0e0; /* Light text for strong readability */
   border-bottom: 1px solid #2a2a2a; /* Subtle row separators */
+}
+
+@layer utilities {
+  .text-outline {
+    text-shadow: 1px 1px 0 #028760, -1px 1px 0 #028760, 1px -1px 0 #028760,
+      -1px -1px 0 #028760;
+  }
+}
+
+.ant-table-row-expand-icon-cell {
+  padding-right: 6px !important;
 }

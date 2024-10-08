@@ -17,15 +17,15 @@ const HeaderItem = () => {
     <div className="flex justify-between items-center p-5">
       <div></div>
       <div className="flex items-center gap-2 px-3">
-        <Button
+        {/* <Button
           className="flex justify-center items-center !bg-[#141414] !border-[#141414] hover:!border-[#06d6a0] !text-white hover:!text-[#06d6a0]"
           ghost
           icon={<SettingFilled />}
-        ></Button>
+        ></Button> */}
 
         {/* <ConnectDropdown /> */}
 
-        <WalletMultiButtonDynamic className="custom-button"/>
+        <WalletMultiButtonDynamic className="custom-button" />
       </div>
     </div>
   );
