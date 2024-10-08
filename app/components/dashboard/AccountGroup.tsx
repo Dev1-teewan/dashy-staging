@@ -7,7 +7,13 @@ import { arraysEqual } from "@/app/utils/Utils";
 import { fetchAssets } from "@/app/utils/HeliusRPC";
 import EditableField from "../features/EditableField";
 import useStyle from "../features/table/ScrollableRow";
-import { DownOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  DeleteFilled,
+  DownCircleOutlined,
+  DownCircleTwoTone,
+  RightCircleOutlined,
+  RightCircleTwoTone,
+} from "@ant-design/icons";
 import { combinedComponents } from "../features/table/CustomizeRow";
 import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
@@ -55,7 +61,7 @@ const AccountGroup = ({
   const [inputAddress, setInputAddress] = useState<string>("");
 
   // State for group's data and tag / total balance
-  const [expended, setExpended] = useState<boolean>(displayFull);
+  const [expanded, setExpanded] = useState<boolean>(displayFull);
   const [localDataSource, setLocalDataSource] = useState<any[]>(
     groupData.accounts || []
   );
@@ -63,7 +69,7 @@ const AccountGroup = ({
   const [count, setCount] = useState<number>(localDataSource.length + 1);
   const [totalBalance, setTotalBalance] = useState(0);
 
-  // Save state for expended rows and its token list
+  // Save state for expanded rows and its token list
   // const [expandedRows, setExpandedRows] = useState<string[]>([]);
   const [addressTokenList, setAccountTokenList] = useState<Record<string, []>>(
     {}
@@ -75,7 +81,7 @@ const AccountGroup = ({
     setLocalTags(groupData.tags || []);
   }, [groupData.accounts, groupData.tags]);
   useEffect(() => {
-    setExpended(displayFull);
+    setExpanded(displayFull);
   }, [displayFull]);
 
   // Effect to update parent when localDataSource or localTags change
@@ -130,14 +136,14 @@ const AccountGroup = ({
     ...accountGroupColumns
       .filter((col: any) => {
         // Remove "From" and "To" columns if displayFull is false
-        if (!expended && (col.key === "from" || col.key === "to")) {
+        if (!expanded && (col.key === "from" || col.key === "to")) {
           return false;
         }
         return true;
       })
       .map((col: any) => {
-        // Set default widths for columns when expended is false
-        if (!expended) {
+        // Set default widths for columns when expanded is false
+        if (!expanded) {
           if (col.key === "alias") col.width = "25%";
           if (col.key === "address") col.width = "25%";
           if (col.key === "purpose") col.width = "25%";
@@ -157,7 +163,7 @@ const AccountGroup = ({
           }),
         };
       }),
-    expended
+    expanded
       ? {
           title: "Operation",
           width: "120px",
@@ -272,7 +278,7 @@ const AccountGroup = ({
   };
 
   return (
-    <div className={expended ? "col-span-2" : ""}>
+    <div className={expanded ? "col-span-2" : ""}>
       <Row>
         <Col span={24} className="!min-h-0">
           {contextHolder}
@@ -287,66 +293,58 @@ const AccountGroup = ({
                 label: <></>,
                 children: (
                   <>
-                    <div
-                      onClick={() => setExpended((prev) => !prev)}
-                      className="flex justify-between items-center m-2 gap-2 cursor-pointer"
-                    >
-                      <div className="flex gap-2 text-white text-xl font-bold">
-                        {expended ? <DownOutlined /> : <RightOutlined />}
+                    <div className="flex justify-between items-center m-2 gap-2">
+                      <div className="flex gap-4 text-white text-xl font-bold">
                         <EditableField
                           value={groupData.groupName}
                           onSave={handleGroupNameChange} // Handler to update group name
                           placeholder="Enter group name"
                         />
                       </div>
-                      <a
-                        className="text-red-500 hover:text-red-600 cursor-pointer"
-                        onClick={(event) => {
-                          event.stopPropagation(); // Prevent triggering the group toggle
-                          deleteGroup(groupIndex);
-                        }}
-                      >
-                        Delete
-                      </a>
+                      <div className="flex flex-row gap-4 items-center">
+                        {expanded ? (
+                          <div onClick={() => setExpanded((prev) => !prev)}>
+                            <Button className="custom-button">Collapse</Button>
+                          </div>
+                        ) : (
+                          <div onClick={() => setExpanded((prev) => !prev)}>
+                            <Button className="custom-button">Expand</Button>
+                          </div>
+                        )}
+                        <a
+                          className="text-red-500 hover:text-red-600 cursor-pointer"
+                          onClick={(event) => {
+                            event.stopPropagation(); // Prevent triggering the group toggle
+                            deleteGroup(groupIndex);
+                          }}
+                        >
+                          <DeleteFilled style={{ fontSize: "24px" }} />
+                        </a>
+                      </div>
                     </div>
 
                     <div className="pl-2">
                       <Row className="mb-1">
-                        <Col
-                          span={displayFull ? 3 : 5}
-                          className="font-semibold text-lg"
-                        >
+                        <Col flex="170px" className="font-semibold text-lg">
                           Chain:
                         </Col>
-                        <Col
-                          span={displayFull ? 21 : 19}
-                          className="flex items-center"
-                        >
+                        <Col flex="auto" className="flex items-center">
                           Solana
                         </Col>
                       </Row>
                       <Row className="mb-1">
-                        <Col
-                          span={displayFull ? 3 : 5}
-                          className="font-semibold text-lg"
-                        >
+                        <Col flex="170px" className="font-semibold text-lg">
                           Total Balance:
                         </Col>
-                        <Col
-                          span={displayFull ? 21 : 19}
-                          className="flex items-center"
-                        >
+                        <Col flex="auto" className="flex items-center">
                           ${totalBalance.toFixed(2)}
                         </Col>
                       </Row>
                       <Row>
-                        <Col
-                          span={displayFull ? 3 : 5}
-                          className="font-semibold text-lg"
-                        >
+                        <Col flex="170px" className="font-semibold text-lg">
                           Cluster Tags:
                         </Col>
-                        <Col span={displayFull ? 21 : 19}>
+                        <Col flex="auto">
                           <InputTag
                             initialTags={localTags}
                             onTagsChange={handleTagsChange}
@@ -371,16 +369,28 @@ const AccountGroup = ({
                           ),
                         }}
                         expandable={{
+                          onExpand: handleExpand,
+                          expandIcon: ({ expanded, onExpand, record }) =>
+                            expanded ? (
+                              <DownCircleOutlined
+                                onClick={(e) => onExpand(record, e)}
+                                style={{ color: "#06d6a0" }}
+                              />
+                            ) : (
+                              <RightCircleOutlined
+                                onClick={(e) => onExpand(record, e)}
+                                style={{ color: "#06d6a0" }}
+                              />
+                            ),
                           expandedRowRender: (record) => (
                             <Table
-                              className="expended-table"
+                              className="expanded-table"
                               columns={balanceColumns}
                               dataSource={
                                 addressTokenList[record.address] || []
                               }
                             />
                           ),
-                          onExpand: handleExpand,
                         }}
                       />
 

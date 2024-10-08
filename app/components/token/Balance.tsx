@@ -1,15 +1,20 @@
 "use client";
 
-import { Col, Collapse, Row, Table } from "antd";
+import { Col, Collapse, Empty, Row, Table, Typography } from "antd";
 import { CreditCardFilled } from "@ant-design/icons";
 import { balanceColumns } from "../features/TableColumns";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 
 const Balance = () => {
-  const { dataSource = [], totalValue } = useFetchAssets("balance");
+  const {
+    dataSource = [],
+    totalValue,
+    contextHolder,
+  } = useFetchAssets("balance");
 
   return (
     <Row>
+      {contextHolder}
       <Col span={24} className="!min-h-0">
         <Collapse
           ghost
@@ -33,6 +38,18 @@ const Balance = () => {
                   dataSource={dataSource}
                   columns={balanceColumns}
                   pagination={dataSource.length > 10 ? {} : false}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        className="min-h-[219px] flex flex-col justify-center items-center"
+                        description={
+                          <Typography.Text>
+                            Please connect your wallet!
+                          </Typography.Text>
+                        }
+                      />
+                    ),
+                  }}
                 />
               ),
             },

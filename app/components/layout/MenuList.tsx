@@ -18,10 +18,10 @@ const MenuList = ({ sider }: MenuListProps) => {
 
   const items = [
     {
-      key: "/",
+      key: "/dashboard",
       icon: <HomeOutlined size={18} />,
       label: sider.collapsed ? null : "Dashboard",
-      onClick: () => router.push("/"),
+      onClick: () => router.push("/dashboard"),
     },
     {
       key: "/token",

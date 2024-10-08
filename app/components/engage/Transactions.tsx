@@ -1,15 +1,16 @@
 "use client";
 
 import { FundFilled } from "@ant-design/icons";
-import { Col, Collapse, Row, Table } from "antd";
+import { Col, Collapse, Empty, Row, Table, Typography } from "antd";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 import { transactionColumns } from "../features/TableColumns";
 
 const Transactions = () => {
-  const { transactions = [] } = useFetchAssets("transactions");
+  const { transactions = [], contextHolder } = useFetchAssets("transactions");
 
   return (
     <Row>
+      {contextHolder}
       <Col span={24} className="!min-h-0">
         <Collapse
           ghost
@@ -33,6 +34,18 @@ const Transactions = () => {
                   columns={transactionColumns}
                   scroll={{ x: "max-content" }}
                   pagination={transactions.length > 10 ? {} : false}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        className="min-h-[219px] flex flex-col justify-center items-center"
+                        description={
+                          <Typography.Text>
+                            Please connect your wallet!
+                          </Typography.Text>
+                        }
+                      />
+                    ),
+                  }}
                 />
               ),
             },
