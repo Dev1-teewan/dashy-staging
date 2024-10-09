@@ -35,10 +35,16 @@ export default function Home() {
                       Launch App
                     </Button>
                   </Link>
-                  {/* TODO: ADD youtube link */}
-                  <Button className="custom-button-dashboard !bg-[#06d6a0] !text-[#000000] !w-32 hover:!bg-[#33e7b8] hover:!text-[#003628]">
-                    Product Demo
-                  </Button>
+
+                  <Link
+                    href="https://youtu.be/YHcSe2FCF8M"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button className="custom-button-dashboard !bg-[#06d6a0] !text-[#000000] !w-32 hover:!bg-[#33e7b8] hover:!text-[#003628]">
+                      Product Demo
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
