@@ -104,7 +104,7 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
         if (txn.description) {
           tokenSymbol = txn.description.split(" ")[3]; // Extracted token symbol
         }
-        
+
         // Determine if it's ingoing or outgoing
         if (fromAddress === targetAddress) {
           outgoing = Number(txn.description.split(" ")[2]);
@@ -280,14 +280,36 @@ const mapResponseAssets = (data: any) => {
           item.token_info.symbol || item.content.metadata?.name || "Unknown",
         link: `https://explorer.solana.com/address/${item.id}?cluster=mainnet`,
       },
-      amount: (
-        item.token_info?.balance / Math.pow(10, item.token_info?.decimals)
-      )
-        .toString()
-        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+      amount: (() => {
+        const balance = item.token_info?.balance || 0; // Fallback to 0 if balance is undefined
+        const decimals = item.token_info?.decimals || 0; // Fallback to 0 if decimals are undefined
+        const value = balance / Math.pow(10, decimals); // Convert based on decimals
+
+        // Split into integer and decimal parts
+        const [integerPart, decimalPart] = value.toFixed(4).split(".");
+
+        // Format the integer part with commas
+        const formattedIntegerPart = integerPart.replace(
+          /\B(?=(\d{3})+(?!\d))/g,
+          ","
+        );
+
+        // Determine the formatted decimal part
+        let formattedDecimalPart;
+        if (decimalPart) {
+          // Remove trailing zeros from the decimal part
+          const significantDecimal = decimalPart.replace(/0+$/, ""); // Remove trailing zeros
+          formattedDecimalPart =
+            significantDecimal.length > 0 ? significantDecimal : "00"; // Default to '00' if nothing left
+          return `${formattedIntegerPart}.${formattedDecimalPart}`;
+        } else {
+          // If there is no decimal part, return with two decimal places
+          return `${formattedIntegerPart}.00`;
+        }
+      })(), // Self-executing function to handle amount formatting
       price: {
         value: `$${item.token_info?.price_info?.price_per_token || 0}`,
-        change: "N/A", // Need another Coincegko API
+        change: "N/A", // Need another CoinGecko API
         color: "rgb(9, 155, 103)",
       },
       value: `$${(item.token_info?.price_info?.total_price || 0).toFixed(2)}`,
@@ -304,9 +326,30 @@ const mapResponseAssets = (data: any) => {
           name: "SOL",
           link: "https://explorer.solana.com",
         },
-        amount: (data.result.nativeBalance.lamports / Math.pow(10, 9)) // Convert lamports to SOL
-          .toString()
-          .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ","),
+        amount: (() => {
+          const value = data.result.nativeBalance.lamports / Math.pow(10, 9); // Convert lamports to SOL
+
+          // Split into integer and decimal parts
+          const [integerPart, decimalPart] = value.toFixed(4).split(".");
+
+          // Format the integer part with commas
+          const formattedIntegerPart = integerPart.replace(
+            /\B(?=(\d{3})+(?!\d))/g,
+            ","
+          );
+
+          // Determine the formatted decimal part
+          if (decimalPart) {
+            // Remove trailing zeros from the decimal part
+            const significantDecimal = decimalPart.replace(/0+$/, ""); // Remove trailing zeros
+            const formattedDecimalPart =
+              significantDecimal.length > 0 ? significantDecimal : "00"; // Default to '00' if nothing left
+            return `${formattedIntegerPart}.${formattedDecimalPart}`; // Combine both parts
+          } else {
+            // If there's no decimal part, return with one decimal place as '0'
+            return `${formattedIntegerPart}.00`;
+          }
+        })(),
         price: {
           value: `$${data.result.nativeBalance.price_per_sol || 0}`,
           change: "N/A", // Assuming you don't have the change data from the API
