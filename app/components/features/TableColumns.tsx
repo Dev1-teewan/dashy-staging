@@ -306,7 +306,6 @@ export const balanceColumns: ColumnsType<balanceDataType> = [
         parseFloat(b.amount.replace(/,/g, "")),
       multiple: 3,
     },
-    render: (amount) => <span>{`${parseFloat(amount).toFixed(4)}`}</span>,
   },
   {
     title: "Price (24h change)",
