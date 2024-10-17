@@ -41,7 +41,7 @@ export default function Home() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button className="custom-button-dashboard !bg-[#06d6a0] !text-[#000000] !w-32 hover:!bg-[#33e7b8] hover:!text-[#003628]">
+                    <Button className="border border-[#06d6a0] hover:bg-[#06402B]">
                       Product Demo
                     </Button>
                   </Link>
@@ -67,7 +67,7 @@ export default function Home() {
                 </div>
                 <div className="flex flex-row gap-4">
                   <Link href="/dashboard">
-                    <Button className="custom-button-dashboard p-4">
+                    <Button className="custom-button-dashboard p-4 duration-300">
                       Get Started
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
@@ -100,8 +100,8 @@ export default function Home() {
                   <CardContent>
                     <p>
                       Manage your portfolio across different wallets based on
-                      their purpose while ensuring your funds don’t intermix
-                      with each other.
+                      their purpose while ensuring your funds don&apos;t
+                      intermix with each other.
                     </p>
                   </CardContent>
                 </Card>
@@ -112,7 +112,7 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <p>
-                      Everything is stored within browser’s local storage,
+                      Everything is stored within browser&apos;s local storage,
                       ensuring that only you have full control over your
                       settings and wallet details.
                     </p>
@@ -304,15 +304,10 @@ export default function Home() {
         </main>
 
         {/* Footer */}
-        <footer className="w-full py-6 bg-[#161B19] flex justify-center">
+        <footer className="w-full py-4 bg-[#009770] flex justify-center">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-              <div className="flex gap-4 text-sm">
-                <a className="underline">About</a>
-                <a className="underline">Privacy Policy</a>
-                <a className="underline">Terms of Service</a>
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
+              <p className="text-xs dark:text-gray-200">
                 © 2024 Dashy. All rights reserved.
               </p>
             </div>
