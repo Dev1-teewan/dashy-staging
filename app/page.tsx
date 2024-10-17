@@ -84,8 +84,8 @@ export default function Home() {
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden"
         >
-          <div className="absolute inset-0 bg-[var(--bg-primary)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--bg-secondary)]/20 to-transparent" />
+          <div className="absolute inset-0 bg-[#161B19]">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#009770]/20 to-transparent" />
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
           </div>
           <motion.div
