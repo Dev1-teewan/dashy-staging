@@ -53,13 +53,13 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#161B19]">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#161B19]/80 backdrop-blur-md">
+    <div className="flex flex-col min-h-screen bg-[var(--bg-primary)]">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)]/80 backdrop-blur-md">
         <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Image src={dashy} alt="Dashy" width={135} height={40} />
           <div className="flex space-x-4">
             <Link href="/dashboard">
-              <Button className="bg-[#06d6a0] text-[#000000] hover:bg-[#33e7b8] hover:text-[#003628]">
+              <Button className="bg-[var(--accent-color)] text-[var(--text-color-dark)] hover:bg-[var(--accent-hover-color)] hover:text-[#003628] uppercase font-bold">
                 Launch App
               </Button>
             </Link>
@@ -70,7 +70,7 @@ export default function Home() {
             >
               <Button
                 variant="outline"
-                className="border-[#06d6a0] text-[#06d6a0] hover:bg-[#06402B]"
+                className="border-[var(--accent-color)] text-[var(--accent-color)] hover:bg-[var(--button-hover-bg)]"
               >
                 Product Demo
               </Button>
@@ -84,8 +84,8 @@ export default function Home() {
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden"
         >
-          <div className="absolute inset-0 bg-[#161B19]">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#009770]/20 to-transparent" />
+          <div className="absolute inset-0 bg-[var(--bg-primary)]">
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--bg-secondary)]/20 to-transparent" />
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
           </div>
           <motion.div
@@ -95,22 +95,23 @@ export default function Home() {
             className="relative z-10 text-center space-y-8"
           >
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tighter">
-              Welcome to <span className="text-[#33e7b8]">Dashy</span>
+              Welcome to{" "}
+              <span className="text-[var(--accent-hover-color)]">Dashy</span>
             </h1>
-            <p className="text-xl sm:text-2xl text-gray-400 max-w-2xl mx-auto">
+            <p className="text-xl sm:text-2xl text-[var(--text-color-muted)] max-w-2xl mx-auto">
               Manage your entire Solana portfolio with ease while preventing
               intermixing of your wallet clusters
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link href="/dashboard">
-                <Button className="bg-[#06d6a0] text-[#000000] hover:bg-[#33e7b8] hover:text-[#003628] px-8 py-3 text-lg">
+                <Button className="bg-[var(--accent-color)] text-[var(--text-color-dark)] hover:bg-[var(--accent-hover-color)] hover:text-[#003628] px-8 py-3 text-lg">
                   Get Started
                   <ArrowRight className="ml-2" />
                 </Button>
               </Link>
               <Button
                 variant="outline"
-                className="border-[#06d6a0] text-[#06d6a0] hover:bg-[#06402B] px-8 py-3 text-lg"
+                className="border-[var(--accent-color)] text-[var(--accent-color)] hover:bg-[var(--button-hover-bg)] px-8 py-3 text-lg"
                 onClick={() =>
                   document
                     .getElementById("features")
@@ -123,7 +124,7 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section id="features" className="py-24 bg-[#009770]">
+        <section id="features" className="py-24 bg-[var(--bg-secondary)]">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold text-center mb-16">
               Why Choose Dashy?
@@ -156,15 +157,17 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.2 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="md:h-96 lg:h-72 xl:h-60 bg-[#161B19] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[#06d6a0]/20 transition-all duration-300">
+                  <Card className="md:h-96 lg:h-72 xl:h-60 bg-[var(--bg-primary-transparent)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[var(--accent-color)]/20 transition-all duration-300">
                     <CardHeader>
-                      <feature.icon className="w-12 h-12 text-[#06d6a0] mb-4" />
+                      <feature.icon className="w-12 h-12 text-[var(--accent-color)] mb-4" />
                       <CardTitle className="text-2xl font-bold">
                         {feature.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-400">{feature.description}</p>
+                      <p className="text-[var(--text-color-muted)]">
+                        {feature.description}
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -173,7 +176,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="how-it-works" className="py-24 bg-[#161B19]">
+        <section id="how-it-works" className="py-24 bg-[var(--bg-primary)]">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold text-center mb-16">
               How It Works
@@ -207,18 +210,20 @@ export default function Home() {
                   viewport={{ once: true }}
                   className="flex flex-col items-center text-center"
                 >
-                  <div className="w-16 h-16 rounded-full bg-[#009770] text-[#161B19] flex items-center justify-center text-2xl font-bold mb-4">
+                  <div className="w-16 h-16 rounded-full bg-[var(--bg-secondary)] text-[var(--bg-primary)] flex items-center justify-center text-2xl font-bold mb-4">
                     {item.step}
                   </div>
                   <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
-                  <p className="text-gray-400">{item.description}</p>
+                  <p className="text-[var(--text-color-muted)]">
+                    {item.description}
+                  </p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="testimonials" className="py-24 bg-[#009770]">
+        <section id="testimonials" className="py-24 bg-[var(--bg-secondary)]">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold text-center mb-16">
               What Our Users Say
@@ -245,13 +250,13 @@ export default function Home() {
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="bg-[#161B19] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[#06d6a0]/20 transition-all duration-300">
+                  <Card className="bg-[var(--bg-primary-transparent)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[var(--accent-color)]/20 transition-all duration-300">
                     <CardContent className="p-6">
                       <p className="text-xl mb-4">
                         &quot;{testimonial.quote}&quot;
                       </p>
                       <p className="font-bold">{testimonial.name}</p>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-[var(--text-color-muted)]">
                         {testimonial.role}
                       </p>
                     </CardContent>
@@ -262,7 +267,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="faq" className="py-24 bg-[#161B19]">
+        <section id="faq" className="py-24 bg-[var(--bg-primary)]">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold text-center mb-16">
               Frequently Asked Questions
@@ -306,7 +311,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="cta" className="py-24 bg-[#009770]">
+        <section id="cta" className="py-24 bg-[var(--bg-secondary)]">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-8">
               <h2 className="text-4xl font-bold">
@@ -317,7 +322,7 @@ export default function Home() {
                 Dashy&apos;s powerful features.
               </p>
               <Link href="/dashboard">
-                <Button className="mt-4 bg-[#161B19] text-[#06d6a0] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:bg-[#06d6a0] hover:text-[#161B19] px-8 py-3 text-lg">
+                <Button className="mt-4 bg-[var(--bg-primary-transparent)] text-[var(--accent-color)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:bg-[var(--accent-color)] hover:text-[var(--bg-primary)] px-8 py-3 text-lg">
                   Get Started
                   <ArrowRight className="ml-2" />
                 </Button>
@@ -327,16 +332,16 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-[#161B19] py-4">
+      <footer className="bg-[var(--bg-primary)] py-4">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-[var(--text-color-muted)]">
               © 2024 Dashy. All rights reserved.
             </p>
             <Link
               href="https://x.com/LetsDashy"
               target="_blank"
-              className="text-gray-400 hover:text-[#06d6a0] transition-colors"
+              className="text-[var(--text-color-muted)] hover:text-[var(--accent-color)] transition-colors"
             >
               <FontAwesomeIcon icon={faXTwitter} className="w-6 h-6" />
             </Link>

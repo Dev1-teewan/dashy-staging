@@ -6,6 +6,15 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --bg-primary: rgba(22, 27, 25, 1); /* Fully opaque */
+  --bg-primary-transparent: rgba(22, 27, 25, 0.8); /* 80% opacity */
+  --bg-secondary: rgba(0, 151, 112, 1);
+  --accent-color: #06d6a0;
+  --accent-hover-color: #33e7b8;
+  --text-color-light: #ffffff;
+  --text-color-muted: #gray-400;
+  --text-color-dark: #000000;
+  --button-hover-bg: #06402b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -132,7 +141,7 @@ button.wallet-adapter-button-trigger:hover {
 }
 
 .sorted-table .ant-table-thead > tr > th {
-  background-color: #1D1D1D !important; /* Moderately dark for the header */
+  background-color: #1d1d1d !important; /* Moderately dark for the header */
 }
 
 @layer utilities {
