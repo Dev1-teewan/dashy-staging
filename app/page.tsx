@@ -157,7 +157,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.2 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="md:h-96 lg:h-72 xl:h-60 bg-[var(--bg-primary-transparent)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[var(--accent-color)]/20 transition-all duration-300">
+                  <Card className="h-full bg-[var(--bg-primary-transparent)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[var(--accent-color)]/20 transition-all duration-300">
                     <CardHeader>
                       <feature.icon className="w-12 h-12 text-[var(--accent-color)] mb-4" />
                       <CardTitle className="text-2xl font-bold">
@@ -250,7 +250,7 @@ export default function Home() {
                   transition={{ duration: 0.5 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="bg-[var(--bg-primary-transparent)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[var(--accent-color)]/20 transition-all duration-300">
+                  <Card className="h-full bg-[var(--bg-primary-transparent)] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[var(--accent-color)]/20 transition-all duration-300">
                     <CardContent className="p-6">
                       <p className="text-xl mb-4">
                         &quot;{testimonial.quote}&quot;
@@ -334,8 +334,8 @@ export default function Home() {
 
       <footer className="bg-[var(--bg-primary)] py-4">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-            <p className="text-sm text-[var(--text-color-muted)]">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+            <p className="text-sm text-gray-400">
               © 2024 Dashy. All rights reserved.
             </p>
             <Link
