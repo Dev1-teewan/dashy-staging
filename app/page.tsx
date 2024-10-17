@@ -54,7 +54,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--bg-primary)]">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-primary)]/80 backdrop-blur-md">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent backdrop-blur-md">
         <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Image src={dashy} alt="Dashy" width={135} height={40} />
           <div className="flex space-x-4">
@@ -79,7 +79,7 @@ export default function Home() {
         </nav>
       </header>
 
-      <main className="flex-1 pt-16">
+      <main className="flex-1">
         <section
           id="hero"
           className="relative min-h-screen flex items-center justify-center overflow-hidden"
