@@ -156,7 +156,7 @@ export default function Home() {
                   transition={{ duration: 0.5, delay: index * 0.2 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="bg-[#161B19] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[#06d6a0]/20 transition-all duration-300 h-60">
+                  <Card className="md:h-96 lg:h-72 xl:h-60 bg-[#161B19] border-none drop-shadow-lg backdrop-blur-lg bg-opacity-80 hover:shadow-lg hover:shadow-[#06d6a0]/20 transition-all duration-300">
                     <CardHeader>
                       <feature.icon className="w-12 h-12 text-[#06d6a0] mb-4" />
                       <CardTitle className="text-2xl font-bold">
