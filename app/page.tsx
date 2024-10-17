@@ -17,6 +17,8 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/Accordion";
 import { ArrowRight, BarChart2, Lock, Zap } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -306,10 +308,17 @@ export default function Home() {
         {/* Footer */}
         <footer className="w-full py-4 bg-[#009770] flex justify-center">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
+            <div className="flex flex-col items-center justify-center gap-6 md:flex-row">
               <p className="text-xs dark:text-gray-200">
                 © 2024 Dashy. All rights reserved.
               </p>
+              <Link
+                href="https://x.com/LetsDashy"
+                target="_blank"
+                className="hover:cursor-pointer text-gray-200 hover:text-white"
+              >
+                <FontAwesomeIcon icon={faXTwitter} />
+              </Link>
             </div>
           </div>
         </footer>
