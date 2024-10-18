@@ -59,7 +59,8 @@ const LoadStorageManager = ({
       return;
     }
 
-    const localStorageData = JSON.stringify(localSource); // Convert localStorage to a JSON string
+    const updatedContent = updateToLatestVersion(localSource); // Update the data to the latest version
+    const localStorageData = JSON.stringify(updatedContent); // Convert localStorage to a JSON string
 
     const blob = new Blob([localStorageData], { type: "application/json" });
     const url = URL.createObjectURL(blob);

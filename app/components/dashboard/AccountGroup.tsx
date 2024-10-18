@@ -168,15 +168,10 @@ const AccountGroup = ({
             <div className="flex flex-col gap-2">
               <SendToken
                 rowAccount={record.address}
-                fromAddress={
+                connections={
                   localDataSource.find(
                     (item) => item.address === record.address
-                  )["from"]
-                }
-                toAddress={
-                  localDataSource.find(
-                    (item) => item.address === record.address
-                  )["to"]
+                  )["connections"]
                 }
               />
 
@@ -209,8 +204,7 @@ const AccountGroup = ({
           key: `${Date.now()}`,
           alias: "",
           address: inputAddress || "",
-          from: [],
-          to: [],
+          connections: [],
           purpose: "",
           balance: response.totalValue || 0,
         };

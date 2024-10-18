@@ -27,7 +27,11 @@ export const accountGroupColumns: EditableColumnType[] = [
     key: "sort",
     align: "center",
     width: "50px",
-    render: () => <DragHandle />,
+    render: () => (
+      <div className="flex items-center min-h-[32px]">
+        <DragHandle />
+      </div>
+    ),
   },
   {
     title: "Alias",
@@ -51,19 +55,11 @@ export const accountGroupColumns: EditableColumnType[] = [
       );
     },
   },
-  // {
-  //   title: "From",
-  //   width: "15%",
-  //   key: "from",
-  //   dataIndex: "from",
-  //   editable: true,
-  //   type: "select",
-  // },
   {
-    title: "To",
+    title: "Connections",
     width: "20%",
-    key: "to",
-    dataIndex: "to",
+    key: "connections",
+    dataIndex: "connections",
     editable: true,
     type: "select",
   },

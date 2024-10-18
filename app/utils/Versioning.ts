@@ -4,8 +4,7 @@ interface Account {
   key: string;
   alias: string;
   address: string;
-  from: string[];
-  to: string[];
+  connections: string[];
   purpose: string;
   balance: string;
 }
@@ -50,32 +49,46 @@ export const updateToLatestVersion = (localSource: any) => {
   if (checkVersion(localSource.version)) return localSource;
 
   // Create a new object to hold the updated data
-  const updatedGroups: any = {};
+  const updatedClusters: any = {};
 
-  // Iterate over the stored groups
+  // Iterate over the stored clusters
   Object.keys(localSource).forEach((key) => {
     // Skip the version key
     if (key === "version") return;
 
-    // Rename the group keys from 'group' to 'cluster'
+    // Rename the cluster keys from 'group' to 'cluster'
     const newKey = key.replace("group", "cluster");
 
-    // If the object has a 'groupName' key, rename it to 'clusterName'
-    const updatedGroup = {
+    // Update each account inside the cluster
+    const updatedAccounts = localSource[key].accounts.map((account: any) => {
+      return {
+        ...account,
+        connections: [...(account.to || [])], // Use 'to' as connections
+      };
+    });
+
+    // Remove 'to' and 'from' from each account
+    updatedAccounts.forEach((account: any) => {
+      delete account.to;
+      delete account.from;
+    });
+
+    // Update the cluster itself with the updated accounts
+    const updatedCluster = {
       ...localSource[key],
-      clusterName: localSource[key].groupName || "", // Copy the groupName to clusterName
+      accounts: updatedAccounts, // Use updated accounts
     };
 
     // Remove the old 'groupName' key
-    delete updatedGroup.groupName;
+    delete updatedClusters.groupName;
 
-    // Add the updated group with the new key to the updatedGroups object
-    updatedGroups[newKey] = updatedGroup;
+    // Add the updated cluster with the new key to the updatedClusters object
+    updatedClusters[newKey] = updatedCluster;
   });
 
   // Return the updated object with the new structure
   return {
     version: latestVersion, // Ensure the latest version is set
-    ...updatedGroups, // Add the newly transformed groups
+    ...updatedClusters, // Add the newly transformed clusters
   };
 };
