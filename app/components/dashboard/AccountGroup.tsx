@@ -7,6 +7,9 @@ import { arraysEqual } from "@/app/utils/Utils";
 import { fetchAssets } from "@/app/utils/HeliusRPC";
 import EditableField from "../features/EditableField";
 import useStyle from "../features/table/ScrollableRow";
+import { ClusterDataType } from "../../utils/Versioning";
+import { combinedComponents } from "../features/table/CustomizeRow";
+import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
   DeleteFilled,
   DownCircleOutlined,
@@ -14,8 +17,6 @@ import {
   RightCircleOutlined,
   RightOutlined,
 } from "@ant-design/icons";
-import { combinedComponents } from "../features/table/CustomizeRow";
-import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
   Button,
   Col,
@@ -29,57 +30,52 @@ import {
   Popconfirm,
 } from "antd";
 
-interface GroupData {
-  groupName: string;
-  accounts: any[];
-  tags: string[];
-  totalBalance: number;
-}
-
 interface AccountGroupProps {
-  groupData: GroupData;
-  groupIndex: string;
-  updateGroup: (index: string, data: any) => void;
-  deleteGroup: (index: string) => void;
+  clusterData: ClusterDataType;
+  clusterIndex: string;
+  updateCluster: (index: string, data: any) => void;
+  deleteCluster: (index: string) => void;
   displayFull: boolean;
 }
 
 const AccountGroup = ({
-  groupData,
-  groupIndex,
-  updateGroup,
-  deleteGroup,
+  clusterData,
+  clusterIndex,
+  updateCluster,
+  deleteCluster,
   displayFull,
 }: AccountGroupProps) => {
-  const { styles } = useStyle(); // Table scrollable style
+  // Table scrollable style
+  const { styles } = useStyle();
+  // DND Droppable ref for the empty group
+  const { setNodeRef } = useDroppable({ id: clusterIndex });
 
-  // Droppable ref for the empty group
-  const { setNodeRef } = useDroppable({ id: groupIndex });
-
-  // Toast msg & new address input state
+  // State for toast msg & new address input
   const [messageApi, contextHolder] = message.useMessage();
   const [inputAddress, setInputAddress] = useState<string>("");
 
   // State for group's data and tag / total balance
   const [expanded, setExpanded] = useState<boolean>(displayFull);
   const [localDataSource, setLocalDataSource] = useState<any[]>(
-    groupData.accounts || []
+    clusterData.accounts || []
   );
-  const [localTags, setLocalTags] = useState<string[]>(groupData.tags || []);
+  const [localTags, setLocalTags] = useState<string[]>(clusterData.tags || []);
   const [count, setCount] = useState<number>(localDataSource.length + 1);
   const [totalBalance, setTotalBalance] = useState(0);
 
   // Save state for expanded rows and its token list
   // const [expandedRows, setExpandedRows] = useState<string[]>([]);
-  const [addressTokenList, setAccountTokenList] = useState<Record<string, []>>(
+  const [accountTokenList, setAccountTokenList] = useState<Record<string, []>>(
     {}
   );
 
   // Effect to update local state when params changes
   useEffect(() => {
-    setLocalDataSource(groupData.accounts || []);
-    setLocalTags(groupData.tags || []);
-  }, [groupData.accounts, groupData.tags]);
+    setLocalDataSource(clusterData.accounts || []);
+    setLocalTags(clusterData.tags || []);
+  }, [clusterData.accounts, clusterData.tags]);
+
+  // Effect to update expanded state when displayFull changes
   useEffect(() => {
     setExpanded(displayFull);
   }, [displayFull]);
@@ -93,12 +89,12 @@ const AccountGroup = ({
 
     if (
       total !== totalBalance ||
-      !arraysEqual(localDataSource, groupData.accounts) ||
-      !arraysEqual(localTags, groupData.tags)
+      !arraysEqual(localDataSource, clusterData.accounts) ||
+      !arraysEqual(localTags, clusterData.tags)
     ) {
       // Notify the parent with updated data
-      updateGroup(groupIndex, {
-        ...groupData,
+      updateCluster(clusterIndex, {
+        ...clusterData,
         accounts: localDataSource,
         tags: localTags,
         totalBalance: total,
@@ -274,14 +270,14 @@ const AccountGroup = ({
   };
 
   const handleGroupNameChange = (newName: string) => {
-    updateGroup(groupIndex, { ...groupData, groupName: newName });
+    updateCluster(clusterIndex, { ...clusterData, clusterName: newName });
   };
 
   return (
     <div className={expanded ? "col-span-2" : ""}>
+      {contextHolder}
       <Row>
         <Col span={24} className="!min-h-0">
-          {contextHolder}
           <Collapse
             ghost
             defaultActiveKey={["1"]}
@@ -293,43 +289,26 @@ const AccountGroup = ({
                 label: <></>,
                 children: (
                   <>
-                    <div className="flex justify-between items-center m-2 gap-2">
-                      <div className="flex gap-4 text-white text-xl font-bold">
+                    <div className="flex justify-between items-center m-2">
+                      <div className="flex gap-4 text-xl font-bold">
                         {expanded ? (
-                          <DownOutlined
-                            onClick={() => setExpanded((prev) => !prev)}
-                          />
+                          <DownOutlined onClick={() => setExpanded(false)} />
                         ) : (
-                          <RightOutlined
-                            onClick={() => setExpanded((prev) => !prev)}
-                          />
+                          <RightOutlined onClick={() => setExpanded(true)} />
                         )}
                         <EditableField
-                          value={groupData.groupName}
-                          onSave={handleGroupNameChange} // Handler to update group name
-                          placeholder="Enter group name"
+                          messageApi={messageApi}
+                          value={clusterData.clusterName}
+                          onSave={handleGroupNameChange}
                         />
                       </div>
-                      <div className="flex flex-row gap-4 items-center">
-                        {/* {expanded ? (
-                          <div onClick={() => setExpanded((prev) => !prev)}>
-                            <Button className="custom-button">Collapse</Button>
-                          </div>
-                        ) : (
-                          <div onClick={() => setExpanded((prev) => !prev)}>
-                            <Button className="custom-button">Expand</Button>
-                          </div>
-                        )} */}
-                        <a
-                          className="text-red-500 hover:text-red-600 cursor-pointer"
-                          onClick={(event) => {
-                            event.stopPropagation(); // Prevent triggering the group toggle
-                            deleteGroup(groupIndex);
-                          }}
-                        >
-                          <DeleteFilled style={{ fontSize: "24px" }} />
-                        </a>
-                      </div>
+                      <DeleteFilled
+                        className="text-[24px] text-red-500 hover:text-red-600 cursor-pointer"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          deleteCluster(clusterIndex);
+                        }}
+                      />
                     </div>
 
                     <div className="pl-2">
@@ -362,9 +341,8 @@ const AccountGroup = ({
                       </Row>
 
                       <Table
-                        rowKey="key"
-                        scroll={{ y: 63 * 4 }}
                         bordered={false}
+                        scroll={{ y: 63 * 4 }}
                         columns={columns}
                         pagination={false}
                         dataSource={localDataSource}
@@ -393,20 +371,19 @@ const AccountGroup = ({
                             ),
                           expandedRowRender: (record) => (
                             <Table
-                              className="expanded-table"
+                              scroll={{ y: 180 }}
                               columns={balanceColumns}
+                              className={`expanded-table ${styles.customTable}`}
                               dataSource={
-                                addressTokenList[record.address] || []
+                                accountTokenList[record.address] || []
                               }
                             />
                           ),
                         }}
                       />
 
-                      <Space
-                        className="mt-2"
-                        style={{ display: "flex", alignItems: "stretch" }}
-                      >
+                      {/* Section: Add new address */}
+                      <Space className="mt-2 flex items-stretch">
                         <Input
                           value={inputAddress}
                           placeholder="Enter watch address"
