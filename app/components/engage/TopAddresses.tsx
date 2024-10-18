@@ -15,7 +15,7 @@ const TopAddress = () => {
   const { connection } = useConnection();
   const address = publicKey?.toBase58() || "";
 
-  const { topAddresses } = useFetchAssets("transactions");
+  // const { topAddresses } = useFetchAssets("transactions");
 
   return (
     <Row>
@@ -36,7 +36,7 @@ const TopAddress = () => {
               ),
               children: (
                 <Table
-                  dataSource={topAddresses}
+                  dataSource={[]} // topAddresses
                   columns={topAddressColumns}
                   pagination={false}
                   className="pb-4"

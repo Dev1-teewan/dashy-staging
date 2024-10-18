@@ -1,21 +1,27 @@
+import { Input } from "antd";
 import React, { useState } from "react";
-import { Button, Input, message } from "antd";
 import { EditFilled } from "@ant-design/icons";
 
 interface EditableFieldProps {
+  messageApi: any;
   value: string;
   onSave: (newValue: string) => void;
   placeholder?: string;
 }
 
-const EditableField = ({ value, onSave, placeholder }: EditableFieldProps) => {
+const EditableField = ({
+  messageApi,
+  value,
+  onSave,
+  placeholder = "Enter cluster name",
+}: EditableFieldProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
 
   // Handle saving the new value on blur
   const handleBlur = () => {
-    if (inputValue.trim() === "") {
-      message.error("This field is required."); // Show error message if input is empty
+    if (!inputValue || inputValue.trim() === "") {
+      messageApi.error("This field is required."); // Show error message if input is empty
       return; // Prevent saving
     }
 
@@ -45,7 +51,9 @@ const EditableField = ({ value, onSave, placeholder }: EditableFieldProps) => {
     />
   ) : (
     <div className="flex flex-row items-center gap-3">
-      <strong>{value || placeholder}</strong>
+      <strong className={value ? "" : "text-gray-400"}>
+        {value || placeholder}
+      </strong>
 
       <EditFilled
         className="text-[#06d6a0]"

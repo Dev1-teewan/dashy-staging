@@ -1,9 +1,9 @@
 "use client";
 
 import { FundFilled } from "@ant-design/icons";
-import { Col, Collapse, Empty, Row, Table, Typography } from "antd";
 import { useFetchAssets } from "@/app/hooks/useFetchAssets";
 import { transactionColumns } from "../features/TableColumns";
+import { Col, Collapse, Empty, Row, Table, Typography } from "antd";
 
 const Transactions = () => {
   const { transactions = [], contextHolder } = useFetchAssets("transactions");
