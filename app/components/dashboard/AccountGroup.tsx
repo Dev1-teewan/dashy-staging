@@ -131,8 +131,8 @@ const AccountGroup = ({
   const columns = [
     ...accountGroupColumns
       .filter((col: any) => {
-        // Remove "From" and "To" columns if displayFull is false
-        if (!expanded && (col.key === "from" || col.key === "to")) {
+        // Remove "Connections" column if displayFull is false
+        if (!expanded && col.key === "connections") {
           return false;
         }
         return true;
