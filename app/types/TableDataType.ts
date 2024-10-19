@@ -2,8 +2,7 @@ export interface accountGroupDataType {
   key: string;
   alias: string;
   address: string;
-  from: string;
-  to: string;
+  connections: string[];
   purpose: string;
   balance: number;
   token: string;

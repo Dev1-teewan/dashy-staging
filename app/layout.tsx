@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import AntLayout from "./components/layout/AntLayout";
 import ThemeProvider from "./components/layout/ThemeProvider";
 import AppWalletProvider from "./components/layout/AppWalletProvider";
@@ -25,7 +26,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <AppWalletProvider>
           <ThemeProvider>
-            <AntLayout>{children}</AntLayout>
+            <AntLayout>
+              {children}
+              <Analytics />
+            </AntLayout>
           </ThemeProvider>
         </AppWalletProvider>
       </body>

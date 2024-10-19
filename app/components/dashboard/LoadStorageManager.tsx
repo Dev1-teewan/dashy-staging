@@ -3,10 +3,11 @@
 import { CloseOutlined } from "@ant-design/icons";
 import React, { ChangeEvent, useState } from "react";
 import { Button, Divider, message, Modal, Upload } from "antd";
+import { ClusterType, updateToLatestVersion } from "@/app/utils/Versioning";
 
 interface LoadStorageManagerProps {
-  localSource: any;
-  onDataImport: (data: any[]) => void;
+  localSource: ClusterType;
+  onDataImport: (data: ClusterType) => void;
 }
 
 const LoadStorageManager = ({
@@ -35,7 +36,9 @@ const LoadStorageManager = ({
       const content = e.target?.result;
       try {
         if (typeof content === "string") {
-          onDataImport(JSON.parse(content));
+          const parsedContent = JSON.parse(content);
+          const updatedContent = updateToLatestVersion(parsedContent); // Update the data to the latest version
+          onDataImport(updatedContent); // Set the imported data to trigger the update
           messageApi.success("Local storage has been restored successfully!");
           setOpen(false);
         }
@@ -56,7 +59,8 @@ const LoadStorageManager = ({
       return;
     }
 
-    const localStorageData = JSON.stringify(localSource); // Convert localStorage to a JSON string
+    const updatedContent = updateToLatestVersion(localSource); // Update the data to the latest version
+    const localStorageData = JSON.stringify(updatedContent); // Convert localStorage to a JSON string
 
     const blob = new Blob([localStorageData], { type: "application/json" });
     const url = URL.createObjectURL(blob);

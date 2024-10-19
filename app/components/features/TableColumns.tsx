@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Tag, Tooltip } from "antd";
 import CustomSelect from "./CustomSelect";
 import CopyToClipboard from "./CopyToClipboard";
+import { formatAmount } from "@/app/utils/Utils";
 import type { ColumnsType } from "antd/es/table";
 import { DragHandle } from "./table/CustomizeRow";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
@@ -27,7 +28,11 @@ export const accountGroupColumns: EditableColumnType[] = [
     key: "sort",
     align: "center",
     width: "50px",
-    render: () => <DragHandle />,
+    render: () => (
+      <div className="flex items-center min-h-[32px]">
+        <DragHandle />
+      </div>
+    ),
   },
   {
     title: "Alias",
@@ -51,19 +56,11 @@ export const accountGroupColumns: EditableColumnType[] = [
       );
     },
   },
-  // {
-  //   title: "From",
-  //   width: "15%",
-  //   key: "from",
-  //   dataIndex: "from",
-  //   editable: true,
-  //   type: "select",
-  // },
   {
-    title: "To",
+    title: "Connections",
     width: "20%",
-    key: "to",
-    dataIndex: "to",
+    key: "connections",
+    dataIndex: "connections",
     editable: true,
     type: "select",
   },
@@ -76,10 +73,10 @@ export const accountGroupColumns: EditableColumnType[] = [
   },
   {
     title: "Balance",
-    width: "",
+    width: "15%",
     key: "balance",
     dataIndex: "balance",
-    render: (balance) => <span>${balance}</span>,
+    render: (balance) => <span>${formatAmount(parseFloat(balance))}</span>,
   },
 ];
 

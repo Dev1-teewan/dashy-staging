@@ -3,7 +3,8 @@
 import { Button } from "antd";
 import { DndContext } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
-import { useLocalStorage } from "@solana/wallet-adapter-react";
+import { formatAmount } from "../utils/Utils";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import AccountGroup from "../components/dashboard/AccountGroup";
 import type { DragEndEvent, DragOverEvent } from "@dnd-kit/core";
 import LoadStorageManager from "../components/dashboard/LoadStorageManager";
@@ -12,117 +13,102 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import {
+  ClusterType,
+  defaultCluster,
+  removeSetupVersion,
+} from "@/app/utils/Versioning";
 
 const Dashboard = () => {
-  const [groups, setGroups] = useState<any>({});
-  const [groupCount, setGroupCount] = useState<number>(1);
+  // State to store the cluster data
+  const [clusters, setClusters] = useState<any>({});
+  const [clusterCount, setClusterCount] = useState<number>(1);
   const [dashboardBalance, setDashboardBalance] = useState<number>(0);
-  const [expandAllGroup, setExpandAllGroup] = useState<boolean>(false);
-  const [localSource, setLocalSource] = useLocalStorage<any>("dashy", {
-    group1: {
-      index: 1,
-      groupName: "Cluster 1",
-      tags: [],
-      accounts: [],
-      totalBalance: 0,
-    },
-  });
+  const [expandAllCluster, setExpandAllCluster] = useState<boolean>(false);
+  const [localSource, setLocalSource] = useLocalStorage<ClusterType>(
+    "dashy",
+    defaultCluster
+  );
 
   useEffect(() => {
-    const storedGroups = localStorage.getItem("dashy");
-    if (storedGroups) {
-      setGroups(storedGroups ? JSON.parse(storedGroups) : {});
-    } else {
-      const defaultGroup = {
-        group1: {
-          index: 1,
-          groupName: "Cluster 1",
-          tags: [],
-          accounts: [],
-          totalBalance: 0,
-        },
-      };
-      localStorage.setItem("dashy", JSON.stringify(defaultGroup));
-      setGroups(defaultGroup);
-    }
+    // Initialize the clusters state with the local storage data
+    // TODO: potential empty localSource during deployment
+    setClusters(removeSetupVersion(localSource));
+
+    // Get the highest cluster index
+    const lastClusterIndex = Math.max(
+      ...Object.values(clusters).map((cluster: any) => cluster.index || 0)
+    );
+    setClusterCount(lastClusterIndex + 1);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (Object.keys(localSource).length > 0) {
-      console.log(localSource, "localSource");
+    if (Object.keys(clusters).length > 0) {
+      // Update the local storage
+      console.log(clusters, "Local Storage");
+      setLocalSource(clusters);
 
-      const updatedLocalSource = { ...localSource }; // Create a shallow copy of localSource to avoid direct mutation
+      const updatedLocalSource = { ...clusters }; // Create a shallow copy of localSource to avoid direct mutation
 
-      Object.keys(updatedLocalSource).forEach((groupKey) => {
-        const group = updatedLocalSource[groupKey];
+      Object.keys(updatedLocalSource).forEach((clusterKey) => {
+        const cluster = updatedLocalSource[clusterKey];
 
-        // Calculate the total balance for the current group
-        const totalBalance = group.accounts.reduce(
+        // Calculate the total balance for each cluster's accounts
+        const totalBalance = cluster.accounts.reduce(
           (sum: number, account: any) => {
             return sum + (parseFloat(account.balance) || 0); // Ensure balance is a valid number
           },
           0
         );
 
-        // Update the group's total balance
-        updatedLocalSource[groupKey].totalBalance = totalBalance;
+        // Update the cluster's total balance
+        updatedLocalSource[clusterKey].totalBalance = totalBalance;
       });
 
-      // Also update the dashboard balance, summing all group balances
+      // Also update the dashboard balance, summing all cluster balances
       const totalDashboardBalance = Object.values(updatedLocalSource).reduce(
-        (sum: number, group: any) => sum + group.totalBalance,
+        (sum: number, cluster: any) => sum + cluster.totalBalance,
         0
       );
       setDashboardBalance(totalDashboardBalance);
-
-      // Get the highest group index
-      const lastGroupIndex = Math.max(
-        ...Object.values(updatedLocalSource).map((group: any) => group.index)
-      );
-      setGroupCount(lastGroupIndex + 1);
     }
-  }, [localSource]);
+  }, [clusters, setLocalSource]);
 
-  const handleAddNewGroup = () => {
-    const newGroupKey = `group${groupCount}`;
-    const newGroup = {
-      index: groupCount,
-      groupName: `Cluster ${groupCount}`,
+  const addNewCluster = () => {
+    const newClusterKey = `cluster${clusterCount}`;
+    const newCluster = {
+      index: clusterCount,
+      clusterName: "",
       tags: [],
       accounts: [],
       totalBalance: 0,
     };
 
-    const updatedGroups = {
-      ...groups,
-      [newGroupKey]: newGroup,
-    };
-
-    setGroups(updatedGroups);
-    setGroupCount(groupCount + 1);
-    setLocalSource(updatedGroups);
+    setClusters({
+      ...clusters,
+      [newClusterKey]: newCluster,
+    });
+    setClusterCount(clusterCount + 1);
   };
 
-  const updateGroup = (groupKey: string, updatedGroup: any) => {
-    console.log("Updated Group", updatedGroup);
-    const updatedGroups = {
-      ...groups,
-      [groupKey]: updatedGroup,
-    };
-    setGroups(updatedGroups);
-    setLocalSource(updatedGroups);
+  const updateCluster = (clusterKey: string, updatedCluster: any) => {
+    console.log("Updated Cluster", updatedCluster);
+    setClusters({
+      ...clusters,
+      [clusterKey]: updatedCluster,
+    });
   };
 
-  const deleteGroup = (groupKey: string) => {
-    const updatedGroups = { ...groups };
-    delete updatedGroups[groupKey];
-    setGroups(updatedGroups);
-    setLocalSource(updatedGroups);
+  const deleteCluster = (clusterKey: string) => {
+    const updatedClusters = { ...clusters };
+    delete updatedClusters[clusterKey];
+    setClusters(updatedClusters);
   };
 
   const handleDataImport = (importedData: any) => {
-    setGroups(importedData);
-    setLocalSource(importedData);
+    setClusters(removeSetupVersion(importedData));
   };
 
   const onDragEnd = (e: DragEndEvent) => {
@@ -141,8 +127,8 @@ const Dashboard = () => {
 
     // Sort the items list order based on item target position
     const containerName = e.active.data.current.sortable.containerId;
-    const updatedAccount = (localSource: any) => {
-      const temp = { ...localSource };
+    const updatedAccount = (clusters: any) => {
+      const temp = { ...clusters };
       if (!e.over) return temp;
       const oldIdx = temp[containerName].accounts.findIndex(
         (acc: any) => acc.key === e.active.id.toString()
@@ -156,8 +142,7 @@ const Dashboard = () => {
       };
       return temp;
     };
-    setGroups(updatedAccount);
-    setLocalSource(updatedAccount);
+    setClusters(updatedAccount);
   };
 
   const onDragOver = (event: DragOverEvent) => {
@@ -176,26 +161,26 @@ const Dashboard = () => {
       return;
     }
 
-    const updatedAccount = (localSource: any) => {
-      const temp = { ...localSource };
+    const updatedAccount = (clusters: any) => {
+      const temp = { ...clusters };
 
       if (!targetContainer) {
         if (!targetContainer) {
           const sourceIndex = over.id;
           console.log("Source Index", sourceIndex);
 
-          // Ensure accounts array exists for the target group (sourceIndex)
+          // Ensure accounts array exists for the target cluster (sourceIndex)
           if (!temp[sourceIndex].accounts) {
             temp[sourceIndex].accounts = []; // Initialize if not present
           }
 
-          // Check if the account already exists in the target group
+          // Check if the account already exists in the target cluster
           if (
             temp[sourceIndex].accounts.some(
               (acc: any) => acc?.key === active.id.toString()
             )
           ) {
-            console.log("Account already exists in the group, skipping add");
+            console.log("Account already exists in the cluster, skipping add");
             return temp;
           }
 
@@ -207,7 +192,7 @@ const Dashboard = () => {
           if (draggingAccount) {
             temp[sourceIndex].accounts.push(draggingAccount);
             console.log(
-              "Added account to new group",
+              "Added account to new cluster",
               temp[sourceIndex].accounts
             );
 
@@ -219,7 +204,7 @@ const Dashboard = () => {
             console.error("draggingAccount is undefined");
           }
 
-          // Filter out the account from the initial group
+          // Filter out the account from the initial cluster
           temp[initialContainer].accounts = temp[
             initialContainer
           ].accounts.filter((acc: any) => acc.key !== active.id.toString());
@@ -229,24 +214,7 @@ const Dashboard = () => {
         }
       }
 
-      if (initialContainer === targetContainer) {
-        // const oldIdx = temp[initialContainer].accounts.findIndex(
-        //   (acc: any) => acc.key === active.id.toString()
-        // );
-        // const newIdx = temp[initialContainer].accounts.findIndex(
-        //   (acc: any) => acc.key === over!.id.toString()
-        // );
-        // // Use the moveArrayItem function to swap items
-        // const updatedAccounts = moveArrayItem(
-        //   [...temp[initialContainer].accounts],
-        //   oldIdx,
-        //   newIdx
-        // );
-        // temp[initialContainer] = {
-        //   ...temp[initialContainer],
-        //   accounts: arrayMove(temp[initialContainer].accounts, oldIdx, newIdx),
-        // };
-      } else {
+      if (initialContainer !== targetContainer) {
         const draggingAccount = temp[initialContainer].accounts.find(
           (acc: any) => acc.key === active.id.toString()
         );
@@ -259,20 +227,18 @@ const Dashboard = () => {
         temp[initialContainer].accounts = temp[
           initialContainer
         ].accounts.filter((acc: any) => acc.key !== active.id.toString());
-        console.log("Temp2222222", temp);
       }
 
       return temp;
     };
 
-    setGroups(updatedAccount);
-    setLocalSource(updatedAccount);
+    setClusters(updatedAccount);
   };
 
   return (
     <div className="max-w-[85vw] w-full">
       <div className="flex justify-between items-center mt-3 mb-3 text-3xl font-bold text-outline">
-        <div>Dashboard Balance: ${dashboardBalance.toFixed(2)}</div>
+        <div>Dashboard Balance: ${formatAmount(dashboardBalance)}</div>
       </div>
       <div className="flex gap-3 mb-5">
         <LoadStorageManager
@@ -283,45 +249,41 @@ const Dashboard = () => {
           <Button
             className="custom-button"
             onClick={() => {
-              setExpandAllGroup((prev) => !prev);
+              setExpandAllCluster((prev) => !prev);
             }}
           >
-            {expandAllGroup === true ? "Collapse All" : "Expand All"}
+            {expandAllCluster === true ? "Collapse All" : "Expand All"}
           </Button>
         </div>
       </div>
 
       <DndContext onDragEnd={onDragEnd} onDragOver={onDragOver}>
         <div className="grid grid-cols-2 gap-10">
-          {Object.keys(groups).map((groupKey, index) => {
-            const group = groups[groupKey];
-            if (!group) return null; // Safeguard against undefined groups
+          {Object.keys(clusters).map((clusterKey, index) => {
+            const cluster = clusters[clusterKey];
+            if (!cluster) return null; // Safeguard against undefined cluster
             return (
               <SortableContext
-                key={groupKey}
-                id={groupKey}
-                items={group.accounts
+                key={clusterKey}
+                id={clusterKey}
+                items={cluster.accounts
                   .filter((account: any) => account != null)
                   .map((account: any) => account?.key)}
                 strategy={verticalListSortingStrategy}
               >
                 <AccountGroup
-                  groupData={group}
-                  groupIndex={groupKey} // Keep groupKey as a unique identifier
-                  updateGroup={updateGroup}
-                  deleteGroup={() => deleteGroup(groupKey)}
-                  displayFull={expandAllGroup}
+                  clusterData={cluster}
+                  clusterIndex={clusterKey}
+                  updateCluster={updateCluster}
+                  deleteCluster={() => deleteCluster(clusterKey)}
+                  displayFull={expandAllCluster}
                 />
               </SortableContext>
             );
           })}
         </div>
 
-        <Button
-          className="mt-4 border-dashed"
-          block
-          onClick={handleAddNewGroup}
-        >
+        <Button className="mt-4 border-dashed" block onClick={addNewCluster}>
           Add New Cluster
         </Button>
       </DndContext>
