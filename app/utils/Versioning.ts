@@ -76,11 +76,13 @@ export const updateToLatestVersion = (localSource: any) => {
     // Update the cluster itself with the updated accounts
     const updatedCluster = {
       ...localSource[key],
+      clusterName:
+        localSource[key].groupName || localSource[key].clusterName || "", // Copy the groupName to clusterName
       accounts: updatedAccounts, // Use updated accounts
     };
 
-    // Remove the old 'groupName' key
-    delete updatedClusters.groupName;
+    // Remove the old 'groupName' key from the updatedCluster object
+    delete updatedCluster.groupName;
 
     // Add the updated cluster with the new key to the updatedClusters object
     updatedClusters[newKey] = updatedCluster;

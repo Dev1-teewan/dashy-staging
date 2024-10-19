@@ -3,6 +3,7 @@
 import { Button } from "antd";
 import { DndContext } from "@dnd-kit/core";
 import { useEffect, useState } from "react";
+import { formatAmount } from "../utils/Utils";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import AccountGroup from "../components/dashboard/AccountGroup";
 import type { DragEndEvent, DragOverEvent } from "@dnd-kit/core";
@@ -237,7 +238,7 @@ const Dashboard = () => {
   return (
     <div className="max-w-[85vw] w-full">
       <div className="flex justify-between items-center mt-3 mb-3 text-3xl font-bold text-outline">
-        <div>Dashboard Balance: ${dashboardBalance.toFixed(2)}</div>
+        <div>Dashboard Balance: ${formatAmount(dashboardBalance)}</div>
       </div>
       <div className="flex gap-3 mb-5">
         <LoadStorageManager

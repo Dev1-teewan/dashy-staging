@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
 import { useDroppable } from "@dnd-kit/core";
-import { arraysEqual } from "@/app/utils/Utils";
 import { fetchAssets } from "@/app/utils/HeliusRPC";
 import EditableField from "../features/EditableField";
 import useStyle from "../features/table/ScrollableRow";
 import { ClusterDataType } from "../../utils/Versioning";
+import { arraysEqual, formatAmount } from "@/app/utils/Utils";
 import { combinedComponents } from "../features/table/CustomizeRow";
 import { accountGroupColumns, balanceColumns } from "../features/TableColumns";
 import {
@@ -283,6 +283,7 @@ const AccountGroup = ({
                 label: <></>,
                 children: (
                   <>
+                    {/* Section: Cluster Header */}
                     <div className="flex justify-between items-center m-2">
                       <div className="flex gap-4 text-xl font-bold">
                         {expanded ? (
@@ -319,7 +320,7 @@ const AccountGroup = ({
                           Cluster Balance:
                         </Col>
                         <Col flex="auto" className="flex items-center">
-                          ${totalBalance.toFixed(2)}
+                          ${formatAmount(totalBalance)}
                         </Col>
                       </Row>
                       <Row>
