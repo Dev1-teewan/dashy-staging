@@ -2,26 +2,27 @@
 
 import { message } from "antd";
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { fetchAssets, fetchTransactions } from "../utils/HeliusRPC";
+import { useSearchParams } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { fetchAssets, fetchTransactions } from "../utils/HeliusRPC";
 
 export const useFetchAssets = (type: string) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const { publicKey } = useWallet();
+  const { publicKey } = useWallet(); // Connected wallet
+  const searchParams = useSearchParams(); // URL search params
   const address = publicKey?.toBase58() || searchParams.get("watching") || "";
 
   // State variables
   const [dataSource, setDataSource] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
   const [transactions, setTransactions] = useState([]);
-  const [topAddresses, setTopAddresses] = useState<
-    { key: string; address: string }[]
-  >([]);
 
-  const [loading, setLoading] = useState(false); // To manage loading state
+  // Disabled for now
+  // const [topAddresses, setTopAddresses] = useState<
+  //   { key: string; address: string }[]
+  // >([]); 
+
+  // Loading state and message API
+  const [loading, setLoading] = useState(false); 
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
@@ -35,16 +36,14 @@ export const useFetchAssets = (type: string) => {
             setTotalValue(response.totalValue);
           } else {
             messageApi.error("Invalid wallet address or no assets found");
-            router.push("/");
           }
         } else if (type === "transactions") {
           const response = await fetchTransactions(address);
           if (response.status === "success") {
             setTransactions(response.transactions);
-            setTopAddresses(response.topAddresses || []);
+            // setTopAddresses(response.topAddresses || []);
           } else {
             messageApi.error("Invalid wallet address or no transactions found");
-            router.push("/");
           }
         }
       } catch (error) {
@@ -54,8 +53,9 @@ export const useFetchAssets = (type: string) => {
       }
     };
 
+    // Fetch data if address is available
     if (address) fetchData();
-  }, [address, type, router, messageApi]);
+  }, [address, type, messageApi]);
 
   // Separate useEffect to handle message API
   useEffect(() => {
@@ -72,5 +72,5 @@ export const useFetchAssets = (type: string) => {
 
   return type === "balance"
     ? { dataSource, totalValue, contextHolder }
-    : { transactions, topAddresses, contextHolder };
+    : { transactions, contextHolder };
 };

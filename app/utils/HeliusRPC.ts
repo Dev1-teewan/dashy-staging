@@ -1,14 +1,15 @@
-import { sampleData } from "./SampleBalance";
-import { sampleData2 } from "./SampleBalance2";
+import { sampleData } from "./SampleBalance"; // 4CEWqVTmpDxML9s5nEin8c9cDv6rDEiYMp2trcmDuEpZ
+import { sampleData2 } from "./SampleBalance2"; // FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX
 import { SampleTxn } from "./SampleTxn";
+import { formatAmount, formatToken } from "./Utils";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
 export const fetchTransactions = async (address: string) => {
   try {
-    let mappedResponse, topAddresses;
+    let mappedResponse;
+    // let topAddresses;
     if (address !== "") {
-      new PublicKey(address);
-
+      new PublicKey(address); // Validate the address
       const response = await fetch(
         `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
         {
@@ -19,22 +20,22 @@ export const fetchTransactions = async (address: string) => {
         }
       ).then((response) => response.json());
       mappedResponse = mapResponseTxn(response, address);
-      topAddresses = await mapResponseTopAddresses(mappedResponse, address);
+      // topAddresses = await mapResponseTopAddresses(mappedResponse, address);
     } else {
       const response = SampleTxn;
       mappedResponse = mapResponseTxn(
         response,
         "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
       );
-      topAddresses = await mapResponseTopAddresses(
-        mappedResponse,
-        "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
-      );
+      // topAddresses = await mapResponseTopAddresses(
+      //   mappedResponse,
+      //   "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
+      // );
     }
     return {
       status: "success",
       transactions: mappedResponse,
-      topAddresses,
+      // topAddresses,
     };
   } catch (error) {
     console.log("Error fetching assets", error);
@@ -133,6 +134,7 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
   return mappedData;
 };
 
+// Filter top interacted addresses (Disabled for now)
 const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   const addressCount: { [address: string]: number } = {};
 
@@ -156,16 +158,13 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10); // Get the top 10 most engaged addresses
 
-  // Separate top 6 addresses for balance fetching
-  {
-    /* Limit the RPC Calling rate */
-  }
-  const top3Addresses = sortedAddresses.slice(0, 1);
+  /* Limit the RPC Calling rate to 1 address*/
+  const topAddress = sortedAddresses.slice(0, 1);
   const remainingAddresses = sortedAddresses.slice(1);
 
   // Fetch balances for top 6 addresses
-  const top3Balances = await Promise.all(
-    top3Addresses.map(async ([address], index) => {
+  const topBalances = await Promise.all(
+    topAddress.map(async ([address], index) => {
       const balance = await getBalanceOnUSDC(address); // Await the balance
       return {
         key: `${index}`, // Set key for each entry
@@ -181,13 +180,14 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
     key: `${index + 1}`, // Offset the key to avoid duplication
     address, // Set the address field
     count: addressCount[address], // Set the count field
-    balance: -1, // Set balance to 0
+    balance: -1, // Set balance to -1
   }));
 
   // Combine the results
-  return [...top3Balances, ...remainingBalances];
+  return [...topBalances, ...remainingBalances];
 };
 
+// Get the balance of USDC for a target address 
 export const getBalanceOnUSDC = async (targetAddress: string) => {
   const response = await fetch(
     `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
@@ -214,7 +214,7 @@ export const getBalanceOnUSDC = async (targetAddress: string) => {
   ).then((response) => response.json());
 
   // console.log(response);
-  // Process the response as needed, for example:
+  // Extract the token accounts from the response
   const tokenAccounts = response.result.value;
   const usdcBalance = tokenAccounts.reduce(
     (acc: number, account: any) =>
@@ -229,7 +229,7 @@ export const fetchAssets = async (address: string) => {
   try {
     let response;
     if (address !== "") {
-      new PublicKey(address);
+      new PublicKey(address); // Validate the address
       response = await fetch(
         `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
         {
@@ -242,7 +242,7 @@ export const fetchAssets = async (address: string) => {
             id: "asset-id",
             method: "searchAssets",
             params: {
-              ownerAddress: address, // 4CEWqVTmpDxML9s5nEin8c9cDv6rDEiYMp2trcmDuEpZ, FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX
+              ownerAddress: address,
               tokenType: "fungible",
               displayOptions: {
                 showNativeBalance: true,
@@ -284,35 +284,14 @@ const mapResponseAssets = (data: any) => {
         const balance = item.token_info?.balance || 0; // Fallback to 0 if balance is undefined
         const decimals = item.token_info?.decimals || 0; // Fallback to 0 if decimals are undefined
         const value = balance / Math.pow(10, decimals); // Convert based on decimals
-
-        // Split into integer and decimal parts
-        const [integerPart, decimalPart] = value.toFixed(4).split(".");
-
-        // Format the integer part with commas
-        const formattedIntegerPart = integerPart.replace(
-          /\B(?=(\d{3})+(?!\d))/g,
-          ","
-        );
-
-        // Determine the formatted decimal part
-        let formattedDecimalPart;
-        if (decimalPart) {
-          // Remove trailing zeros from the decimal part
-          const significantDecimal = decimalPart.replace(/0+$/, ""); // Remove trailing zeros
-          formattedDecimalPart =
-            significantDecimal.length > 0 ? significantDecimal : "00"; // Default to '00' if nothing left
-          return `${formattedIntegerPart}.${formattedDecimalPart}`;
-        } else {
-          // If there is no decimal part, return with two decimal places
-          return `${formattedIntegerPart}.00`;
-        }
+        return formatToken(value); // Format the amount
       })(), // Self-executing function to handle amount formatting
       price: {
         value: `$${item.token_info?.price_info?.price_per_token || 0}`,
         change: "N/A", // Need another CoinGecko API
         color: "rgb(9, 155, 103)",
       },
-      value: `$${(item.token_info?.price_info?.total_price || 0).toFixed(2)}`,
+      value: `$${formatAmount(item.token_info?.price_info?.total_price) || 0}`,
     }));
 
   console.log("Check native", data.result);
@@ -328,34 +307,14 @@ const mapResponseAssets = (data: any) => {
         },
         amount: (() => {
           const value = data.result.nativeBalance.lamports / Math.pow(10, 9); // Convert lamports to SOL
-
-          // Split into integer and decimal parts
-          const [integerPart, decimalPart] = value.toFixed(4).split(".");
-
-          // Format the integer part with commas
-          const formattedIntegerPart = integerPart.replace(
-            /\B(?=(\d{3})+(?!\d))/g,
-            ","
-          );
-
-          // Determine the formatted decimal part
-          if (decimalPart) {
-            // Remove trailing zeros from the decimal part
-            const significantDecimal = decimalPart.replace(/0+$/, ""); // Remove trailing zeros
-            const formattedDecimalPart =
-              significantDecimal.length > 0 ? significantDecimal : "00"; // Default to '00' if nothing left
-            return `${formattedIntegerPart}.${formattedDecimalPart}`; // Combine both parts
-          } else {
-            // If there's no decimal part, return with one decimal place as '0'
-            return `${formattedIntegerPart}.00`;
-          }
+          return formatToken(value); // Format the amount
         })(),
         price: {
           value: `$${data.result.nativeBalance.price_per_sol || 0}`,
           change: "N/A", // Assuming you don't have the change data from the API
           color: "rgb(9, 155, 103)", // Assuming green as a placeholder
         },
-        value: `$${(data.result.nativeBalance.total_price || 0).toFixed(2)}`,
+        value: `$${formatAmount(data.result.nativeBalance.total_price) || 0}`,
       }
     : null; // Return null if nativeBalance doesn't exist or doesn't have lamports
 
@@ -365,17 +324,16 @@ const mapResponseAssets = (data: any) => {
   }
 
   // Sum up all values
-  const totalValue = mappedData
-    .reduce((sum: number, item: any) => {
-      // Extract numerical value from string (e.g., "$5.16") and add to sum
-      const value = parseFloat(item.value.replace("$", ""));
-      return sum + (isNaN(value) ? 0 : value);
-    }, 0)
-    .toFixed(2);
+  const totalValue = mappedData.reduce((sum: number, item: any) => {
+    // Extract numerical value from string (e.g., "$5.16") and add to sum
+    const value = parseFloat(item.value.replace(/[$,]/g, ""));
+    return sum + (isNaN(value) ? 0 : value);
+  }, 0);
 
   return { mappedData, totalValue };
 };
 
+// Fetch the latest blockhash from the Solana RPC to use in transactions
 export const getLatestBlockhash = async () => {
   try {
     const response = await fetch(

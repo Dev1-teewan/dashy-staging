@@ -86,7 +86,7 @@ export default function Home() {
         >
           <div className="absolute inset-0 bg-[#161B19]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#009770]/20 to-transparent" />
-            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
+            {/* <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" /> */}
           </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
