@@ -237,7 +237,7 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-[85vw] w-full">
-      <div className="flex justify-between items-center mt-3 mb-3 text-3xl font-bold text-outline">
+      <div className="flex justify-between items-center mt-3 mb-3 text-3xl font-bold">
         <div>Dashboard Balance: ${formatAmount(dashboardBalance)}</div>
       </div>
       <div className="flex gap-3 mb-5">
@@ -258,7 +258,7 @@ const Dashboard = () => {
       </div>
 
       <DndContext onDragEnd={onDragEnd} onDragOver={onDragOver}>
-        <div className="grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-2 gap-8">
           {Object.keys(clusters).map((clusterKey, index) => {
             const cluster = clusters[clusterKey];
             if (!cluster) return null; // Safeguard against undefined cluster

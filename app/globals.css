@@ -111,9 +111,6 @@ button.wallet-adapter-button-trigger:hover {
   color: #f1f1f1 !important;
 }
 
-.dashboard-collapse > div > div {
-  padding: 0 16px !important;
-}
 
 .ant-table-body {
   min-height: 252px;
