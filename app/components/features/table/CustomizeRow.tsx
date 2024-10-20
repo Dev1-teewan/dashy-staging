@@ -81,6 +81,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   handleSave,
   ...restProps
 }) => {
+  const { TextArea } = Input;
   const selectRef = useRef<any>(null);
   const inputRef = useRef<InputRef>(null);
   const form = useContext(EditableContext);
@@ -90,7 +91,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
   useEffect(() => {
     if (editing) {
       if (type === "input" && inputRef.current) {
-        inputRef.current.focus();
+        inputRef.current.focus({
+          cursor: "end",
+        });
       } else if (type === "select" && selectRef.current) {
         selectRef.current.focus();
       }
@@ -142,7 +145,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
             name={dataIndex}
             // rules={[{ required: true, message: `${title} is required.` }]}
           >
-            <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+            <TextArea
+              ref={inputRef}
+              onBlur={save}
+              autoSize={{ minRows: 1, maxRows: 6 }}
+            />
           </Form.Item>
         );
     } else {
