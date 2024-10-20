@@ -42,10 +42,10 @@ const AntLayout = ({ children }: { children: React.ReactNode }) => {
         <MenuList sider={sider} />
       </Sider>
       <Layout>
-        <Header className="fixed left-0 h-[75px] flex flex-col w-screen  p-0 z-10 bg-black text-white  ">
+        <Header className="fixed left-0 h-[75px] flex flex-col w-screen  p-0 z-10 !bg-[#020212] text-white">
           <HeaderItem />
         </Header>
-        <Content className="relative min-h-[calc(100vh-75px)] mt-[calc(75px)] min-w-[calc(100vh-80px)] ml-[calc(80px)] mx-0 flex justify-center px-8 pl-4  text-white">
+        <Content className="relative min-h-[calc(100vh-75px)] mt-[calc(75px)] min-w-[calc(100vh-80px)] !bg-[#020212] ml-[calc(80px)] flex justify-center text-white">
           {children}
         </Content>
       </Layout>
