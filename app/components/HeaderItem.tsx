@@ -2,6 +2,7 @@
 
 import { Button } from "antd";
 import dynamic from "next/dynamic";
+import Backup from "./features/backup/BackupJson";
 import { SettingFilled } from "@ant-design/icons";
 import { ConnectDropdown } from "./ConnectDropdown";
 
@@ -26,6 +27,7 @@ const HeaderItem = () => {
         {/* <ConnectDropdown /> */}
 
         <WalletMultiButtonDynamic className="custom-button" />
+        <Backup />
       </div>
     </div>
   );

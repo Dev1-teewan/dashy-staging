@@ -47,14 +47,14 @@ const AccountGroup = ({
 }: AccountGroupProps) => {
   // Table scrollable style
   const { styles } = useStyle();
-  // DND Droppable ref for the empty group
+  // DND Droppable ref for the empty cluster
   const { setNodeRef } = useDroppable({ id: clusterIndex });
 
   // State for toast msg & new address input
   const [messageApi, contextHolder] = message.useMessage();
   const [inputAddress, setInputAddress] = useState<string>("");
 
-  // State for group's data and tag / total balance
+  // State for cluster's data and tag / total balance
   const [expanded, setExpanded] = useState<boolean>(displayFull);
   const [localDataSource, setLocalDataSource] = useState<any[]>(
     clusterData.accounts || []
@@ -187,7 +187,7 @@ const AccountGroup = ({
       : null,
   ].filter(Boolean);
 
-  // Handle add new address to the group
+  // Handle add new address to the cluster
   const handleAdd = async () => {
     try {
       const publicKey = new PublicKey(inputAddress);
@@ -263,7 +263,7 @@ const AccountGroup = ({
     }
   };
 
-  const handleGroupNameChange = (newName: string) => {
+  const handleClusterNameChange = (newName: string) => {
     updateCluster(clusterIndex, { ...clusterData, clusterName: newName });
   };
 
@@ -294,7 +294,7 @@ const AccountGroup = ({
                         <EditableField
                           messageApi={messageApi}
                           value={clusterData.clusterName}
-                          onSave={handleGroupNameChange}
+                          onSave={handleClusterNameChange}
                         />
                       </div>
                       <DeleteFilled
