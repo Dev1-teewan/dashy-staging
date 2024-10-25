@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { clusterApiUrl } from "@solana/web3.js";
+import { SessionProvider } from "next-auth/react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
@@ -20,11 +21,14 @@ export default function AppWalletProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const endpoint = useMemo(
-    () =>
-      `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
-    []
-  );
+  // const endpoint = useMemo(
+  //   () =>
+  //     `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
+  //   []
+  // );
+  const network = WalletAdapterNetwork.Devnet;
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
   const wallets = useMemo(
     () => [
       // manually add any legacy wallet adapters here
@@ -38,7 +42,11 @@ export default function AppWalletProvider({
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>{children}</WalletModalProvider>
+        <WalletModalProvider>
+          <SessionProvider refetchInterval={0}>
+            {children}
+          </SessionProvider>
+        </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   );
