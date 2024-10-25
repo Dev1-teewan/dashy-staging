@@ -69,6 +69,8 @@ const providers = [
 const handler = NextAuth({
   session: {
     strategy: "jwt",
+    maxAge: 5 * 60, // Set session expiration to 5 minutes
+    updateAge: 3 * 60, // Session is updated every 3 minutes while active
   },
   secret: process.env.NEXTAUTH_SECRET,
   providers,
