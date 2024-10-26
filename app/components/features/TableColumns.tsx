@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Tag, Tooltip } from "antd";
-import CustomSelect from "./CustomSelect";
 import CopyToClipboard from "./CopyToClipboard";
 import { formatAmount } from "@/app/utils/Utils";
 import type { ColumnsType } from "antd/es/table";
@@ -259,7 +258,8 @@ export const topAddressColumns: ColumnsType<topAddressDataType> = [
     key: "grouping",
     render: (_, record) => (
       <div className="TopEngaged">
-        <CustomSelect address={record.address} />
+        {/* Todo: change to editable, select type */}
+        {/* <CustomSelect address={record.address} /> */}
       </div>
     ),
   },
