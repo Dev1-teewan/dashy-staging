@@ -14,6 +14,7 @@ import {
   balanceDataType,
   topAddressDataType,
   transactionDataType,
+  restoreDataType,
 } from "../../types/TableDataType";
 
 // Extend the column type to add an optional `editable` field
@@ -344,5 +345,21 @@ export const balanceColumns: ColumnsType<balanceDataType> = [
       multiple: 3,
     },
     defaultSortOrder: "descend",
+  },
+];
+
+export const restoreColumns: ColumnsType<restoreDataType> = [
+  {
+    title: "CID",
+    width: "70%",
+    key: "cid",
+    dataIndex: "cid",
+    render: (_, record) => <>{record.cid}</>,
+  },
+  {
+    title: "Version",
+    width: "20%",
+    key: "version",
+    dataIndex: "version",
   },
 ];

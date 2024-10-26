@@ -42,3 +42,8 @@ export interface topAddressDataType {
   key: string;
   address: string;
 }
+
+export interface restoreDataType {
+  cid: string;
+  version: string;
+}

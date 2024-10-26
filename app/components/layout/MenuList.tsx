@@ -4,6 +4,7 @@ import { Menu } from "antd";
 import { useRouter, usePathname } from "next/navigation";
 import {
   HomeOutlined,
+  SettingOutlined,
   HistoryOutlined,
   FundProjectionScreenOutlined,
 } from "@ant-design/icons";
@@ -34,6 +35,12 @@ const MenuList = ({ sider }: MenuListProps) => {
       icon: <HistoryOutlined size={18} />,
       label: sider.collapsed ? null : "Transactions History",
       onClick: () => router.push("/history"),
+    },
+    {
+      key: "/setting",
+      icon: <SettingOutlined size={18} />,
+      label: sider.collapsed ? null : "Settings",
+      onClick: () => router.push("/settings"),
     },
   ];
 

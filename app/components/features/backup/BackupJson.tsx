@@ -1,32 +1,50 @@
 "use client";
 
+import bs58 from "bs58";
 import nacl from "tweetnacl";
-import { Button } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { Button, message } from "antd";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { Wallet } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { fetchCID, handleUploadCID } from "@/app/utils/SmartContract";
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 
 const BackupJson = () => {
   const { publicKey } = useWallet();
-  const [encryptedData, setEncryptedData] = useState<Uint8Array | null>(null);
-  const [decryptedMessage, setDecryptedMessage] = useState<string | null>(null);
   const [ipfsUrl, setIpfsUrl] = useState<string | null>(null);
+  const [encryptedData, setEncryptedData] = useState<any>(null);
 
-  // Random private key for the app (keep it secure in practice)
-  const appPrivateKey = useMemo(() => nacl.randomBytes(32), []);
+  const { connection } = useConnection();
+  const wallet = useAnchorWallet() as Wallet;
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const appPrivateKey = bs58.decode(process.env.NEXT_PUBLIC_DASHY_KEY!);
+
+  const { data: session, status } = useSession();
 
   const encryptData = async () => {
     try {
-      if (!publicKey) {
-        throw new Error("Wallet is not connected.");
+      if (!publicKey || !session) {
+        throw new Error("Wallet is not connected to Dashy.");
+      }
+      messageApi.open({
+        type: "loading",
+        content: "Encrypting and Uploading to IPFS..",
+        duration: 0,
+      });
+      const userSignKey = session.wallet?.signature
+        ? bs58.decode(session.wallet.signature).slice(0, 32)
+        : null;
+      if (!userSignKey) {
+        throw new Error("User public key is not available.");
       }
 
-      const userPublicKey = publicKey.toBytes(); // Get the public key as bytes
-      console.log(userPublicKey);
       const jsonMessage = JSON.stringify(localStorage.getItem("dashy"));
       const messageBytes = new TextEncoder().encode(jsonMessage);
 
       // Generate the shared secret using app's private key and user's public key
-      const sharedSecret = nacl.scalarMult(appPrivateKey, userPublicKey);
+      const sharedSecret = nacl.scalarMult(appPrivateKey, userSignKey);
 
       // Nonce (must be random for each encryption)
       const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
@@ -45,7 +63,7 @@ const BackupJson = () => {
     }
   };
 
-  const uploadToIPFS = async (data: Uint8Array) => {
+  const uploadToIPFS = async (data: any) => {
     try {
       const formData = new FormData();
 
@@ -76,16 +94,49 @@ const BackupJson = () => {
       console.log(response);
       setIpfsUrl(ipfsUrl);
       console.log("Uploaded to IPFS:", ipfsUrl);
+      messageApi.destroy();
+
+      uploadCID(ipfsUrl);
     } catch (error) {
       console.error("Error uploading to IPFS:", error);
     }
   };
 
+  const uploadCID = async (ipfsUrl: string) => {
+    messageApi.open({
+      type: "loading",
+      content: "Transaction in progress..",
+      duration: 0,
+    });
+
+    let response = await handleUploadCID(connection, wallet, ipfsUrl, "v1.0.1");
+
+    messageApi.destroy();
+    if (response.status === "success") {
+      messageApi.open({
+        type: "success",
+        content: "User profile created successfully",
+      });
+    } else {
+      console.log("Error creating user profile:", response);
+      messageApi.open({
+        type: "error",
+        content: "Error creating user profile",
+      });
+    }
+  };
+
   const decryptData = async () => {
     try {
-      if (!ipfsUrl || !publicKey) {
-        throw new Error("No IPFS URL or wallet not connected.");
+      if (!ipfsUrl || !publicKey || !session) {
+        throw new Error("No IPFS URL or wallet not connected to Dashy.");
       }
+
+      messageApi.open({
+        type: "loading",
+        content: "Fetching and decrypting data..",
+        duration: 0,
+      });
 
       // Fetch the encrypted data from IPFS
       const response = await fetch(ipfsUrl);
@@ -100,7 +151,12 @@ const BackupJson = () => {
       const encryptedDataFromIPFS = new Uint8Array(arrayBuffer);
       console.log(arrayBuffer, encryptedDataFromIPFS);
 
-      const userPublicKey = publicKey.toBytes(); // Get the public key as bytes
+      const userSignKey = session.wallet?.signature
+        ? bs58.decode(session.wallet.signature).slice(0, 32)
+        : null;
+      if (!userSignKey) {
+        throw new Error("User public key is not available.");
+      }
 
       // Split the encrypted data into the nonce and the actual encrypted message
       const nonce = encryptedDataFromIPFS.slice(0, nacl.secretbox.nonceLength);
@@ -109,7 +165,7 @@ const BackupJson = () => {
       );
 
       // Generate the shared secret again using app's private key and user's public key
-      const sharedSecret = nacl.scalarMult(appPrivateKey, userPublicKey);
+      const sharedSecret = nacl.scalarMult(appPrivateKey, userSignKey);
 
       // Decrypt the message
       const decrypted = nacl.secretbox.open(
@@ -120,8 +176,15 @@ const BackupJson = () => {
 
       if (decrypted) {
         const decryptedText = new TextDecoder().decode(decrypted);
-        setDecryptedMessage(decryptedText);
         console.log("Decrypted message:", decryptedText);
+
+        localStorage.setItem("dashy", JSON.parse(decryptedText));
+        // location.reload();
+        messageApi.destroy();
+        messageApi.open({
+          type: "success",
+          content: "Setup restore successfully",
+        });
       } else {
         console.error("Failed to decrypt the message.");
       }
@@ -135,23 +198,30 @@ const BackupJson = () => {
       console.log("Encrypted data available for decryption.");
     }
   }, [encryptedData]);
+
+  useEffect(() => {
+    const getCID = async () => {
+      if (!connection || !wallet) return;
+
+      let response = await fetchCID(connection, wallet as Wallet);
+      if (response.status === "success") {
+        console.log("CID data:", response.data);
+      }
+    };
+
+    // getCID();
+  }, [connection, wallet]);
+
   return (
     <div>
-      {publicKey ? (
-        <div>
+      {contextHolder}
+      {publicKey && (
+        <>
           <Button onClick={encryptData}>Encrypt and Upload to IPFS</Button>
           <Button onClick={decryptData} disabled={!encryptedData}>
             Decrypt Data
           </Button>
-          {/* {decryptedMessage && <p>Decrypted Message: {decryptedMessage}</p>} */}
-          {/* {ipfsUrl && (
-            <p>
-              IPFS URL: <a href={ipfsUrl}>{ipfsUrl}</a>
-            </p>
-          )} */}
-        </div>
-      ) : (
-        <p>Please connect your wallet</p>
+        </>
       )}
     </div>
   );

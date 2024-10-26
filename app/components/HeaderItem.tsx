@@ -107,11 +107,11 @@ const HeaderItem = () => {
 
         {/* <ConnectDropdown /> */}
 
-        <Link legacyBehavior href="/api/examples/protected">
+        {/* <Link legacyBehavior href="/api/examples/protected">
           <a>Protected API Route</a>
-        </Link>
+        </Link> */}
         <WalletMultiButtonDynamic className="custom-button" />
-        <Backup />
+        {/* <Backup /> */}
       </div>
     </div>
   );
