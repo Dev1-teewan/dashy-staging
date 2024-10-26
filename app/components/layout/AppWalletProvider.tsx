@@ -21,19 +21,22 @@ export default function AppWalletProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // const endpoint = useMemo(
-  //   () =>
-  //     `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
-  //   []
-  // );
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const environment = process.env.NEXT_PUBLIC_ENV;
+  console.log("Environment: ", environment);
+
+  // Use useMemo to determine the endpoint based on the environment
+  const endpoint = useMemo(() => {
+    if (environment === "Production") {
+      return `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`;
+    } else {
+      return clusterApiUrl(WalletAdapterNetwork.Devnet); // Use Devnet for staging
+    }
+  }, [environment]);
 
   const wallets = useMemo(
     () => [
-      // manually add any legacy wallet adapters here
-      // new UnsafeBurnerWalletAdapter(),
       new SolflareWalletAdapter(),
+      // new UnsafeBurnerWalletAdapter(),
       // new LedgerWalletAdapter(),
     ],
     []
@@ -43,9 +46,7 @@ export default function AppWalletProvider({
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <SessionProvider refetchInterval={0}>
-            {children}
-          </SessionProvider>
+          <SessionProvider refetchInterval={0}>{children}</SessionProvider>
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
