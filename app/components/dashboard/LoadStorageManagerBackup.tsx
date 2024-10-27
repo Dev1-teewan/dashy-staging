@@ -3,12 +3,21 @@
 import { CloseOutlined } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { restoreColumns } from "../features/TableColumns";
-import { Button, Divider, message, Modal, Space, Table } from "antd";
 import {
   ClusterType,
   latestVersion,
   updateToLatestVersion,
 } from "@/app/utils/Versioning";
+import {
+  Button,
+  Divider,
+  Empty,
+  message,
+  Modal,
+  Space,
+  Table,
+  Typography,
+} from "antd";
 
 import bs58 from "bs58";
 import nacl from "tweetnacl";
@@ -22,7 +31,6 @@ import {
   handleRemoveCID,
   handleUploadCID,
 } from "@/app/utils/SmartContract";
-
 
 interface LoadStorageManagerProps {
   localSource: ClusterType;
@@ -55,8 +63,13 @@ const LoadStorageManagerBackup = ({
   const encryptAndUploadSetup = async () => {
     try {
       if (!publicKey || !session) {
+        messageApi.open({
+          type: "error",
+          content: "Wallet is not connected to Dashy.",
+        });
         throw new Error("Wallet is not connected to Dashy.");
       }
+
       messageApi.open({
         type: "loading",
         content: "Encrypting and Uploading to IPFS..",
@@ -153,7 +166,7 @@ const LoadStorageManagerBackup = ({
         content: "Local Storage backup successfully",
       });
     } else {
-      console.log("Error backing up local storage:", response);
+      await pinata.unpin([CID]); // Unpin the CID from IPFS
       messageApi.open({
         type: "error",
         content: "Error backing up local storage",
@@ -279,17 +292,22 @@ const LoadStorageManagerBackup = ({
 
   useEffect(() => {
     const getCID = async () => {
-      if (!connection || !wallet) return;
+      try {
+        if (!connection || !wallet) return;
 
-      let response = await fetchCID(connection, wallet as Wallet);
-      if (response.status === "success") {
-        const dataWithKeys = (response.data as CIDData).setup.map(
-          (item, index) => ({
-            ...item,
-            key: item.cid || index, // Use cid if available or fallback to index
-          })
-        );
-        setCid(dataWithKeys);
+        let response = await fetchCID(connection, wallet as Wallet);
+        if (response.status === "success") {
+          const dataWithKeys = (response.data as CIDData).setup.map(
+            (item, index) => ({
+              ...item,
+              key: item.cid || index, // Use cid if available or fallback to index
+            })
+          );
+          setCid(dataWithKeys);
+        }
+      } catch (error) {
+        console.error("Error fetching CID:", error);
+        setCid([]);
       }
     };
 
@@ -304,7 +322,6 @@ const LoadStorageManagerBackup = ({
       </Button>
 
       <Modal
-        centered
         open={open}
         footer={null}
         title="Backup Setup"
@@ -331,15 +348,31 @@ const LoadStorageManagerBackup = ({
       </Modal>
 
       <Modal
-        centered
         open={openRestore}
         footer={null}
         width={1080}
-        title="Restore Setup"
+        title={<div className="text-2xl">Restore Setup</div>}
         onCancel={() => setOpenRestore(false)}
-        closeIcon={<CloseOutlined style={{ color: "#f1f1f1" }} />}
+        closeIcon={<CloseOutlined className="!text-[#f1f1f1]" size={24} />}
       >
-        <Table dataSource={cid} columns={columns} />
+        <Table
+          dataSource={cid}
+          columns={columns}
+          locale={{
+            emptyText: (
+              <Empty
+                className="min-h-[219px] flex flex-col justify-center items-center"
+                description={
+                  <Typography.Text>
+                    {!publicKey
+                      ? "Please connect your wallet!"
+                      : "You have no backup setup to restore."}
+                  </Typography.Text>
+                }
+              />
+            ),
+          }}
+        />
       </Modal>
     </div>
   );

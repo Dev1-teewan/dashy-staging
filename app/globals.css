@@ -111,7 +111,6 @@ button.wallet-adapter-button-trigger:hover {
   color: #f1f1f1 !important;
 }
 
-
 .ant-table-body {
   min-height: 252px;
   position: relative;
@@ -150,4 +149,10 @@ button.wallet-adapter-button-trigger:hover {
 
 .ant-table-row-expand-icon-cell {
   padding-right: 6px !important;
+}
+
+.ant-modal {
+  padding-bottom: 0;
+  border-radius: 0.375rem;
+  box-shadow: 0 0 0 1px rgba(0, 151, 112, 0.3);
 }

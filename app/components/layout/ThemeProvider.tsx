@@ -44,6 +44,9 @@ export default function ThemeProvider({
             optionSelectedFontWeight: 400,
             multipleItemBorderColor: "#06d6a0",
           },
+          Modal: {
+            contentBg: "#090909",
+          },
         },
       }}
     >

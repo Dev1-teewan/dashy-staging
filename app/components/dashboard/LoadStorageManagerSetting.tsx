@@ -83,7 +83,6 @@ const LoadStorageManagerSetting = ({
       </Button>
 
       <Modal
-        centered
         open={open}
         footer={null}
         title="Export Setup"
