@@ -4,7 +4,6 @@ import { message } from "antd";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { fetchAssets, fetchTransactions } from "../utils/HeliusRPC";
 
 export const useFetchAssets = (type: string) => {
   const { publicKey } = useWallet(); // Connected wallet
@@ -19,10 +18,10 @@ export const useFetchAssets = (type: string) => {
   // Disabled for now
   // const [topAddresses, setTopAddresses] = useState<
   //   { key: string; address: string }[]
-  // >([]); 
+  // >([]);
 
   // Loading state and message API
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
@@ -30,18 +29,30 @@ export const useFetchAssets = (type: string) => {
       setLoading(true);
       try {
         if (type === "balance") {
-          const response = await fetchAssets(address);
-          if (response.status === "success") {
-            setDataSource(response.dataSource);
-            setTotalValue(response.totalValue);
+          const response = await fetch("/api/helius/searchAssets", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ address }),
+          });
+
+          const result = await response.json(); // Parse the JSON response
+
+          if (result.status === "success") {
+            setDataSource(result.dataSource);
+            setTotalValue(result.totalValue);
           } else {
             messageApi.error("Invalid wallet address or no assets found");
           }
         } else if (type === "transactions") {
-          const response = await fetchTransactions(address);
-          if (response.status === "success") {
-            setTransactions(response.transactions);
-            // setTopAddresses(response.topAddresses || []);
+          const response = await fetch(
+            `/api/helius/fetchTransactions?address=${address}`
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            setTransactions(data.transactions || []);
           } else {
             messageApi.error("Invalid wallet address or no transactions found");
           }

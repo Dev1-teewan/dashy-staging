@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import InputTag from "../features/InputTag";
 import { PublicKey } from "@solana/web3.js";
 import { useDroppable } from "@dnd-kit/core";
-import { fetchAssets } from "@/app/utils/HeliusRPC";
 import EditableField from "../features/EditableField";
 import useStyle from "../features/table/ScrollableRow";
 import { ClusterDataType } from "../../utils/Versioning";
@@ -190,30 +189,39 @@ const AccountGroup = ({
   // Handle add new address to the cluster
   const handleAdd = async () => {
     try {
-      const publicKey = new PublicKey(inputAddress);
+      new PublicKey(inputAddress);
       messageApi.open({
         type: "loading",
         content: "Fetching balance..",
         duration: 0,
       });
-      const response = await fetchAssets(inputAddress);
+
+      const response = await fetch("/api/helius/searchAssets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputAddress }),
+      });
+      const result = await response.json();
+
       messageApi.destroy();
 
-      if (response.status === "success") {
+      if (result.status === "success") {
         const newData = {
           key: `${Date.now()}`,
           alias: "",
           address: inputAddress || "",
           connections: [],
           purpose: "",
-          balance: response.totalValue || 0,
+          balance: result.totalValue || 0,
         };
         const updatedDataSource = [...localDataSource, newData];
 
         setLocalDataSource(updatedDataSource);
         setAccountTokenList((prev) => ({
           ...prev,
-          [inputAddress]: response.dataSource,
+          [inputAddress]: result.dataSource,
         }));
         // setExpandedRows((prev) => [...prev, inputAddress]);
         setCount(count + 1);
@@ -235,20 +243,29 @@ const AccountGroup = ({
           content: "Fetching balance..",
           duration: 0,
         });
-        const response = await fetchAssets(record.address);
+
+        const response = await fetch("/api/helius/searchAssets", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ address: record.address }),
+        });
+        const result = await response.json(); // Parse the JSON response
+
         messageApi.destroy();
 
-        if (response.status === "success") {
+        if (result.status === "success") {
           // Update the token list for the expanded address
           setAccountTokenList((prev) => ({
             ...prev,
-            [record.address]: response.dataSource,
+            [record.address]: result.dataSource,
           }));
 
           // Update the row balance in the dataSource
           const updatedDataSource = localDataSource.map((item) =>
             item.address === record.address
-              ? { ...item, balance: response.totalValue || 0 }
+              ? { ...item, balance: result.totalValue || 0 }
               : item
           );
           setLocalDataSource(updatedDataSource);
@@ -356,6 +373,7 @@ const AccountGroup = ({
                     ),
                   expandedRowRender: (record) => (
                     <Table
+                      pagination={false}
                       scroll={{ y: 180 }}
                       columns={balanceColumns}
                       className={`expanded-table ${styles.customTable}`}

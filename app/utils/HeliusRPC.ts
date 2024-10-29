@@ -1,49 +1,7 @@
-import { sampleData } from "./SampleBalance"; // 4CEWqVTmpDxML9s5nEin8c9cDv6rDEiYMp2trcmDuEpZ
-import { sampleData2 } from "./SampleBalance2"; // FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX
-import { SampleTxn } from "./SampleTxn";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { formatAmount, formatToken } from "./Utils";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
-export const fetchTransactions = async (address: string) => {
-  try {
-    let mappedResponse;
-    // let topAddresses;
-    if (address !== "") {
-      new PublicKey(address); // Validate the address
-      const response = await fetch(
-        `https://api.helius.xyz/v0/addresses/${address}/transactions?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then((response) => response.json());
-      mappedResponse = mapResponseTxn(response, address);
-      // topAddresses = await mapResponseTopAddresses(mappedResponse, address);
-    } else {
-      const response = SampleTxn;
-      mappedResponse = mapResponseTxn(
-        response,
-        "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
-      );
-      // topAddresses = await mapResponseTopAddresses(
-      //   mappedResponse,
-      //   "FCHTRYx6npkQCogtpZtEFLJeevAFGbDHhJyvqvT6F4kX"
-      // );
-    }
-    return {
-      status: "success",
-      transactions: mappedResponse,
-      // topAddresses,
-    };
-  } catch (error) {
-    console.log("Error fetching assets", error);
-    return { status: "error", data: error };
-  }
-};
-
-const mapResponseTxn = (data: any, targetAddress: string) => {
+export const mapResponseTxn = (data: any, targetAddress: string) => {
   // Filter to only include transfer transactions
   let filteredData = data.filter((txn: any) => txn.type === "TRANSFER");
 
@@ -141,6 +99,7 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
 };
 
 // Filter top interacted addresses (Disabled for now)
+/*
 const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   const addressCount: { [address: string]: number } = {};
 
@@ -164,7 +123,7 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 10); // Get the top 10 most engaged addresses
 
-  /* Limit the RPC Calling rate to 1 address*/
+  // Limit the RPC Calling rate to 1 address
   const topAddress = sortedAddresses.slice(0, 1);
   const remainingAddresses = sortedAddresses.slice(1);
 
@@ -192,8 +151,10 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   // Combine the results
   return [...topBalances, ...remainingBalances];
 };
+*/
 
-// Get the balance of USDC for a target address
+// Get the balance of USDC for a target address (Disabled for now)
+/*
 export const getBalanceOnUSDC = async (targetAddress: string) => {
   const response = await fetch(
     `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
@@ -230,51 +191,9 @@ export const getBalanceOnUSDC = async (targetAddress: string) => {
   // console.log(usdcBalance);
   return usdcBalance;
 };
+*/
 
-export const fetchAssets = async (address: string) => {
-  try {
-    let response;
-    if (address !== "") {
-      new PublicKey(address); // Validate the address
-      response = await fetch(
-        `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            id: "asset-id",
-            method: "searchAssets",
-            params: {
-              ownerAddress: address,
-              tokenType: "fungible",
-              displayOptions: {
-                showNativeBalance: true,
-                showGrandTotal: true,
-                showZeroBalance: false,
-              },
-            },
-          }),
-        }
-      ).then((response) => response.json());
-    } else {
-      response = sampleData;
-    }
-    let mappedResponse = mapResponseAssets(response);
-    return {
-      status: "success",
-      dataSource: mappedResponse.mappedData,
-      totalValue: mappedResponse.totalValue,
-    };
-  } catch (error) {
-    console.log("Error fetching assets", error);
-    return { status: "error", data: error };
-  }
-};
-
-const mapResponseAssets = (data: any) => {
+export const mapResponseAssets = (data: any) => {
   // Map the data to the required DataType
   let mappedData = data.result.items
     .filter((item: any) => item.token_info?.price_info?.total_price > 0.01)
@@ -300,7 +219,7 @@ const mapResponseAssets = (data: any) => {
       value: `$${formatAmount(item.token_info?.price_info?.total_price) || 0}`,
     }));
 
-  console.log("Check native", data.result);
+  // console.log("Check native", data.result);
 
   // Check if nativeBalance exists and if it has lamports
   const nativeBalanceData = data.result.nativeBalance?.lamports
@@ -342,37 +261,14 @@ const mapResponseAssets = (data: any) => {
 // Fetch the latest blockhash from the Solana RPC to use in transactions
 export const getLatestBlockhash = async () => {
   try {
-    const response = await fetch(
-      `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: "2.0",
-          method: "getLatestBlockhash",
-          params: [
-            {
-              commitment: "processed",
-            },
-          ],
-        }),
-      }
-    );
+    const response = await fetch("/api/helius/getLatestBlockhash", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    const data = await response.json();
-
-    if (data && data.result) {
-      return {
-        status: "success",
-        blockhash: data.result.value.blockhash,
-        lastValidBlockHeight: data.result.value.lastValidBlockHeight,
-      };
-    } else {
-      throw new Error("No blockhash found in the response");
-    }
+    return await response.json();
   } catch (error) {
     console.error("Error fetching latest blockhash:", error);
     return { status: "error", data: error };

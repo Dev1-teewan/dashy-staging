@@ -118,6 +118,10 @@ button.wallet-adapter-button-trigger:hover {
   flex-direction: column;
 }
 
+.expanded-table .ant-table-body {
+  min-height: auto;
+}
+
 .ant-table-body tr {
   flex-grow: 1;
 }
