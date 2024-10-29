@@ -3,8 +3,8 @@
 import React, { Suspense } from "react";
 import { Col, Divider, Row } from "antd";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import LoadStorageManagerBackup from "../components/dashboard/LoadStorageManagerBackup";
-import LoadStorageManagerSetting from "../components/dashboard/LoadStorageManagerSetting";
+import LoadStorageManagerBackup from "../components/settings/LoadStorageManagerBackup";
+import LoadStorageManagerSetting from "../components/settings/LoadStorageManagerSetting";
 import {
   ClusterType,
   defaultCluster,
@@ -52,7 +52,8 @@ const Settings = () => {
               </div>
             </div>
           </Col>
-          <Col span={14} className="items-center">
+          <Col span={3} />
+          <Col span={11} className="items-center">
             <LoadStorageManagerSetting
               localSource={localSource}
               onDataImport={(data) =>
@@ -72,7 +73,8 @@ const Settings = () => {
               </div>
             </div>
           </Col>
-          <Col span={14} className="items-center">
+          <Col span={3} />
+          <Col span={11} className="items-center">
             <LoadStorageManagerBackup
               localSource={localSource}
               onDataImport={(data) =>

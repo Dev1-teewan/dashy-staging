@@ -39,7 +39,7 @@ const HeaderItem = () => {
       const message = new SigninMessage({
         domain: window.location.host,
         publicKey: wallet.publicKey?.toBase58(),
-        statement: `Sign this message to sign in to the app.`,
+        statement: `Welcome to Dashy! Sign this message to confirm your identity and securely back up your setup.`,
         nonce: csrf,
       });
 
