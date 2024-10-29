@@ -23,6 +23,7 @@
     "@ledgerhq/hw-transport-webusb": "^6.29.2",
     "@project-serum/anchor": "^0.26.0",
     "@radix-ui/react-accordion": "^1.2.1",
+    "@sentry/nextjs": "^8.35.0",
     "@solana/spl-token": "^0.4.8",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
