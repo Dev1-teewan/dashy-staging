@@ -132,6 +132,7 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
   },
   {
     title: "Outgoing",
+    width: "17%",
     key: "outgoing",
     dataIndex: "outgoing",
     render: (_, record) => (
@@ -140,7 +141,7 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
         {record.transferType === "Native" && record.outgoing > 0 && (
           <div>
             <span className="text-[#06d6a0] mr-2">-</span>
-            {parseFloat(record.outgoing.toString())} SOL
+            {record.outgoing} SOL
           </div>
         )}
 
@@ -148,7 +149,7 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
         {record.transferType === "Token" && record.outgoing > 0 && (
           <div>
             <span className="text-[#06d6a0] mr-2">-</span>
-            {parseFloat(record.outgoing.toString())} {record.tokenSymbol}{" "}
+            {record.outgoing} {record.tokenSymbol}
           </div>
         )}
 
@@ -164,6 +165,7 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
   },
   {
     title: "Ingoing",
+    width: "18%",
     key: "ingoing",
     dataIndex: "ingoing",
     render: (_, record) => (
@@ -172,7 +174,7 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
         {record.transferType === "Native" && record.ingoing > 0 && (
           <div>
             <span className="text-[#06d6a0] mr-2">+</span>
-            {parseFloat(record.ingoing.toString())} SOL
+            {record.ingoing} SOL
           </div>
         )}
 
@@ -180,7 +182,7 @@ export const transactionColumns: ColumnsType<transactionDataType> = [
         {record.transferType === "Token" && record.ingoing > 0 && (
           <div>
             <span className="text-[#06d6a0] mr-2">+</span>
-            {parseFloat(record.ingoing.toString())} {record.tokenSymbol}
+            {record.ingoing} {record.tokenSymbol}
           </div>
         )}
       </div>

@@ -37,7 +37,8 @@ const Dashboard = () => {
 
     // Get the highest cluster index
     const lastClusterIndex = Math.max(
-      ...Object.values(clusters).map((cluster: any) => cluster.index || 0)
+      0,
+      ...Object.values(localSource).map((cluster: any) => cluster.index || 0)
     );
     setClusterCount(lastClusterIndex + 1);
 
@@ -45,35 +46,33 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (Object.keys(clusters).length > 0) {
-      // Update the local storage
-      console.log(clusters, "Local Storage");
-      setLocalSource(clusters);
+    // Update the local storage
+    setLocalSource(clusters);
+    console.log(clusters, "Local Storage");
 
-      const updatedLocalSource = { ...clusters }; // Create a shallow copy of localSource to avoid direct mutation
+    const updatedLocalSource = { ...clusters }; // Create a shallow copy of localSource to avoid direct mutation
 
-      Object.keys(updatedLocalSource).forEach((clusterKey) => {
-        const cluster = updatedLocalSource[clusterKey];
+    Object.keys(updatedLocalSource).forEach((clusterKey) => {
+      const cluster = updatedLocalSource[clusterKey];
 
-        // Calculate the total balance for each cluster's accounts
-        const totalBalance = cluster.accounts.reduce(
-          (sum: number, account: any) => {
-            return sum + (parseFloat(account.balance) || 0); // Ensure balance is a valid number
-          },
-          0
-        );
-
-        // Update the cluster's total balance
-        updatedLocalSource[clusterKey].totalBalance = totalBalance;
-      });
-
-      // Also update the dashboard balance, summing all cluster balances
-      const totalDashboardBalance = Object.values(updatedLocalSource).reduce(
-        (sum: number, cluster: any) => sum + cluster.totalBalance,
+      // Calculate the total balance for each cluster's accounts
+      const totalBalance = cluster.accounts.reduce(
+        (sum: number, account: any) => {
+          return sum + (parseFloat(account.balance) || 0); // Ensure balance is a valid number
+        },
         0
       );
-      setDashboardBalance(totalDashboardBalance);
-    }
+
+      // Update the cluster's total balance
+      updatedLocalSource[clusterKey].totalBalance = totalBalance;
+    });
+
+    // Also update the dashboard balance, summing all cluster balances
+    const totalDashboardBalance = Object.values(updatedLocalSource).reduce(
+      (sum: number, cluster: any) => sum + cluster.totalBalance,
+      0
+    );
+    setDashboardBalance(totalDashboardBalance);
   }, [clusters, setLocalSource]);
 
   const addNewCluster = () => {

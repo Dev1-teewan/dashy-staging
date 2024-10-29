@@ -272,132 +272,113 @@ const AccountGroup = ({
       {contextHolder}
       <Row>
         <Col span={24} className="!min-h-0">
-          <Collapse
-            ghost
-            defaultActiveKey={["1"]}
-            className="bg-[#141414] text-base dashboard-collapse"
-            items={[
-              {
-                key: "1",
-                showArrow: false,
-                label: <></>,
-                children: (
-                  <>
-                    {/* Section: Cluster Header */}
-                    <div className="flex justify-between items-center m-2">
-                      <div className="flex gap-4 text-xl font-bold">
-                        {expanded ? (
-                          <DownOutlined onClick={() => setExpanded(false)} />
-                        ) : (
-                          <RightOutlined onClick={() => setExpanded(true)} />
-                        )}
-                        <EditableField
-                          messageApi={messageApi}
-                          value={clusterData.clusterName}
-                          onSave={handleClusterNameChange}
-                        />
-                      </div>
-                      <DeleteFilled
-                        className="text-[24px] text-red-500 hover:text-red-600 cursor-pointer"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          deleteCluster(clusterIndex);
-                        }}
-                      />
+          <div className="bg-[#141414] text-base dashboard-collapse p-4 rounded-xl">
+            {/* Section: Cluster Header */}
+            <div className="flex justify-between items-center m-2">
+              <div className="flex gap-4 text-xl font-bold">
+                {expanded ? (
+                  <DownOutlined onClick={() => setExpanded(false)} />
+                ) : (
+                  <RightOutlined onClick={() => setExpanded(true)} />
+                )}
+                <EditableField
+                  messageApi={messageApi}
+                  value={clusterData.clusterName}
+                  onSave={handleClusterNameChange}
+                />
+              </div>
+              <DeleteFilled
+                className="text-[24px] text-red-500 hover:text-red-600 cursor-pointer"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  deleteCluster(clusterIndex);
+                }}
+              />
+            </div>
+
+            <div className="pl-2">
+              <Row className="mb-1">
+                <Col flex="170px" className="font-semibold text-lg">
+                  Chain:
+                </Col>
+                <Col flex="auto" className="flex items-center">
+                  Solana
+                </Col>
+              </Row>
+              <Row className="mb-1">
+                <Col flex="170px" className="font-semibold text-lg">
+                  Cluster Balance:
+                </Col>
+                <Col flex="auto" className="flex items-center">
+                  ${formatAmount(totalBalance)}
+                </Col>
+              </Row>
+              <Row>
+                <Col flex="170px" className="font-semibold text-lg">
+                  Cluster Tags:
+                </Col>
+                <Col flex="auto">
+                  <InputTag
+                    initialTags={localTags}
+                    onTagsChange={handleTagsChange}
+                  />
+                </Col>
+              </Row>
+
+              <Table
+                bordered={false}
+                scroll={{ y: 63 * 4 }}
+                columns={columns}
+                pagination={false}
+                dataSource={localDataSource}
+                components={combinedComponents}
+                className={`mt-4 ${styles.customTable}`}
+                locale={{
+                  emptyText: (
+                    <div ref={setNodeRef}>
+                      <Empty className="min-h-[219px] flex flex-col justify-center items-center" />
                     </div>
-
-                    <div className="pl-2">
-                      <Row className="mb-1">
-                        <Col flex="170px" className="font-semibold text-lg">
-                          Chain:
-                        </Col>
-                        <Col flex="auto" className="flex items-center">
-                          Solana
-                        </Col>
-                      </Row>
-                      <Row className="mb-1">
-                        <Col flex="170px" className="font-semibold text-lg">
-                          Cluster Balance:
-                        </Col>
-                        <Col flex="auto" className="flex items-center">
-                          ${formatAmount(totalBalance)}
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col flex="170px" className="font-semibold text-lg">
-                          Cluster Tags:
-                        </Col>
-                        <Col flex="auto">
-                          <InputTag
-                            initialTags={localTags}
-                            onTagsChange={handleTagsChange}
-                          />
-                        </Col>
-                      </Row>
-
-                      <Table
-                        bordered={false}
-                        scroll={{ y: 63 * 4 }}
-                        columns={columns}
-                        pagination={false}
-                        dataSource={localDataSource}
-                        components={combinedComponents}
-                        className={`mt-4 ${styles.customTable}`}
-                        locale={{
-                          emptyText: (
-                            <div ref={setNodeRef}>
-                              <Empty className="min-h-[219px] flex flex-col justify-center items-center" />
-                            </div>
-                          ),
-                        }}
-                        expandable={{
-                          onExpand: handleExpand,
-                          expandIcon: ({ expanded, onExpand, record }) =>
-                            expanded ? (
-                              <DownCircleOutlined
-                                onClick={(e) => onExpand(record, e)}
-                                style={{ color: "#06d6a0" }}
-                              />
-                            ) : (
-                              <RightCircleOutlined
-                                onClick={(e) => onExpand(record, e)}
-                                style={{ color: "#06d6a0" }}
-                              />
-                            ),
-                          expandedRowRender: (record) => (
-                            <Table
-                              scroll={{ y: 180 }}
-                              columns={balanceColumns}
-                              className={`expanded-table ${styles.customTable}`}
-                              dataSource={
-                                accountTokenList[record.address] || []
-                              }
-                            />
-                          ),
-                        }}
+                  ),
+                }}
+                expandable={{
+                  onExpand: handleExpand,
+                  expandIcon: ({ expanded, onExpand, record }) =>
+                    expanded ? (
+                      <DownCircleOutlined
+                        onClick={(e) => onExpand(record, e)}
+                        style={{ color: "#06d6a0" }}
                       />
+                    ) : (
+                      <RightCircleOutlined
+                        onClick={(e) => onExpand(record, e)}
+                        style={{ color: "#06d6a0" }}
+                      />
+                    ),
+                  expandedRowRender: (record) => (
+                    <Table
+                      scroll={{ y: 180 }}
+                      columns={balanceColumns}
+                      className={`expanded-table ${styles.customTable}`}
+                      dataSource={accountTokenList[record.address] || []}
+                    />
+                  ),
+                }}
+              />
 
-                      {/* Section: Add new address */}
-                      <Space className="mt-2 flex items-stretch">
-                        <Input
-                          value={inputAddress}
-                          placeholder="Enter watch address"
-                          onChange={(e) => setInputAddress(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                        />
-                        <Button
-                          onClick={handleAdd}
-                          className="custom-button w-36 mb-2"
-                        >
-                          +
-                        </Button>
-                      </Space>
-                    </div>
-                  </>
-                ),
-              },
-            ]}
-          />
+              {/* Section: Add new address */}
+              <Space className="mt-2 flex items-stretch">
+                <Input
+                  value={inputAddress}
+                  placeholder="Enter watch address"
+                  onChange={(e) => setInputAddress(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+                />
+                <Button onClick={handleAdd} className="custom-button w-36 mb-2">
+                  +
+                </Button>
+              </Space>
+            </div>
+          </div>
         </Col>
       </Row>
     </div>

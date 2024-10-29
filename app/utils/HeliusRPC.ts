@@ -58,8 +58,8 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
     let fromAddress = "";
     let toAddress = "";
     let amount = 0;
-    let ingoing = 0;
-    let outgoing = 0;
+    let ingoing = "";
+    let outgoing = "";
     let transferType = "Unknown"; // Track the type of transfer (Native/Token)
     let tokenSymbol = ""; // Track the token symbol
 
@@ -77,11 +77,17 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
         amount = nativeTransfer.amount / LAMPORTS_PER_SOL;
         transferType = "Native";
 
+        // Format dynamically to show up to 9 decimal places without trailing zeros
+        let formattedAmount = amount.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 9,
+        });
+
         // Determine if it's ingoing or outgoing
         if (fromAddress === targetAddress) {
-          outgoing = amount;
+          outgoing = formattedAmount;
         } else if (toAddress === targetAddress) {
-          ingoing = amount;
+          ingoing = formattedAmount;
         }
       }
     }
@@ -108,9 +114,9 @@ const mapResponseTxn = (data: any, targetAddress: string) => {
 
         // Determine if it's ingoing or outgoing
         if (fromAddress === targetAddress) {
-          outgoing = Number(txn.description.split(" ")[2]);
+          outgoing = txn.description.split(" ")[2];
         } else if (toAddress === targetAddress) {
-          ingoing = Number(txn.description.split(" ")[2]);
+          ingoing = txn.description.split(" ")[2];
         }
       }
     }
@@ -187,7 +193,7 @@ const mapResponseTopAddresses = async (data: any[], targetAddress: string) => {
   return [...topBalances, ...remainingBalances];
 };
 
-// Get the balance of USDC for a target address 
+// Get the balance of USDC for a target address
 export const getBalanceOnUSDC = async (targetAddress: string) => {
   const response = await fetch(
     `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS_KEY}`,
