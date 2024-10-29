@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Wallet } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { fetchCID, handleUploadCID } from "@/app/utils/SmartContract";
+import { fetchCID, handleUploadSetup } from "@/app/utils/SmartContract";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 
 const BackupJson = () => {
@@ -109,7 +109,12 @@ const BackupJson = () => {
       duration: 0,
     });
 
-    let response = await handleUploadCID(connection, wallet, ipfsUrl, "v1.0.1");
+    let response = await handleUploadSetup(
+      connection,
+      wallet,
+      ipfsUrl,
+      "v1.0.1"
+    );
 
     messageApi.destroy();
     if (response.status === "success") {

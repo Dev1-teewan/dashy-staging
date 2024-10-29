@@ -46,4 +46,5 @@ export interface topAddressDataType {
 export interface restoreDataType {
   cid: string;
   version: string;
+  timestamp: number;
 }

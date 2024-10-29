@@ -11,8 +11,8 @@ import { faCloudUpload } from "@fortawesome/free-solid-svg-icons";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
   fetchCID,
-  handleRemoveCID,
-  handleUploadCID,
+  handleRemoveSetup,
+  handleUploadSetup,
 } from "@/app/utils/SmartContract";
 import {
   ClusterType,
@@ -41,6 +41,7 @@ interface CIDData {
   setup: {
     cid: string;
     version: string;
+    timestamp: any;
   }[];
 }
 
@@ -125,7 +126,7 @@ const LoadStorageManagerSC = ({
       content: "Transaction in progress...",
       duration: 0,
     });
-    const response = await handleUploadCID(
+    const response = await handleUploadSetup(
       connection,
       wallet,
       CID,
@@ -150,7 +151,7 @@ const LoadStorageManagerSC = ({
       content: "Deleting CID...",
       duration: 0,
     });
-    const response = await handleRemoveCID(connection, wallet, cidToDelete);
+    const response = await handleRemoveSetup(connection, wallet, cidToDelete);
     messageApi.destroy();
 
     if (response.status === "success") {
@@ -248,6 +249,7 @@ const LoadStorageManagerSC = ({
             (item, index) => ({
               ...item,
               key: item.cid || index, // Use cid if available or fallback to index
+              timestamp: item.timestamp.toNumber(),
             })
           );
           setCid(dataWithKeys);

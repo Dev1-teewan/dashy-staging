@@ -353,14 +353,36 @@ export const balanceColumns: ColumnsType<balanceDataType> = [
 export const restoreColumns: ColumnsType<restoreDataType> = [
   {
     title: "CID",
-    width: "70%",
+    width: "46%",
     key: "cid",
     dataIndex: "cid",
-    render: (_, record) => <>{record.cid}</>,
+    render: (cid) => {
+      const shortCID = `${cid.slice(0, 6)}...${cid.slice(-6)}`;
+      return (
+        <Tooltip className="inline-block" title={cid}>
+          <span className="mr-4">{shortCID}</span>
+        </Tooltip>
+      );
+    },
+  },
+  {
+    title: "Created At",
+    width: "22%",
+    key: "timestamp",
+    dataIndex: "timestamp",
+    render: (timestamp) =>
+      new Date(timestamp * 1000).toLocaleString("en-US", {
+        month: "short", // "Oct"
+        day: "2-digit", // "01"
+        year: "numeric", // "2024"
+        hour: "2-digit", // "21"
+        minute: "2-digit", // "02"
+        hour12: false, // 24-hour format
+      }),
   },
   {
     title: "Version",
-    width: "20%",
+    width: "22%",
     key: "version",
     dataIndex: "version",
   },

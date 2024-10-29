@@ -1,8 +1,14 @@
-import idl from "../assets/idl.json";
+import idl from "@/smart-contract/target/idl/smart_contract.json";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
-import { AnchorProvider, Idl, Program, Wallet } from "@project-serum/anchor";
+import {
+  AnchorProvider,
+  Idl,
+  Program,
+  Wallet,
+  BN,
+} from "@project-serum/anchor";
 
-const programID = new PublicKey("EXw23UNSmLC3abGuUQNvZYv5t93HLGBRpjXEywPWnFBp");
+const programID = new PublicKey(idl.metadata.address);
 
 const getProvider = (connection: Connection, wallet: Wallet) => {
   if (!wallet) {
@@ -40,7 +46,7 @@ export const fetchCID = async (connection: Connection, wallet: Wallet) => {
   }
 };
 
-export const handleUploadCID = async (
+export const handleUploadSetup = async (
   connection: Connection,
   wallet: Wallet,
   cid: String,
@@ -60,8 +66,11 @@ export const handleUploadCID = async (
       program.programId
     );
 
+    // Get the current timestamp in seconds as an i64
+    const timestamp = new BN(Math.floor(Date.now() / 1000));
+
     await program.methods
-      .uploadCid(cid, version)
+      .uploadSetup(cid, version, timestamp)
       .accounts({
         setupAccount: setupAccount,
         signer: anchorProvider.wallet.publicKey,
@@ -76,7 +85,7 @@ export const handleUploadCID = async (
   }
 };
 
-export const handleRemoveCID = async (
+export const handleRemoveSetup = async (
   connection: Connection,
   wallet: Wallet,
   cid: String
@@ -96,7 +105,7 @@ export const handleRemoveCID = async (
     );
 
     await program.methods
-      .removeCid(cid)
+      .removeSetup(cid)
       .accounts({
         setupAccount: setupAccount,
         signer: anchorProvider.wallet.publicKey,

@@ -28,8 +28,8 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import {
   fetchCID,
-  handleRemoveCID,
-  handleUploadCID,
+  handleRemoveSetup,
+  handleUploadSetup,
 } from "@/app/utils/SmartContract";
 
 interface LoadStorageManagerProps {
@@ -148,7 +148,7 @@ const LoadStorageManagerBackup = ({
       duration: 0,
     });
 
-    let response = await handleUploadCID(
+    let response = await handleUploadSetup(
       connection,
       wallet,
       CID,
@@ -181,7 +181,7 @@ const LoadStorageManagerBackup = ({
       duration: 0,
     });
 
-    let response = await handleRemoveCID(connection, wallet, CID);
+    let response = await handleRemoveSetup(connection, wallet, CID);
 
     if (response.status === "success") {
       await pinata.unpin([CID]);
