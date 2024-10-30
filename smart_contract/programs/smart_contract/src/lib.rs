@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 
-declare_id!("7jKRsGXXckMtDpuUUsdxRrU8zaMohyXNKndET1Q8RmEi");
+declare_id!("DashYRE2h6KxNtm3mpss1u2xKNF5YxCqpv8LnXWJnyBp");
+
+const SETUP_LIMIT: usize = 4;
 
 #[program]
 pub mod smart_contract {
@@ -13,6 +15,13 @@ pub mod smart_contract {
         timestamp: i64,
     ) -> Result<()> {
         let setup_account = &mut ctx.accounts.setup_account;
+
+        // Check if the number of setups exceeds the limit
+        if setup_account.setup.len() >= SETUP_LIMIT {
+            return Err(ErrorCode::ReachSetupLimit.into());
+        }
+
+        // Append the new setup to the list
         setup_account.setup.push(Setup {
             cid,
             version,
@@ -66,4 +75,10 @@ pub struct Setup {
     pub cid: String,
     pub version: String,
     pub timestamp: i64,
+}
+
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Reach setup limit")]
+    ReachSetupLimit,
 }
