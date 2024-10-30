@@ -1,10 +1,11 @@
 "use client";
 
-import React, { Suspense } from "react";
-import { Col, Divider, Row } from "antd";
+import React, { Suspense, useState } from "react";
+import { CloseOutlined } from "@ant-design/icons";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import LoadStorageManagerBackup from "../components/settings/LoadStorageManagerBackup";
-import LoadStorageManagerSetting from "../components/settings/LoadStorageManagerSetting";
+import { Button, Col, Divider, message, Modal, Row } from "antd";
+import LoadStorageManagerSC from "../components/dashboard/LoadStorageManagerSC";
+import LoadStorageManagerFile from "../components/dashboard/LoadStorageManagerFile";
 import {
   ClusterType,
   defaultCluster,
@@ -12,6 +13,10 @@ import {
 } from "../utils/Versioning";
 
 const Settings = () => {
+  const [openSC, setOpenSC] = useState(false);
+  const [openFile, setOpenFile] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [localSource, setLocalSource] = useLocalStorage<ClusterType>(
     "dashy",
     defaultCluster
@@ -19,6 +24,7 @@ const Settings = () => {
 
   return (
     <Suspense fallback={"Loading..."}>
+      {contextHolder}
       <div className="max-w-[85vw] w-full">
         <div className="text-left mt-3 mb-7 text-4xl font-bold">
           Settings
@@ -27,21 +33,9 @@ const Settings = () => {
           </div>
         </div>
         <Divider style={{ margin: 0, background: "#A9A9A9" }} />
-        {/* <Tabs
-          type="card"
-          size={"large"}
-          className="mt-5"
-          items={new Array(1).fill(null).map((_, i) => {
-            const id = String(i + 1);
-            return {
-              label: "Import/ Export Setup",
-              key: id,
-              children: `Content of Tab Pane ${id}`,
-            };
-          })}
-        /> */}
+
         <div className="text-2xl mt-4 font-bold underline">
-          Import/ Export Setup
+          Manage Your Configuration
         </div>
         <Row className="items-center">
           <Col span={10}>
@@ -54,12 +48,12 @@ const Settings = () => {
           </Col>
           <Col span={3} />
           <Col span={11} className="items-center">
-            <LoadStorageManagerSetting
-              localSource={localSource}
-              onDataImport={(data) =>
-                setLocalSource(updateToLatestVersion(data))
-              }
-            />
+            <Button
+              className="custom-button !h-[40px]"
+              onClick={() => setOpenFile(true)}
+            >
+              Upload or store setup through JSON file
+            </Button>
           </Col>
         </Row>
         <Divider style={{ margin: 0, background: "#3b3b3b" }} />
@@ -75,14 +69,51 @@ const Settings = () => {
           </Col>
           <Col span={3} />
           <Col span={11} className="items-center">
-            <LoadStorageManagerBackup
-              localSource={localSource}
-              onDataImport={(data) =>
-                setLocalSource(updateToLatestVersion(data))
-              }
-            />
+            <Button className="custom-button" onClick={() => setOpenSC(true)}>
+              Backing up or restore encrypted setup through Smart Contract &
+              IPFS
+            </Button>
           </Col>
         </Row>
+
+        {/* Model for JSON file pop out */}
+        <Modal
+          open={openFile}
+          footer={null}
+          onCancel={() => setOpenFile(false)}
+          title={
+            <span className="text-xl">
+              Manage Your Configuration (JSON File)
+            </span>
+          }
+          closeIcon={<CloseOutlined className="!text-[#f1f1f1] text-xl p-2" />}
+        >
+          <LoadStorageManagerFile
+            localSource={localSource}
+            onDataImport={(data) => setLocalSource(updateToLatestVersion(data))}
+            messageApi={messageApi}
+            onClose={() => setOpenFile(false)}
+          />
+        </Modal>
+
+        {/* Model for Smart Contract pop out */}
+        <Modal
+          open={openSC}
+          footer={null}
+          onCancel={() => setOpenSC(false)}
+          title={
+            <span className="text-xl">
+              Manage Your Configuration (Smart Contract)
+            </span>
+          }
+          closeIcon={<CloseOutlined className="!text-[#f1f1f1] text-xl p-2" />}
+        >
+          <LoadStorageManagerSC
+            localSource={localSource}
+            onDataImport={(data) => setLocalSource(updateToLatestVersion(data))}
+            onClose={() => setOpenSC(false)}
+          />
+        </Modal>
       </div>
     </Suspense>
   );

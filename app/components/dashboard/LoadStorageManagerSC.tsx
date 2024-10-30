@@ -273,7 +273,7 @@ const LoadStorageManagerSC = ({
         encrypt and upload your data to IPFS.
       </div>
       <Button onClick={encryptAndUploadSetup} className="w-full py-3">
-        Backup Local Storage
+        Backup Cluster Data
       </Button>
       <Divider style={{ borderColor: "#003628" }} />
 
@@ -283,7 +283,7 @@ const LoadStorageManagerSC = ({
       </div>
 
       <Button onClick={() => setOpenRestore(true)} className="w-full py-3">
-        Restore Local Storage
+        Restore Cluster Data
       </Button>
 
       <Modal
