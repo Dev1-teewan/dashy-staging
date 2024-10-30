@@ -134,10 +134,11 @@ const LoadStorageManagerSC = ({
     );
     messageApi.destroy();
 
+    const timestamp = Math.floor(Date.now() / 1000);
     if (response.status === "success") {
       setCid((prev) => [
         ...prev,
-        { key: CID, cid: CID, version: latestVersion },
+        { key: CID, cid: CID, version: latestVersion, timestamp },
       ]);
       messageApi.success("Local Storage backup successfully");
     } else {
