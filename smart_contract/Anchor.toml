@@ -4,7 +4,6 @@
 resolution = true
 skip-lint = false
 
-
 [programs.mainnet]
 smart_contract = "DashYRE2h6KxNtm3mpss1u2xKNF5YxCqpv8LnXWJnyBp"
 
