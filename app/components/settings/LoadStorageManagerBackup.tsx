@@ -21,9 +21,9 @@ import {
 
 import bs58 from "bs58";
 import nacl from "tweetnacl";
+import { Wallet } from "@coral-xyz/anchor";
 import { pinata } from "@/app/utils/config";
 import { useSession } from "next-auth/react";
-import { Wallet } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
 import {

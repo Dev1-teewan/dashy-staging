@@ -1,24 +1,100 @@
 {
-  "version": "0.1.0",
-  "name": "smart_contract",
+  "address": "DashYRE2h6KxNtm3mpss1u2xKNF5YxCqpv8LnXWJnyBp",
+  "metadata": {
+    "name": "smart_contract",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
   "instructions": [
     {
-      "name": "uploadSetup",
+      "name": "close_setup",
+      "discriminator": [233, 226, 125, 21, 75, 167, 7, 34],
       "accounts": [
         {
-          "name": "setupAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "setup_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [115, 101, 116, 117, 112]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
         },
         {
           "name": "signer",
-          "isMut": true,
-          "isSigner": true
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "remove_setup",
+      "discriminator": [140, 31, 172, 150, 230, 71, 89, 79],
+      "accounts": [
+        {
+          "name": "setup_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [115, 101, 116, 117, 112]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
         },
         {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
+          "name": "signer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "cid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "upload_setup",
+      "discriminator": [65, 74, 1, 188, 137, 42, 74, 160],
+      "accounts": [
+        {
+          "name": "setup_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [115, 101, 116, 117, 112]
+              },
+              {
+                "kind": "account",
+                "path": "signer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
@@ -35,61 +111,19 @@
           "type": "i64"
         }
       ]
-    },
-    {
-      "name": "removeSetup",
-      "accounts": [
-        {
-          "name": "setupAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "signer",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "cid",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "closeSetup",
-      "accounts": [
-        {
-          "name": "setupAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        }
-      ],
-      "args": []
     }
   ],
   "accounts": [
     {
       "name": "SetupAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "setup",
-            "type": {
-              "vec": {
-                "defined": "Setup"
-              }
-            }
-          }
-        ]
-      }
+      "discriminator": [94, 41, 149, 214, 37, 241, 185, 55]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ReachSetupLimit",
+      "msg": "Reach setup limit"
     }
   ],
   "types": [
@@ -112,16 +146,24 @@
           }
         ]
       }
-    }
-  ],
-  "errors": [
+    },
     {
-      "code": 6000,
-      "name": "ReachSetupLimit",
-      "msg": "Reach setup limit"
+      "name": "SetupAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "setup",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Setup"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
-  ],
-  "metadata": {
-    "address": "DashYRE2h6KxNtm3mpss1u2xKNF5YxCqpv8LnXWJnyBp"
-  }
+  ]
 }

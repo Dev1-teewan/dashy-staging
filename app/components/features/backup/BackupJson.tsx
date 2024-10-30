@@ -3,9 +3,9 @@
 import bs58 from "bs58";
 import nacl from "tweetnacl";
 import { Button, message } from "antd";
+import { Wallet } from "@coral-xyz/anchor";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Wallet } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { fetchCID, handleUploadSetup } from "@/app/utils/SmartContract";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";

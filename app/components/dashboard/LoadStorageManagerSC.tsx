@@ -1,7 +1,7 @@
 import bs58 from "bs58";
 import nacl from "tweetnacl";
+import { Wallet } from "@coral-xyz/anchor";
 import { useSession } from "next-auth/react";
-import { Wallet } from "@project-serum/anchor";
 import React, { useState, useEffect } from "react";
 import { restoreColumns } from "../features/TableColumns";
 import { useWallet } from "@solana/wallet-adapter-react";

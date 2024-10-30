@@ -1,14 +1,6 @@
 import idl from "../assets/smart_contract.json";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
-import {
-  AnchorProvider,
-  Idl,
-  Program,
-  Wallet,
-  BN,
-} from "@project-serum/anchor";
-
-const programID = new PublicKey(idl.metadata.address);
+import { AnchorProvider, Idl, Program, Wallet, BN } from "@coral-xyz/anchor";
 
 const getProvider = (connection: Connection, wallet: Wallet) => {
   if (!wallet) {
@@ -25,7 +17,7 @@ const getProvider = (connection: Connection, wallet: Wallet) => {
 export const fetchCID = async (connection: Connection, wallet: Wallet) => {
   try {
     const anchorProvider = getProvider(connection, wallet);
-    const program = new Program(idl as Idl, programID, anchorProvider);
+    const program = new Program(idl as Idl, anchorProvider);
 
     const setupSeeds = [
       Buffer.from("setup"),
@@ -37,7 +29,9 @@ export const fetchCID = async (connection: Connection, wallet: Wallet) => {
       program.programId
     );
 
-    const cidData = await program.account.setupAccount.fetch(setupAccount);
+    const cidData = await (program.account as any).setupAccount.fetch(
+      setupAccount
+    );
 
     return { status: "success", data: cidData };
   } catch (error) {
@@ -54,7 +48,7 @@ export const handleUploadSetup = async (
 ) => {
   try {
     const anchorProvider = getProvider(connection, wallet);
-    const program = new Program(idl as Idl, programID, anchorProvider);
+    const program = new Program(idl as Idl, anchorProvider);
 
     const setupSeeds = [
       Buffer.from("setup"),
@@ -92,7 +86,7 @@ export const handleRemoveSetup = async (
 ) => {
   try {
     const anchorProvider = getProvider(connection, wallet);
-    const program = new Program(idl as Idl, programID, anchorProvider);
+    const program = new Program(idl as Idl, anchorProvider);
 
     const setupSeeds = [
       Buffer.from("setup"),
