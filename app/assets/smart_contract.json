@@ -1,0 +1,120 @@
+{
+  "version": "0.1.0",
+  "name": "smart_contract",
+  "instructions": [
+    {
+      "name": "uploadSetup",
+      "accounts": [
+        {
+          "name": "setupAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "cid",
+          "type": "string"
+        },
+        {
+          "name": "version",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "removeSetup",
+      "accounts": [
+        {
+          "name": "setupAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "cid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "closeSetup",
+      "accounts": [
+        {
+          "name": "setupAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "signer",
+          "isMut": true,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "SetupAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "setup",
+            "type": {
+              "vec": {
+                "defined": "Setup"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Setup",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "cid",
+            "type": "string"
+          },
+          {
+            "name": "version",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "address": "7jKRsGXXckMtDpuUUsdxRrU8zaMohyXNKndET1Q8RmEi"
+  }
+}

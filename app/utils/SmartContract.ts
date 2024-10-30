@@ -1,4 +1,4 @@
-import idl from "@/smart-contract/target/idl/smart_contract.json";
+import idl from "../assets/smart_contract.json";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
   AnchorProvider,
